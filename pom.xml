@@ -14,4 +14,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <packaging>war</packaging>
+
+    <dependencies>
+        <!-- SQL Server JDBC Driver -->
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>12.6.1.jre11</version> <!-- or .jre11 if using Java 11 -->
+        </dependency>
+    </dependencies>
+
 </project>
