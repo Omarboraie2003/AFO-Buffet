@@ -1,8 +1,6 @@
 package org.example.model.user;
-
 import org.example.model.user.UserModel;
 import org.example.util.DBConnection;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
