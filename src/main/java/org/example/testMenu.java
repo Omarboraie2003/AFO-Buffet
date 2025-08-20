@@ -26,8 +26,7 @@ public class testMenu {
             // === Update Item ===
             System.out.println("\n=== Updating Item ===");
             // Example: update BBQ Burger price to 80.0 and make it inactive
-            controller.deleteItem(2);
-            controller.addItem("nuggets wrap","chicken nuggets,bread,lettuce,tomato",90,true,"special");
+            controller.updateItem(3,"Mix Cheese Pizza","Mozzarella, Cheddar, Parmesan, Gouda",50,true,"Normal","Plates");
 
 
 

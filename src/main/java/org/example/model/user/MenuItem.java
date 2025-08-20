@@ -8,16 +8,18 @@ public class MenuItem {
     private double price;
     private boolean available;
     private String type;
+    private String category;
 
     // Constructors
     public MenuItem() {}
-    public MenuItem(int id, String name, String description, double price, boolean available, String type) {
+    public MenuItem(int id, String name, String description, double price, boolean available, String type,String category) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.available = available;
         this.type = type;
+        this.category = category;
     }
 
     // Getters & Setters
@@ -38,4 +40,7 @@ public class MenuItem {
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 }

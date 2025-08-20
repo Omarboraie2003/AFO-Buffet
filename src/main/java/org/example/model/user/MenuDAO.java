@@ -27,13 +27,14 @@ public class MenuDAO {
 
     // Add new item
     public void addMenuItem(MenuItem item) throws SQLException {
-        String sql = "INSERT INTO MenuItems (name, description, price, available, type) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO MenuItems (name, description, price, available, type, category) VALUES (?, ?, ?, ?, ?, ?)";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setString(1, item.getName());
         ps.setString(2, item.getDescription());
         ps.setDouble(3, item.getPrice());
         ps.setBoolean(4, item.isAvailable());
         ps.setString(5, item.getType());
+        ps.setString(6, item.getCategory());
         ps.executeUpdate();
     }
 
@@ -50,7 +51,8 @@ public class MenuDAO {
                     rs.getString("description"),
                     rs.getDouble("price"),
                     rs.getBoolean("available"),
-                    rs.getString("type")
+                    rs.getString("type"),
+                    rs.getString("category")
             ));
         }
         return items;
@@ -69,7 +71,8 @@ public class MenuDAO {
                     rs.getString("description"),
                     rs.getDouble("price"),
                     rs.getBoolean("available"),
-                    rs.getString("type")
+                    rs.getString("type"),
+                    rs.getString("category")
             ));
         }
         return items;
@@ -77,14 +80,15 @@ public class MenuDAO {
 
     // Update item
     public void updateMenuItem(MenuItem item) throws SQLException {
-        String sql = "UPDATE MenuItems SET name=?, description=?, price=?, available=?, type=? WHERE id=?";
+        String sql = "UPDATE MenuItems SET name=?, description=?, price=?, available=?, type=?, category=? WHERE id=?";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setString(1, item.getName());
         ps.setString(2, item.getDescription());
         ps.setDouble(3, item.getPrice());
         ps.setBoolean(4, item.isAvailable());
         ps.setString(5, item.getType());
-        ps.setInt(6, item.getId());
+        ps.setString(6, item.getCategory());
+        ps.setInt(7, item.getId());
         ps.executeUpdate();
     }
 
