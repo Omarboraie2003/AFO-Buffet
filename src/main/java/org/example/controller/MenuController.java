@@ -19,25 +19,34 @@ public class MenuController {
         this.menuDAO = menuDAO;
     }
 
-    public void addItem(String name, String desc, double price, boolean available) throws SQLException {
-        MenuItem item = new MenuItem(0, name, desc, price, available);
+    // ✅ Add item with type
+    public void addItem(String name, String desc, double price, boolean available, String type) throws SQLException {
+        MenuItem item = new MenuItem(0, name, desc, price, available, type);
         menuDAO.addMenuItem(item);
     }
 
+    // ✅ Show menu for employee (include type)
     public void showMenuForEmployee() throws SQLException {
         for (MenuItem item : menuDAO.getAvailableMenuItems()) {
-            System.out.println(item.getName() + " - " + item.getPrice());
+            System.out.println(item.getType() + " | " + item.getName() + " - " + item.getPrice());
         }
     }
 
+    // ✅ Show menu for chef (include type)
     public void showMenuForChef() throws SQLException {
         for (MenuItem item : menuDAO.getAllMenuItems()) {
-            System.out.println(item.getId() + " | " + item.getName() + " | " + item.getPrice() + " | Available: " + item.isAvailable());
+            System.out.println(
+                    item.getId() + " | " +
+                            item.getType() + " | " +
+                            item.getName() + " | " +
+                            item.getPrice() + " | Available: " + item.isAvailable()
+            );
         }
     }
 
-    public void updateItem(int id, String name,String description, double price,  boolean available) throws SQLException {
-        MenuItem item = new MenuItem(id, name, description, price, available);
+    // ✅ Update item with type
+    public void updateItem(int id, String name, String description, double price, boolean available, String type) throws SQLException {
+        MenuItem item = new MenuItem(id, name, description, price, available, type);
         menuDAO.updateMenuItem(item);
     }
 
