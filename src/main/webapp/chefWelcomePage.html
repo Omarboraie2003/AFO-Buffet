@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome, Chef</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            height: 100vh;
+            /* Updated background properties to cover entire screen while showing all bowls */
+            background-image: url('images/ChefWelcomePage.jpg');
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Simplified main container since background image contains everything */
+        .main-container {
+            display: flex;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Removed all food-items and food-bowl styles since they're in the background image */
+
+        .main-content {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            color: #2c2c2c;
+            margin-bottom: 80px;
+            font-weight: normal;
+            letter-spacing: 1px;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .chef-button {
+            background-color: #e8e8e8;
+            border: 3px solid #2c2c2c;
+            border-radius: 50px;
+            padding: 20px 50px;
+            font-size: 1.3rem;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            color: #2c2c2c;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 250px;
+        }
+
+        .chef-button:hover {
+            background-color: #d5d5d5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .chef-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            /* Simplified responsive layout since no food items sidebar */
+            .main-container {
+                padding: 20px;
+            }
+
+            .welcome-title {
+                font-size: 2.5rem;
+                margin-bottom: 60px;
+            }
+
+            .button-container {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+            }
+
+            .chef-button {
+                font-size: 1.1rem;
+                padding: 18px 40px;
+                min-width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-title {
+                font-size: 2rem;
+                margin-bottom: 40px;
+            }
+
+            .chef-button {
+                font-size: 1rem;
+                padding: 15px 35px;
+                min-width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Removed food-items div since everything is in the background image -->
+<div class="main-container">
+    <div class="main-content">
+        <h1 class="welcome-title">Welcome, Chef</h1>
+
+        <div class="button-container">
+            <a href="#" class="chef-button">Manage Menu</a>
+            <a href="#" class="chef-button">View Orders</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
