@@ -1,8 +1,6 @@
 package org.example;
 
 import org.example.controller.MenuController;
-import org.example.model.user.MenuDAO;
-import org.example.model.user.MenuItem;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

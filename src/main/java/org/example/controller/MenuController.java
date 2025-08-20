@@ -1,8 +1,8 @@
 package org.example.controller;
 
 
-import org.example.model.user.MenuDAO;
-import org.example.model.user.MenuItem;
+import org.example.model.MenuItem.MenuDAO;
+import org.example.model.MenuItem.MenuItem;
 
 import java.sql.SQLException;
 import java.util.List;
