@@ -21,21 +21,40 @@ public class LoginServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
-        response.setContentType("text/plain;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-
         try {
             if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+                // Send error message as text response
+                response.setContentType("text/plain;charset=UTF-8");
+                PrintWriter out = response.getWriter();
                 out.print("Username or password missing");
-            } else if (userDAO.validateUser(username, password)) {
-                out.print("Access authorized");
+                out.close();
             } else {
-                out.print("Access denied");
+                // Get access level (returns null if user invalid)
+                String accessLevel = userDAO.validateUser(username, password);
+
+                if (accessLevel != null) {
+                    // Successful login - redirect based on access level
+                    // Don't set content type when redirecting
+                    if ("chef".equalsIgnoreCase(accessLevel)) {
+                        response.sendRedirect("chefWelcomePage.html");
+                    } else {
+                        // User is an employee
+                        response.sendRedirect("employeeHomePage.html");
+                    }
+                } else {
+                    // Send error message as text response
+                    response.setContentType("text/plain;charset=UTF-8");
+                    PrintWriter out = response.getWriter();
+                    out.print("Access denied");
+                    out.close();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            // Send error message as text response
+            response.setContentType("text/plain;charset=UTF-8");
+            PrintWriter out = response.getWriter();
             out.print("Error: " + e.getMessage());
-        } finally {
             out.close();
         }
     }
