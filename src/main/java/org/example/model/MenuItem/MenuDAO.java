@@ -1,9 +1,8 @@
-package org.example.model.user;
+package org.example.model.MenuItem;
 
 import java.sql.*;
 import java.util.*;
 
-import org.example.util.DBConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 

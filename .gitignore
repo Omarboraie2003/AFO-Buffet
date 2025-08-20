@@ -13,6 +13,9 @@ pom.xml
 *.iml
 *.ipr
 
+### maven ###
+pom.xml
+
 ### Eclipse ###
 .apt_generated
 .classpath

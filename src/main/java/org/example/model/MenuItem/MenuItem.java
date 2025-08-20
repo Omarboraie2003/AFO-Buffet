@@ -1,4 +1,4 @@
-package org.example.model.user;
+package org.example.model.MenuItem;
 
 
 public class MenuItem {
