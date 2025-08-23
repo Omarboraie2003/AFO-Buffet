@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import org.example.model.MenuItem.MenuDAO;
 import org.example.model.MenuItem.MenuItem;
 
@@ -18,9 +19,26 @@ public class MenuServlet extends HttpServlet {
     private final MenuDAO menuDAO = new MenuDAO();
     private final Gson gson = new Gson();
 
+    private void setCorsHeaders(HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        setCorsHeaders(response);
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        setCorsHeaders(response);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
 
         String category = request.getParameter("category");
         String availableParam = request.getParameter("available");
@@ -57,35 +75,32 @@ public class MenuServlet extends HttpServlet {
                 }
             }
 
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(gson.toJson(items));
 
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\":\"Database error\"}");
+            response.getWriter().write("{\"error\":\"Database error: " + e.getMessage() + "\"}");
             e.printStackTrace();
         }
     }
-
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        setCorsHeaders(response);
         response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
 
         try {
             MenuItem newItem = gson.fromJson(request.getReader(), MenuItem.class);
 
-            if (newItem.getName() == null || newItem.getName().trim().isEmpty() ||
-                    newItem.getDescription() == null || newItem.getDescription().trim().isEmpty() ||
-                    newItem.getPrice() <= 0 ||
-                    newItem.getCategory() == null || newItem.getCategory().trim().isEmpty() ||
-                    newItem.getType() == null || newItem.getType().trim().isEmpty()) {
-
+            String validationError = validateMenuItem(newItem, false);
+            if (validationError != null) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write(gson.toJson(
-                        Map.of("success", false, "message", "Invalid input")
+                        Map.of("success", false, "message", validationError)
                 ));
                 return;
             }
@@ -93,19 +108,152 @@ public class MenuServlet extends HttpServlet {
             boolean added = menuDAO.addMenuItem(newItem);
 
             if (added) {
+                response.setStatus(HttpServletResponse.SC_CREATED);
                 response.getWriter().write(gson.toJson(Map.of("success", true)));
             } else {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 response.getWriter().write(gson.toJson(
                         Map.of("success", false, "message", "Failed to add item")
                 ));
             }
 
+        } catch (JsonSyntaxException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(gson.toJson(
+                    Map.of("success", false, "message", "Invalid JSON format")
+            ));
         } catch (Exception e) {
             e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write(gson.toJson(
-                    Map.of("success", false, "message", "Server error")
+                    Map.of("success", false, "message", "Server error: " + e.getMessage())
             ));
         }
     }
-}
 
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        setCorsHeaders(response);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        try {
+            MenuItem updatedItem = gson.fromJson(request.getReader(), MenuItem.class);
+
+            String validationError = validateMenuItem(updatedItem, true);
+            if (validationError != null) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write(gson.toJson(
+                        Map.of("success", false, "message", validationError)
+                ));
+                return;
+            }
+
+            boolean updated = menuDAO.updateMenuItem(updatedItem);
+
+            if (updated) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write(gson.toJson(Map.of("success", true)));
+            } else {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().write(gson.toJson(
+                        Map.of("success", false, "message", "Item not found or failed to update")
+                ));
+            }
+
+        } catch (JsonSyntaxException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(gson.toJson(
+                    Map.of("success", false, "message", "Invalid JSON format")
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write(gson.toJson(
+                    Map.of("success", false, "message", "Server error: " + e.getMessage())
+            ));
+        }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        setCorsHeaders(response);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        String idParam = request.getParameter("id");
+
+        if (idParam == null || idParam.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(gson.toJson(
+                    Map.of("success", false, "message", "Item ID is required")
+            ));
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idParam);
+            System.out.println("Attempting to delete item with ID: " + id);
+            boolean deleted = menuDAO.deleteMenuItem(id);
+            System.out.println("DAO deleteMenuItem returned: " + deleted);
+
+            if (deleted) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write(gson.toJson(Map.of("success", true)));
+            } else {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().write(gson.toJson(
+                        Map.of("success", false, "message", "Item not found")
+                ));
+            }
+
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(gson.toJson(
+                    Map.of("success", false, "message", "Invalid item ID format")
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write(gson.toJson(
+                    Map.of("success", false, "message", "Server error: " + e.getMessage())
+            ));
+        }
+    }
+
+    private String validateMenuItem(MenuItem item, boolean requireId) {
+        if (item == null) {
+            return "Menu item data is required";
+        }
+
+        if (requireId && item.getId() <= 0) {
+            return "Valid item ID is required";
+        }
+
+        if (item.getName() == null || item.getName().trim().isEmpty()) {
+            return "Item name is required";
+        }
+
+        if (item.getDescription() == null || item.getDescription().trim().isEmpty()) {
+            return "Item description is required";
+        }
+
+        if (item.getPrice() <= 0) {
+            return "Item price must be greater than 0";
+        }
+
+        if (item.getCategory() == null || item.getCategory().trim().isEmpty()) {
+            return "Item category is required";
+        }
+
+        if (item.getType() == null || item.getType().trim().isEmpty()) {
+            return "Item type is required";
+        }
+
+        return null; // No validation errors
+    }
+}

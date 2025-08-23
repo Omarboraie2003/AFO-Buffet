@@ -70,7 +70,7 @@ public class MenuDAO {
     }
 
     // Update item
-    public void updateMenuItem(MenuItem item) throws SQLException {
+    public boolean updateMenuItem(MenuItem item) throws SQLException {
         String sql = "UPDATE MenuItems SET name=?, description=?, price=?, available=?, type=?, category=? WHERE id=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -81,17 +81,17 @@ public class MenuDAO {
             ps.setString(5, item.getType());
             ps.setString(6, item.getCategory());
             ps.setInt(7, item.getId());
-            ps.executeUpdate();
+            return ps.executeUpdate() > 0;
         }
     }
 
     // Delete item
-    public void deleteMenuItem(int id) throws SQLException {
+    public boolean deleteMenuItem(int id) throws SQLException {
         String sql = "DELETE FROM MenuItems WHERE id=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
-            ps.executeUpdate();
+            return ps.executeUpdate() > 0;
         }
     }
 

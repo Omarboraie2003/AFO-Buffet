@@ -280,6 +280,75 @@
     </form>
 </div>
 
+<!-- Added edit form modal for editing existing items -->
+<div id="editItemFormContainer" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:15px; box-shadow:0 8px 32px rgba(0,0,0,0.3); z-index:1000; width:90%; max-width:500px;">
+    <h3 style="margin-bottom:20px; color:#333; text-align:center;">Edit Menu Item</h3>
+    <form id="editItemForm" style="display:flex; flex-direction:column; gap:15px;">
+        <input type="hidden" id="editItemId" name="id">
+
+        <div>
+            <label for="editItemName" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Name:</label>
+            <input type="text" id="editItemName" name="name" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+        </div>
+
+        <div>
+            <label for="editItemDescription" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Description:</label>
+            <textarea id="editItemDescription" name="description" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px; min-height:80px; resize:vertical;"></textarea>
+        </div>
+
+        <div>
+            <label for="editItemPrice" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Price:</label>
+            <input type="number" id="editItemPrice" name="price" step="0.01" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+        </div>
+
+        <div>
+            <label for="editItemCategory" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Category:</label>
+            <select id="editItemCategory" name="category" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+                <option value="">Select Category</option>
+                <option value="Salads">Salads</option>
+                <option value="Breakfast">Breakfast</option>
+                <option value="Sandwiches">Sandwiches</option>
+                <option value="Meal">Meal</option>
+                <option value="Extras">Extras</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="editItemAvailable" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Available:</label>
+            <select id="editItemAvailable" name="available" style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="editItemType" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Type:</label>
+            <select id="editItemType" name="type" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+                <option value="normal">Normal</option>
+                <option value="special">Special Item</option>
+            </select>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button type="submit" style="flex:1; padding:12px; background:linear-gradient(135deg,#4CAF50,#45a049); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Update Item</button>
+            <button type="button" id="deleteItemBtn" style="flex:1; padding:12px; background:linear-gradient(135deg,#f44336,#d32f2f); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Delete Item</button>
+            <button type="button" id="cancelEditItem" style="flex:1; padding:12px; background:#f5f5f5; color:#333; border:2px solid #ddd; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<!-- Added confirmation dialog for delete action -->
+<div id="deleteConfirmDialog" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:15px; box-shadow:0 8px 32px rgba(0,0,0,0.3); z-index:1001; width:90%; max-width:400px; text-align:center;">
+    <div style="width:60px; height:60px; background:linear-gradient(135deg,#f44336,#d32f2f); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; color:white; font-size:24px; font-weight:bold;">!</div>
+    <h3 style="margin-bottom:15px; color:#333; font-size:20px;">Confirm Deletion</h3>
+    <p style="margin-bottom:25px; color:#666; line-height:1.5;">Are you sure you want to delete "<span id="deleteItemName" style="font-weight:600; color:#333;"></span>"?</p>
+    <p style="margin-bottom:25px; color:#f44336; font-size:14px; font-style:italic;">This action cannot be undone.</p>
+    <div style="display:flex; gap:15px; justify-content:center;">
+        <button id="confirmDeleteBtn" style="padding:12px 24px; background:linear-gradient(135deg,#f44336,#d32f2f); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Yes, Delete</button>
+        <button id="cancelDeleteBtn" style="padding:12px 24px; background:#f5f5f5; color:#333; border:2px solid #ddd; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Cancel</button>
+    </div>
+</div>
+
 <!-- Added overlay background for modal -->
 <div id="modalOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999;"></div>
 
@@ -302,15 +371,14 @@
             url += '?' + params.join('&');
         }
 
-
         fetch(url)
             .then(res => {
-                console.log('[v0] Response status:', res.status); // Debug log
+                console.log('[v0] Response status:', res.status);
                 return res.json();
             })
             .then(data => {
-                console.log('[v0] Received data:', data); // Debug log
-                console.log('[v0] Number of items received:', data.length); // Debug log
+                console.log('[v0] Received data:', data);
+                console.log('[v0] Number of items received:', data.length);
                 const grid = document.querySelector('.products-grid');
                 grid.innerHTML = '';
                 if (data.length === 0) {
@@ -318,9 +386,10 @@
                     return;
                 }
                 data.forEach(item => {
-                    console.log('[v0] Processing item:', item.name, 'category:', item.category, 'available:', item.available); // Debug log
+                    console.log('[v0] Processing item:', item.name, 'category:', item.category, 'available:', item.available);
                     const card = document.createElement('div');
                     card.className = 'product-card';
+                    card.addEventListener('click', () => openEditForm(item));
 
                     const imageDiv = document.createElement('div');
                     imageDiv.className = 'product-image';
@@ -370,6 +439,34 @@
                 const grid = document.querySelector('.products-grid');
                 grid.innerHTML = '<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">Error loading items: ' + err.message + '</p>';
             });
+    }
+
+    function openEditForm(item) {
+        console.log('[v0] Opening edit form for item:', item.name);
+        document.getElementById('editItemId').value = item.id;
+        document.getElementById('editItemName').value = item.name;
+        document.getElementById('editItemDescription').value = item.description;
+        document.getElementById('editItemPrice').value = item.price;
+        document.getElementById('editItemCategory').value = item.category;
+        document.getElementById('editItemAvailable').value = item.available.toString();
+        document.getElementById('editItemType').value = item.type || 'normal';
+
+        document.getElementById('editItemFormContainer').style.display = 'block';
+        document.getElementById('modalOverlay').style.display = 'block';
+    }
+
+    function hideEditForm() {
+        document.getElementById('editItemFormContainer').style.display = 'none';
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    function showDeleteConfirmation(itemName) {
+        document.getElementById('deleteItemName').textContent = itemName;
+        document.getElementById('deleteConfirmDialog').style.display = 'block';
+    }
+
+    function hideDeleteConfirmation() {
+        document.getElementById('deleteConfirmDialog').style.display = 'none';
     }
 
     function getAvailabilityState() {
@@ -506,6 +603,96 @@
             });
     });
 
+    document.getElementById('cancelEditItem').addEventListener('click', hideEditForm);
+
+    document.getElementById('editItemForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const id = document.getElementById('editItemId').value;
+        const name = document.getElementById('editItemName').value.trim();
+        const description = document.getElementById('editItemDescription').value.trim();
+        const price = parseFloat(document.getElementById('editItemPrice').value);
+        const category = document.getElementById('editItemCategory').value.trim();
+        const available = document.getElementById('editItemAvailable').value === 'true';
+        const type = document.getElementById('editItemType').value;
+
+        if (!name || !description || !category || isNaN(price) || price < 0) {
+            showToast('error', 'Validation Error', 'Please fill all fields correctly and ensure price is valid.');
+            return;
+        }
+
+        const menuItem = {
+            id: parseInt(id),
+            name: name,
+            description: description,
+            price: price,
+            category: category,
+            available: available,
+            type: type
+        };
+
+        fetch(contextPath + '/menu-items', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(menuItem)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Item Updated Successfully!', `"${name}" has been updated.`);
+                    hideEditForm();
+                    const activeCategoryBtn = document.querySelector('.category-btn.active');
+                    let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
+                    if (activeCategory === 'All') activeCategory = null;
+                    const available = getAvailabilityState();
+                    loadMenu(activeCategory, available);
+                } else {
+                    showToast('error', 'Failed to Update Item', data.message || 'An unexpected error occurred. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
+            });
+    });
+
+    document.getElementById('deleteItemBtn').addEventListener('click', () => {
+        const itemName = document.getElementById('editItemName').value;
+        showDeleteConfirmation(itemName);
+    });
+
+    document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteConfirmation);
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+        const id = document.getElementById('editItemId').value;
+        const itemName = document.getElementById('editItemName').value;
+
+        fetch(contextPath + '/menu-items?id=' + id, {
+            method: 'DELETE'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Item Deleted Successfully!', `"${itemName}" has been removed from the menu.`);
+                    hideDeleteConfirmation();
+                    hideEditForm();
+                    const activeCategoryBtn = document.querySelector('.category-btn.active');
+                    let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
+                    if (activeCategory === 'All') activeCategory = null;
+                    const available = getAvailabilityState();
+                    loadMenu(activeCategory, available);
+                } else {
+                    showToast('error', 'Failed to Delete Item', data.message || 'An unexpected error occurred. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
+            });
+    });
+
     function showToast(type, title, message) {
         const container = document.getElementById('toastContainer');
 
@@ -545,4 +732,3 @@
 </script>
 </body>
 </html>
-
