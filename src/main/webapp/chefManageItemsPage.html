@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buffet Menu</title>
+    <style>
+        /* Your existing CSS remains unchanged */
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 50%,#1a1a1a 100%);min-height:100vh}
+        .container{max-width:1400px;margin:0 auto;padding:20px}
+        .header{margin-bottom:30px}
+        .nav-frame{background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-radius:15px;padding:15px 20px;box-shadow:0 8px 32px rgba(255,131,0,0.3);border:1px solid rgba(255,131,0,0.2);display:flex;align-items:center;justify-content:space-between;width:100%}
+        .home-icon{width:35px;height:35px;background:linear-gradient(135deg,#ff8300,#ffaa00);border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(255,131,0,0.3);overflow:hidden;cursor:pointer;transition:all 0.2s ease;text-decoration:none;border:1px solid rgba(255,131,0,0.3)}
+        .home-icon:hover{transform:scale(1.05);box-shadow:0 6px 16px rgba(255,131,0,0.4);background:linear-gradient(135deg,#ffaa00,#ff8300)}
+        .home-icon img{width:100%;height:100%;object-fit:cover}
+        .nav-buttons{display:flex;gap:15px}
+        .nav-btn{padding:12px 40px;border:2px solid #ccc;border-radius:25px;background-color:white;font-size:16px;cursor:pointer;transition:all 0.3s ease;text-decoration:none;display:inline-block}
+        .nav-btn.active{border-color:#ff8300;color:white;background:linear-gradient(135deg,#ff8300,#ffaa00);box-shadow:0 4px 12px rgba(255,131,0,0.3)}
+        .nav-btn:hover{border-color:#ff8300;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.15);color:#ff8300}
+        .main-content{display:grid;grid-template-columns:1fr 280px;gap:30px;margin-bottom:30px;max-width:1200px;margin-left:auto;margin-right:auto}
+        .featured-section{background:linear-gradient(135deg,#1a1a1a 0%,#333333 100%);border-radius:20px;padding:30px;display:flex;align-items:center;justify-content:space-between;min-height:180px;max-height:220px;color:white;position:relative;overflow:hidden;border:1px solid rgba(255,131,0,0.2)}
+        .featured-section::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,131,0,0.1) 0%,transparent 70%);animation:float 6s ease-in-out infinite}
+        @keyframes float{0%,100%{transform:translateY(0px) rotate(0deg)}50%{transform:translateY(-10px) rotate(180deg)}}
+        .featured-text{flex:1;position:relative;z-index:2}
+        .featured-text h2{font-size:24px;color:rgba(255,255,255,0.9);margin-bottom:10px;font-weight:400}
+        .featured-text h1{font-size:36px;color:#ff8300;font-weight:700;font-style:italic;text-shadow:0 2px 4px rgba(0,0,0,0.3)}
+        .featured-image{flex:1;display:flex;justify-content:center;align-items:center;max-width:250px;min-height:120px;background:rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.7);font-style:italic;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);position:relative;z-index:2}
+        .featured-image::after{content:"Featured Image"}
+        .featured-image img{width:100%;height:auto;border-radius:15px}
+        .new-item-section{background:linear-gradient(135deg,#4a4a4a,#333);border-radius:20px;padding:25px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:white;cursor:pointer;transition:all 0.3s ease;height:220px}
+        .new-item-section:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.2)}
+        .plus-icon{width:50px;height:50px;border-radius:50%;background-color:#333;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:15px}
+        .new-item-section h3{font-size:18px;font-weight:500}
+        .category-filters{display:flex;gap:15px;margin-bottom:30px;align-items:center;flex-wrap:wrap;justify-content:center;background:rgba(255,255,255,0.9);backdrop-filter:blur(20px);padding:20px;border-radius:15px;box-shadow:0 8px 32px rgba(0,0,0,0.1);border:1px solid rgba(255,255,255,0.2)}
+        .category-btn{padding:10px 25px;border:2px solid #ccc;border-radius:20px;background-color:white;font-size:14px;cursor:pointer;transition:all 0.3s ease}
+        .category-btn.active{border-color:#ff6b35;color:#ff6b35;background-color:rgba(255,107,53,0.05);transform:translateY(-1px)}
+        .category-btn:hover{border-color:#ff6b35;transform:translateY(-1px);box-shadow:0 4px 8px rgba(0,0,0,0.1)}
+        .availability-toggle{display:flex;align-items:center;gap:10px}
+        .toggle-switch{width:50px;height:25px;background-color:#ff9500;border-radius:15px;position:relative;cursor:pointer;transition:all 0.3s ease}
+        .toggle-switch.off{background-color:#ccc}
+        .toggle-switch::after{content:'';width:21px;height:21px;background-color:white;border-radius:50%;position:absolute;top:2px;right:2px;transition:all 0.3s ease}
+        .toggle-switch.off::after{right:calc(100% - 23px)}
+        .products-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+        .product-card{background-color:white;border-radius:15px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);transition:all 0.3s ease;cursor:pointer;display:flex;flex-direction:column}
+        .product-card:hover{transform:translateY(-8px);box-shadow:0 12px 24px rgba(0,0,0,0.15)}
+        .product-image{width:100%;height:200px;background-color:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999}
+        .product-details{padding:15px;flex:1;display:flex;flex-direction:column;align-items:center;text-align:center}
+        .product-name{font-size:16px;font-weight:500;color:#333;margin-bottom:5px}
+        .product-desc{font-size:14px;color:#555;margin-bottom:5px}
+        .product-price{font-size:15px;font-weight:600;color:#ff8300;margin-bottom:5px}
+        .product-availability{font-size:13px;color:green;font-weight:500}
+        .product-availability.unavailable{color:red}
+
+        /* Added beautiful toast notification styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 320px;
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left-color: #4CAF50;
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(255, 255, 255, 0.95));
+        }
+
+        .toast.error {
+            border-left-color: #f44336;
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.1), rgba(255, 255, 255, 0.95));
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .toast.success .toast-icon {
+            background: #4CAF50;
+        }
+
+        .toast.error .toast-icon {
+            background: #f44336;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 2px;
+            color: #333;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .toast-close:hover {
+            background: rgba(0, 0, 0, 0.2);
+            transform: scale(1.1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-frame">
+            <a href="chefWelcomePage.html" class="home-icon"><img src="images/home.jpg" alt="Home"></a>
+            <div class="nav-buttons">
+                <a href="chefManageItemsPage.html" class="nav-btn active">Menu</a>
+                <a href="orders.html" class="nav-btn">Orders</a>
+            </div>
+            <div></div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="featured-section">
+            <div class="featured-text">
+                <h2>Today's special</h2>
+                <h1>Chicken strips</h1>
+            </div>
+            <div class="featured-image"></div>
+        </div>
+        <div class="new-item-section">
+            <div class="plus-icon" id="addNewItemBtn">+</div>
+            <h3>New Item</h3>
+        </div>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="category-filters">
+        <button class="category-btn" data-category="All">All</button>
+        <button class="category-btn">Salads</button>
+        <button class="category-btn">Breakfast</button>
+        <button class="category-btn active">Sandwiches</button>
+        <button class="category-btn">Meal</button>
+        <button class="category-btn">Extras</button>
+        <div class="availability-toggle">
+            <span>Available</span>
+            <div class="toggle-switch"></div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid"></div>
+</div>
+
+<!-- Added toast container for beautiful notifications -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Hidden form for adding new menu item -->
+<div id="newItemFormContainer" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:15px; box-shadow:0 8px 32px rgba(0,0,0,0.3); z-index:1000; width:90%; max-width:500px;">
+    <h3 style="margin-bottom:20px; color:#333; text-align:center;">Add New Menu Item</h3>
+    <form id="newItemForm" style="display:flex; flex-direction:column; gap:15px;">
+        <div>
+            <label for="itemName" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Name:</label>
+            <input type="text" id="itemName" name="name" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+        </div>
+
+        <div>
+            <label for="itemDescription" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Description:</label>
+            <textarea id="itemDescription" name="description" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px; min-height:80px; resize:vertical;"></textarea>
+        </div>
+
+        <div>
+            <label for="itemPrice" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Price:</label>
+            <input type="number" id="itemPrice" name="price" step="0.01" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+        </div>
+
+        <div>
+            <label for="itemCategory" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Category:</label>
+            <select id="itemCategory" name="category" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+                <option value="">Select Category</option>
+                <option value="Salads">Salads</option>
+                <option value="Breakfast">Breakfast</option>
+                <option value="Sandwiches">Sandwiches</option>
+                <option value="Meal">Meal</option>
+                <option value="Extras">Extras</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="itemAvailable" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Available:</label>
+            <select id="itemAvailable" name="available" style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="itemType" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Type:</label>
+            <select id="itemType" name="type" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+                <option value="normal">Normal</option>
+                <option value="special">Special Item</option>
+            </select>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button type="submit" style="flex:1; padding:12px; background:linear-gradient(135deg,#ff8300,#ffaa00); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Add Item</button>
+            <button type="button" id="cancelNewItem" style="flex:1; padding:12px; background:#f5f5f5; color:#333; border:2px solid #ddd; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<!-- Added overlay background for modal -->
+<div id="modalOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999;"></div>
+
+<script>
+    const contextPath = '/AllForOneBuffetAPP'; // Your app context
+
+    // Function to load menu items
+    function loadMenu(category = null, available = null) {
+        let url = contextPath + '/menu-items';
+        const params = [];
+
+        if (category && category !== 'All') {
+            params.push('category=' + encodeURIComponent(category));
+        }
+        if (available !== null) {
+            params.push('available=' + (available ? 'true' : 'false'));
+        }
+
+        if (params.length > 0) {
+            url += '?' + params.join('&');
+        }
+
+
+        fetch(url)
+            .then(res => {
+                console.log('[v0] Response status:', res.status); // Debug log
+                return res.json();
+            })
+            .then(data => {
+                console.log('[v0] Received data:', data); // Debug log
+                console.log('[v0] Number of items received:', data.length); // Debug log
+                const grid = document.querySelector('.products-grid');
+                grid.innerHTML = '';
+                if (data.length === 0) {
+                    grid.innerHTML = '<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">No items found</p>';
+                    return;
+                }
+                data.forEach(item => {
+                    console.log('[v0] Processing item:', item.name, 'category:', item.category, 'available:', item.available); // Debug log
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+
+                    const imageDiv = document.createElement('div');
+                    imageDiv.className = 'product-image';
+                    if (item.imageUrl) {
+                        const img = document.createElement('img');
+                        img.src = item.imageUrl;
+                        img.style.width = "100%";
+                        img.style.height = "100%";
+                        img.style.objectFit = "cover";
+                        imageDiv.appendChild(img);
+                    } else {
+                        imageDiv.textContent = 'No Image';
+                    }
+
+                    const details = document.createElement('div');
+                    details.className = 'product-details';
+
+                    const name = document.createElement('div');
+                    name.className = 'product-name';
+                    name.textContent = item.name;
+
+                    const desc = document.createElement('div');
+                    desc.className = 'product-desc';
+                    desc.textContent = item.description;
+
+                    const price = document.createElement('div');
+                    price.className = 'product-price';
+                    price.textContent = '$' + item.price.toFixed(2);
+
+                    const avail = document.createElement('div');
+                    avail.className = 'product-availability';
+                    avail.textContent = item.available ? 'Available' : 'Unavailable';
+                    if (!item.available) avail.classList.add('unavailable');
+
+                    details.appendChild(name);
+                    details.appendChild(desc);
+                    details.appendChild(price);
+                    details.appendChild(avail);
+
+                    card.appendChild(imageDiv);
+                    card.appendChild(details);
+                    grid.appendChild(card);
+                });
+            })
+            .catch(err => {
+                console.error('[v0] Error fetching menu items:', err);
+                const grid = document.querySelector('.products-grid');
+                grid.innerHTML = '<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">Error loading items: ' + err.message + '</p>';
+            });
+    }
+
+    function getAvailabilityState() {
+        const toggleSwitch = document.querySelector('.toggle-switch');
+        if (toggleSwitch.classList.contains('active')) return true;  // Show only available
+        if (toggleSwitch.classList.contains('off')) return false;    // Show only unavailable
+        return null; // Show all items
+    }
+
+    function initializeToggleState() {
+        const toggleSwitch = document.querySelector('.toggle-switch');
+        // Set initial state to "available only" to match the green appearance
+        toggleSwitch.classList.add('active');
+        toggleSwitch.style.backgroundColor = '#4CAF50'; // Green for available
+        console.log('[v0] Toggle initialized to available only state'); // Debug log
+    }
+
+    // Category button click
+    document.querySelectorAll('.category-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            console.log('[v0] Category button clicked:', button.textContent.trim()); // Debug log
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            let category = button.textContent.trim();
+            if (category === 'All') category = null; // Handle "All"
+
+            const available = getAvailabilityState();
+            console.log('[v0] Loading with category:', category, 'available:', available); // Debug log
+            loadMenu(category, available);
+        });
+    });
+
+    // Availability toggle
+    document.querySelector('.toggle-switch').addEventListener('click', function () {
+        console.log('[v0] Toggle clicked, current classes:', this.className); // Debug log
+
+        if (!this.classList.contains('active') && !this.classList.contains('off')) {
+            // Currently showing all, switch to available only
+            this.classList.add('active');
+            this.style.backgroundColor = '#4CAF50'; // Green for available
+        } else if (this.classList.contains('active')) {
+            // Currently showing available only, switch to unavailable only
+            this.classList.remove('active');
+            this.classList.add('off');
+            this.style.backgroundColor = '#f44336'; // Red for unavailable
+        } else {
+            // Currently showing unavailable only, switch back to all
+            this.classList.remove('off');
+            this.style.backgroundColor = '#ff9500'; // Orange for all
+        }
+
+        const activeCategoryBtn = document.querySelector('.category-btn.active');
+        let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
+        if (activeCategory === 'All') activeCategory = null;
+
+        const available = getAvailabilityState();
+        console.log('[v0] Toggle changed, loading with category:', activeCategory, 'available:', available); // Debug log
+        loadMenu(activeCategory, available);
+    });
+
+    const addBtn = document.getElementById('addNewItemBtn');
+    const formContainer = document.getElementById('newItemFormContainer');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const cancelBtn = document.getElementById('cancelNewItem');
+    const form = document.getElementById('newItemForm');
+
+    // Show form on plus click
+    addBtn.addEventListener('click', () => {
+        console.log('[v0] Plus button clicked'); // Debug log
+        formContainer.style.display = 'block';
+        modalOverlay.style.display = 'block';
+    });
+
+    // Hide form on cancel or overlay click
+    function hideForm() {
+        formContainer.style.display = 'none';
+        modalOverlay.style.display = 'none';
+    }
+
+    cancelBtn.addEventListener('click', hideForm);
+    modalOverlay.addEventListener('click', hideForm);
+
+    // Handle form submission
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('itemName').value.trim();
+        const description = document.getElementById('itemDescription').value.trim();
+        const price = parseFloat(document.getElementById('itemPrice').value);
+        const category = document.getElementById('itemCategory').value.trim();
+        const available = document.getElementById('itemAvailable').value === 'true';
+        const type = document.getElementById('itemType').value;
+
+        if (!name || !description || !category || isNaN(price) || price < 0) {
+            showToast('error', 'Validation Error', 'Please fill all fields correctly and ensure price is valid.');
+            return;
+        }
+
+        const menuItem = {
+            name: name,
+            description: description,
+            price: price,
+            category: category,
+            available: available,
+            type: type
+        };
+
+        fetch(contextPath + '/menu-items', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(menuItem)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Item Added Successfully!', `"${name}" has been added to the ${category} menu.`);
+                    form.reset();
+                    hideForm();
+                    const activeCategoryBtn = document.querySelector('.category-btn.active');
+                    let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
+                    if (activeCategory === 'All') activeCategory = null;
+                    const available = getAvailabilityState();
+                    loadMenu(activeCategory, available);
+                } else {
+                    showToast('error', 'Failed to Add Item', data.message || 'An unexpected error occurred. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
+            });
+    });
+
+    function showToast(type, title, message) {
+        const container = document.getElementById('toastContainer');
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+
+        const icon = type === 'success' ? '✓' : '✕';
+
+        toast.innerHTML = `
+            <div class="toast-icon">${icon}</div>
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+        `;
+
+        container.appendChild(toast);
+
+        // Trigger animation
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            toast.style.animation = 'slideOutRight 0.4s ease-in-out forwards';
+            setTimeout(() => toast.remove(), 400);
+        }, 4000);
+    }
+
+    initializeToggleState();
+    const defaultCategoryBtn = document.querySelector('.category-btn.active');
+    let defaultCategory = defaultCategoryBtn ? defaultCategoryBtn.textContent.trim() : 'All';
+    if (defaultCategory === 'All') defaultCategory = null;
+    const initialAvailable = getAvailabilityState(); // This will now return true (available only)
+    console.log('[v0] Initial load with category:', defaultCategory, 'available:', initialAvailable); // Debug log
+    loadMenu(defaultCategory, initialAvailable);
+</script>
+</body>
+</html>
+

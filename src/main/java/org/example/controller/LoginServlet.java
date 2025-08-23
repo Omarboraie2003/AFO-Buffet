@@ -4,9 +4,13 @@ import org.example.model.user.UserDAO;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+
+
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -34,11 +38,9 @@ public class LoginServlet extends HttpServlet {
 
                 if (accessLevel != null) {
                     // Successful login - redirect based on access level
-                    // Don't set content type when redirecting
                     if ("chef".equalsIgnoreCase(accessLevel)) {
                         response.sendRedirect("chefWelcomePage.html");
                     } else {
-                        // User is an employee
                         response.sendRedirect("employeeHomePage.html");
                     }
                 } else {
@@ -51,7 +53,6 @@ public class LoginServlet extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // Send error message as text response
             response.setContentType("text/plain;charset=UTF-8");
             PrintWriter out = response.getWriter();
             out.print("Error: " + e.getMessage());
