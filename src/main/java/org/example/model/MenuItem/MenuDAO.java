@@ -1,5 +1,6 @@
 package org.example.model.MenuItem;
 
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 import org.example.util.DBConnection;
@@ -92,6 +93,72 @@ public class MenuDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
+        }
+    }
+
+    public boolean setTodaysSpecial(int id) throws SQLException {
+        try (Connection conn = DBConnection.getConnection()) {
+            // Start transaction
+            conn.setAutoCommit(false);
+
+            try {
+                String checkSql = "SELECT id FROM MenuItems WHERE id = ? AND type = 'special'";
+                try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                    checkStmt.setInt(1, id);
+                    try (ResultSet rs = checkStmt.executeQuery()) {
+                        if (!rs.next()) {
+                            conn.rollback();
+                            return false; // Item doesn't exist or is not type='special'
+                        }
+                    }
+                }
+
+                // Clear any existing special
+                String clearSql = "UPDATE MenuItems SET is_special = 0 WHERE is_special = 1";
+                try (PreparedStatement clearStmt = conn.prepareStatement(clearSql)) {
+                    clearStmt.executeUpdate();
+                }
+
+                // Set the new special
+                String setSql = "UPDATE MenuItems SET is_special = 1 WHERE id = ?";
+                try (PreparedStatement setStmt = conn.prepareStatement(setSql)) {
+                    setStmt.setInt(1, id);
+                    int rowsUpdated = setStmt.executeUpdate();
+
+                    if (rowsUpdated > 0) {
+                        conn.commit();
+                        return true;
+                    } else {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
+    public MenuItem getTodaysSpecial() throws SQLException {
+        String sql = "SELECT * FROM MenuItems WHERE is_special = 1";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return mapRowToMenuItem(rs);
+            }
+        }
+        return null; // No special set
+    }
+
+    public boolean clearTodaysSpecial() throws SQLException {
+        String sql = "UPDATE MenuItems SET is_special = 0 WHERE is_special = 1";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            return stmt.executeUpdate() > 0;
         }
     }
 

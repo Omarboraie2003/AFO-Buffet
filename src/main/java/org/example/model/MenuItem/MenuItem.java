@@ -50,5 +50,3 @@ public class MenuItem {
                 "', price=" + price + ", category='" + category + "'}";
     }
 }
-
-

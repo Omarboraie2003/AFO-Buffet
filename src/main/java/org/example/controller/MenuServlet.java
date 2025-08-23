@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet("/menu-items")
+@WebServlet({"/menu-items", "/menu-items/*"})
 public class MenuServlet extends HttpServlet {
 
     private final MenuDAO menuDAO = new MenuDAO();
@@ -42,6 +42,26 @@ public class MenuServlet extends HttpServlet {
 
         String category = request.getParameter("category");
         String availableParam = request.getParameter("available");
+        String todaysSpecialParam = request.getParameter("todaysSpecial");
+
+        if ("true".equalsIgnoreCase(todaysSpecialParam)) {
+            try {
+                MenuItem special = menuDAO.getTodaysSpecial();
+                if (special != null) {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.getWriter().write(gson.toJson(List.of(special)));
+                } else {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.getWriter().write(gson.toJson(List.of()));
+                }
+                return;
+            } catch (SQLException e) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("{\"error\":\"Database error: " + e.getMessage() + "\"}");
+                e.printStackTrace();
+                return;
+            }
+        }
 
         Boolean available = null;
         if (availableParam != null) {
@@ -92,6 +112,12 @@ public class MenuServlet extends HttpServlet {
         setCorsHeaders(response);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+
+        String pathInfo = request.getPathInfo();
+        if ("/set-special".equals(pathInfo)) {
+            handleSetSpecial(request, response);
+            return;
+        }
 
         try {
             MenuItem newItem = gson.fromJson(request.getReader(), MenuItem.class);
@@ -255,5 +281,46 @@ public class MenuServlet extends HttpServlet {
         }
 
         return null; // No validation errors
+    }
+
+    private void handleSetSpecial(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
+        String idParam = request.getParameter("id");
+
+        if (idParam == null || idParam.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(gson.toJson(
+                    Map.of("success", false, "message", "Item ID is required")
+            ));
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idParam);
+            boolean success = menuDAO.setTodaysSpecial(id);
+
+            if (success) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write(gson.toJson(Map.of("success", true)));
+            } else {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().write(gson.toJson(
+                        Map.of("success", false, "message", "Item not found or failed to set as special")
+                ));
+            }
+
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(gson.toJson(
+                    Map.of("success", false, "message", "Invalid item ID format")
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write(gson.toJson(
+                    Map.of("success", false, "message", "Server error: " + e.getMessage())
+            ));
+        }
     }
 }

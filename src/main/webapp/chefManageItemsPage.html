@@ -174,6 +174,36 @@
                 opacity: 0;
             }
         }
+
+        /* Added styles for special toggle button */
+        .special-toggle {
+            margin-top: 10px;
+            padding: 8px 16px;
+            border: 2px solid #ff8300;
+            border-radius: 20px;
+            background: white;
+            color: #ff8300;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .special-toggle:hover {
+            background: #ff8300;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .special-toggle.active {
+            background: linear-gradient(135deg, #ff8300, #ffaa00);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 131, 0, 0.3);
+        }
+
+        .special-toggle.active:hover {
+            background: linear-gradient(135deg, #ffaa00, #ff8300);
+        }
     </style>
 </head>
 <body>
@@ -195,7 +225,7 @@
         <div class="featured-section">
             <div class="featured-text">
                 <h2>Today's special</h2>
-                <h1>Chicken strips</h1>
+                <h1 id="todaysSpecialName">No special selected</h1>
             </div>
             <div class="featured-image"></div>
         </div>
@@ -331,6 +361,7 @@
 
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button type="submit" style="flex:1; padding:12px; background:linear-gradient(135deg,#4CAF50,#45a049); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Update Item</button>
+            <button type="button" id="setSpecialBtn" style="display:none; flex:1; padding:12px; background:linear-gradient(135deg,#ff8300,#ffaa00); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Set as Today's Special</button>
             <button type="button" id="deleteItemBtn" style="flex:1; padding:12px; background:linear-gradient(135deg,#f44336,#d32f2f); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Delete Item</button>
             <button type="button" id="cancelEditItem" style="flex:1; padding:12px; background:#f5f5f5; color:#333; border:2px solid #ddd; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Cancel</button>
         </div>
@@ -355,6 +386,23 @@
 <script>
     const contextPath = '/AllForOneBuffetAPP'; // Your app context
 
+    function loadTodaysSpecial() {
+        fetch(contextPath + '/menu-items?todaysSpecial=true')
+            .then(res => res.json())
+            .then(data => {
+                const specialNameElement = document.getElementById('todaysSpecialName');
+                if (data && data.length > 0) {
+                    specialNameElement.textContent = data[0].name;
+                } else {
+                    specialNameElement.textContent = 'No special selected';
+                }
+            })
+            .catch(err => {
+                console.error('[v0] Error loading today\'s special:', err);
+                document.getElementById('todaysSpecialName').textContent = 'No special selected';
+            });
+    }
+
     // Function to load menu items
     function loadMenu(category = null, available = null) {
         let url = contextPath + '/menu-items';
@@ -371,7 +419,15 @@
             url += '?' + params.join('&');
         }
 
-        fetch(url)
+        let currentSpecialId = null;
+        fetch(contextPath + '/menu-items?todaysSpecial=true')
+            .then(res => res.json())
+            .then(specialData => {
+                if (specialData && specialData.length > 0) {
+                    currentSpecialId = specialData[0].id;
+                }
+                return fetch(url);
+            })
             .then(res => {
                 console.log('[v0] Response status:', res.status);
                 return res.json();
@@ -389,7 +445,12 @@
                     console.log('[v0] Processing item:', item.name, 'category:', item.category, 'available:', item.available);
                     const card = document.createElement('div');
                     card.className = 'product-card';
-                    card.addEventListener('click', () => openEditForm(item));
+                    card.addEventListener('click', (e) => {
+                        // Don't open edit form if clicking the special toggle button
+                        if (!e.target.classList.contains('special-toggle')) {
+                            openEditForm(item);
+                        }
+                    });
 
                     const imageDiv = document.createElement('div');
                     imageDiv.className = 'product-image';
@@ -424,6 +485,22 @@
                     avail.textContent = item.available ? 'Available' : 'Unavailable';
                     if (!item.available) avail.classList.add('unavailable');
 
+                    if (item.type === 'special') {
+                        const specialToggle = document.createElement('button');
+                        specialToggle.className = 'special-toggle';
+                        specialToggle.textContent = currentSpecialId === item.id ? '⭐ Today\'s Special' : 'Make Special';
+                        if (currentSpecialId === item.id) {
+                            specialToggle.classList.add('active');
+                        }
+
+                        specialToggle.addEventListener('click', (e) => {
+                            e.stopPropagation(); // Prevent opening edit form
+                            setTodaysSpecial(item.id, item.name);
+                        });
+
+                        details.appendChild(specialToggle);
+                    }
+
                     details.appendChild(name);
                     details.appendChild(desc);
                     details.appendChild(price);
@@ -450,6 +527,13 @@
         document.getElementById('editItemCategory').value = item.category;
         document.getElementById('editItemAvailable').value = item.available.toString();
         document.getElementById('editItemType').value = item.type || 'normal';
+
+        const setSpecialBtn = document.getElementById('setSpecialBtn');
+        if (item.type === 'special') {
+            setSpecialBtn.style.display = 'flex';
+        } else {
+            setSpecialBtn.style.display = 'none';
+        }
 
         document.getElementById('editItemFormContainer').style.display = 'block';
         document.getElementById('modalOverlay').style.display = 'block';
@@ -693,6 +777,39 @@
             });
     });
 
+    document.getElementById('setSpecialBtn').addEventListener('click', () => {
+        const id = document.getElementById('editItemId').value;
+        const itemName = document.getElementById('editItemName').value;
+
+        setTodaysSpecial(id, itemName);
+        hideEditForm();
+    });
+
+    function setTodaysSpecial(itemId, itemName) {
+        fetch(contextPath + '/menu-items/set-special?id=' + itemId, {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Today\'s Special Set!', `"${itemName}" is now today\'s special.`);
+                    loadTodaysSpecial(); // Refresh the banner
+                    // Reload the menu to update button states
+                    const activeCategoryBtn = document.querySelector('.category-btn.active');
+                    let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
+                    if (activeCategory === 'All') activeCategory = null;
+                    const available = getAvailabilityState();
+                    loadMenu(activeCategory, available);
+                } else {
+                    showToast('error', 'Failed to Set Special', data.message || 'An unexpected error occurred. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
+            });
+    }
+
     function showToast(type, title, message) {
         const container = document.getElementById('toastContainer');
 
@@ -723,6 +840,7 @@
     }
 
     initializeToggleState();
+    loadTodaysSpecial();
     const defaultCategoryBtn = document.querySelector('.category-btn.active');
     let defaultCategory = defaultCategoryBtn ? defaultCategoryBtn.textContent.trim() : 'All';
     if (defaultCategory === 'All') defaultCategory = null;
