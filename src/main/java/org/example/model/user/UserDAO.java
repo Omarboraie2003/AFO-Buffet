@@ -1,4 +1,6 @@
 package org.example.model.user;
+import org.example.util.PasswordUtils;
+
 import org.example.model.user.UserModel;
 import org.example.util.DBConnection;
 import java.sql.*;
@@ -6,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
-
     // Create a new user
     public boolean addUser(UserModel user) {
         String sql = "INSERT INTO Users (username, password_hash, access_level) VALUES (?, ?, ?)";
@@ -36,6 +37,27 @@ public class UserDAO {
 
             ResultSet rs = stmt.executeQuery();
             return rs.next(); // true if a matching record is found
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean validateUser2(String username, String password) {
+        String sql = "SELECT * FROM Users WHERE username = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String storedHash = rs.getString("password_hash");
+                return PasswordUtils.verifyPassword(password, storedHash);
+            }
+            return false; // User not found
 
         } catch (SQLException e) {
             e.printStackTrace();

@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.model.user.UserDAO;
 import org.example.model.user.UserModel;
+import org.example.util.PasswordUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -34,7 +35,7 @@ public class RegisterServlet extends HttpServlet {
         try {
             UserModel user = new UserModel();
             user.setUsername(username);
-            user.setPasswordHash(password); // store plain text for now
+            user.setPasswordHash(PasswordUtils.hashPassword(password)); // store plain text for now
             user.setAccessLevel(accessLevel);
 
             boolean success = userDAO.addUser(user);

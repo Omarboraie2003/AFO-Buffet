@@ -27,7 +27,7 @@ public class LoginServlet extends HttpServlet {
         try {
             if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
                 out.print("Username or password missing");
-            } else if (userDAO.validateUser(username, password)) {
+            } else if (userDAO.validateUser2(username, password)) {
                 out.print("Access authorized");
             } else {
                 out.print("Access denied");

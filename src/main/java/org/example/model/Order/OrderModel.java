@@ -12,7 +12,7 @@ public class OrderModel {
     private Date orderDate;
     private double totalAmount;
     private String status;
-    private ArrayList<MenuItem> menuItems; // Assuming each order has a single menu item
+    private ArrayList<Integer> menuItemIds;
     
     public OrderModel() {}
 
@@ -23,5 +23,23 @@ public class OrderModel {
         this.totalAmount = totalAmount;
         this.status = status;
     }
+
+    public int getOrderId() { return orderId; }
+    public void setOrderId(int orderId) { this.orderId = orderId; }
+
+    public int getEmployeeId() { return employeeId; }
+    public void setEmployeeId(int employeeId) { this.employeeId = employeeId; }
+
+    public Date getOrderDate() { return orderDate; }
+    public void setOrderDate(Date orderDate) { this.orderDate = orderDate; }
+
+    public double getTotalAmount() { return totalAmount; }
+    public void setTotalAmount(double totalAmount) { this.totalAmount = totalAmount; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public ArrayList<Integer> getMenuItemIds() { return menuItemIds; }
+    public void setMenuItemIds(ArrayList<Integer> menuItemIds) { this.menuItemIds = menuItemIds; }
 }
 
