@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFOEG - Food Menu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif, ;
+            background-color: #DFDFDF;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: #DFDFDF;
+            padding: 50px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 20px;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            color: #333;
+        }
+
+
+        .nav-menu {
+            font-family: 'Poppins', sans-serif, ;
+            display: flex;
+            list-style: none;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #050505;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #ff6b35;
+        }
+
+        /* search icon*/
+
+        /* Hero Section */
+        .hero {
+            background: #DFDFDF;
+            padding: 7px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 0px;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-family: 'Impact';
+            font-size: 5.5rem;
+            font-weight: bold;
+            color: #ff6b35;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero-image {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .hero-image img {
+            margin: 0;
+            height: 650px;
+            object-fit: contain;
+        }
+
+        .special-offer {
+            position: center;
+            margin-left: 50px;
+            margin-top: 205px;
+            right: -20px;
+            width: 450px;
+            height: 300px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #DFDFDF;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .special-offer h3 {
+            font-family: 'Impact';
+            font-size: 2.7rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .explore-btn {
+            background: white;
+            color: black;
+            border: none;
+           padding: 25px 50px;
+            width: 250px;
+            height: 80px;
+            border-radius: 40px;
+            border-color:#ff6b35;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1.2rem;
+            transition: background 0.3s;
+        }
+
+        .explore-btn:hover {
+            background: #E96F28;
+        }
+
+        /* Nuggets Section */
+        .nuggets-section {
+            padding: 100px 0;
+            background: #DFDFDF;
+            margin-bottom: 160px;
+            margin-top: 120px;
+
+        }
+
+
+        .nuggets-content {
+            position: relative;   /* container becomes positioning context */
+            justify-content: center;
+            align-items: center;
+
+        }
+
+
+        .nuggets-arrow1 {
+            position: absolute;
+            top: -250px;       /* move image upward over text box */
+            left: 20%;
+            transform: translateX(-20%);
+            z-index: 2;        /* make sure image is above text box */
+
+        }
+        .nuggets-arrow1 img {
+            width: 350px;   /* adjust to your desired size */
+            height: auto;   /* keeps aspect ratio */
+        }
+
+        .nuggets-arrow2 {
+            position: absolute;
+            top: 136px;       /* move image upward over text box */
+            right: -6.3%;
+            transform: translateX(-20%);
+            z-index: 2;        /* make sure image is above text box */
+
+        }
+        .nuggets-arrow2 img {
+            width: 350px;   /* adjust to your desired size */
+            height: auto;   /* keeps aspect ratio */
+        }
+
+
+        /* Vertical text */
+        .special-text {
+            position: absolute;
+            right: -300px;
+            top: 69%;
+            transform: rotate(90deg) translateY(-50%);
+            transform-origin: right center;
+            font-size: 60px;
+            font-family: 'Impact';
+
+            color: #f26419;
+        }
+
+
+        .nuggets-text {
+            width:800px;
+            background: #ec8e58;
+            color: black;
+            padding: 65px;
+            border-radius: 70px;
+            font-family: 'Impact';
+            transform: translateY(8%);
+
+
+
+
+        }
+
+        .nuggets-text h2 {
+            font-size: 55px;
+            font-family: 'Impact';
+        }
+
+        .order-btn {
+            background: #ec8e58;
+            color: black;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            transform: translateX(40%);
+
+        }
+        .nuggets-image {
+            position: absolute;
+            top: -120px;   /* move image upward over text box */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;   /* make sure image is above text box */
+        }
+        .nuggets-image img {
+            width: 140%;
+            border-radius: 20px;
+
+        }
+
+        /* Categories Section */
+        .categories {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .section-title {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600; /* Semi Bold */
+            font-family: 'inter';
+            font-size: 0.9rem;
+            color: #ff6b35;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .categories h2 {
+            font-family: 'inter';
+            font-weight: bold;
+
+            font-size: 2rem;
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 30px;
+        }
+
+
+        .category-item {
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #ddd;   /* box border */
+            border-radius: 20px;      /* rounded corners */
+            background: #EBEBEB;         /* white background */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* soft shadow */
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 220px;      /* increased size */
+            height: 220px;     /* increased size */
+        }
+        .category-item h3 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600; /* Semi Bold */
+            font-size: 18px;  /* adjust size as needed */
+            margin-top: 10px; /* pushes it down slightly */
+            color: #333;      /* optional, makes it look sharper */
+        }
+
+
+        .category-item:hover {
+            transform: translateY(-5px);  /* lift effect */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .category-image .image-bg {
+            width: 130px;         /* bigger background circle */
+            height: 130px;
+            background: #ec8e58;  /* faded orange */
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .category-image img {
+            width: 120px;   /* keep image smaller */
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+
+            object-fit: cover; /* keeps aspect ratio and fills */
+            border-radius: 50%;
+            margin: 0 auto ;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-image img[alt="Salads"] {
+            width: 110px;   /* smaller */
+            height: auto;
+        }
+
+        .category-image img[alt="Plates"] {
+            width: 150px;  /* bigger */
+            height: auto;
+        }
+
+        .category-icon:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Menu Sections */
+        .menu-section {
+            padding: 60px 0;
+        }
+
+        .menu-header {
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .menu-header h2 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600; /* Semi Bold */
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .nav-arrows {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-arrow {
+            width: 40px;
+            height: 40px;
+            background: #ec8e58;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .nav-arrow:hover {
+            background: #ec8e58;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        .menu-card {
+            background: #EBEBEB;
+
+            position: relative;
+            width: 350px;         /* adjust width if needed */
+            height: 380px;        /* increased height */
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;   /* centers horizontally */
+            justify-content: space-between;
+            text-align: center;
+        }
+
+
+
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .menu-card img {
+            width: 230px;
+            height: 213px;
+            object-fit: cover;
+        }
+        .menu-card img[alt="falafel"] {
+            width: 240px;
+            height: 213px;
+            object-fit: cover; /* keeps proportions and crops if needed */
+        }
+        .menu-card img[alt="Omelette"] {
+            width: 220px;
+            height: 213px;
+            object-fit: cover; /* keeps proportions and crops if needed */
+        }
+
+        .card-content {
+            padding: 15px;
+        }
+
+        .card-content h3 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600; /* Semi Bold */
+            font-size: 18px;  /* adjust size as needed */
+            margin: 0 0 4px -10px; /* shift left by 20px */
+            color: #333;
+            text-align: left; /* aligns text to left */
+        }
+
+
+        .card-description {
+            transform: translateX(-10px);
+            font-family: 'Inter', sans-serif;
+            font-weight: 600; /* Semi Bold */
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600; /* Semi Bold */
+            transform: translateX(-10px);
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .price::after {
+            content: " EGP";   /* adds EGP after the number */
+            font-size: 14px;   /* adjust size */
+            font-weight: 500;  /* make it match */
+            color: #666;       /* slightly faded if needed */
+        }
+
+
+        .rating {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600; /* Semi Bold */
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #333;
+            font-size: 0.9rem;
+            transform: translateX(20px);
+
+        }
+
+        .add-btn {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 55px;
+            height: 45px;
+            background: #ec8e58;
+            border: none;
+            border-radius: 0 0 0 25px;  /* rounded only bottom-left corner */
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+        }
+        .menu-grid {
+            display: flex;
+            gap: 20px;                   /* space between cards */
+            overflow-x: auto;            /* scroll horizontally */
+            scroll-behavior: smooth;
+            padding-bottom: 10px;
+            width: 100%;
+        }
+
+        .menu-card {
+            flex: 0 0 calc(33.333% - 20px);  /* exactly 3 visible cards */
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        .categories h3 {
+            text-decoration: none; /* removes underline */
+            border: none;          /* removes any border under the text */
+        }
+        .category-item {
+            text-decoration: none; /* remove underline from the whole link */
+        }
+
+        .category-item h3 {
+            text-decoration: none;
+        }
+
+        /* hide scrollbar (optional) */
+        .menu-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-content,
+            .nuggets-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .category-grid,
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-menu {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="container">
+        <nav class="nav">
+            <div class="logo">AFOEG</div>
+            <ul class="nav-menu">
+                <li><span class="search-icon">🔍</span></li>
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#categories">Menu</a></li>
+                <li><a href="#">History</a></li>
+                <li><a href="#">Cart</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>BAKING<br>HAPPINESS<br>FOR EVERY<br>HEART</h1>
+            </div>
+            <div class="hero-image">
+                <img src="Images/mixed-vegetable-salad-with-white-cheese.png" alt="Fresh Salad">
+                <div class="special-offer">
+                    <h3>TODAY'S SPECIAL<br>BOOM!</h3>
+                    <button class="explore-btn">Explore</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Nuggets Section -->
+<section class="nuggets-section">
+    <div class="container">
+        <div class="nuggets-content">
+            <div class="nuggets-text">
+                <h2>NUGGETS</h2>
+                <button class="order-btn">Order now</button>
+            </div>
+            <div class="nuggets-image">
+                <img src="Images/nuggets.png" alt="Chicken Nuggets">
+                <p class="special-text">Today's special</p>
+            </div>
+            <div class= "nuggets-arrow1">
+                <img src="Images/image1.png" alt="arrow1">
+            </div>
+            <div class= "nuggets-arrow2">
+                <img src="Images/image2.png" alt="arrow2">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section id="categories" class="categories">
+    <div class="container">
+        <div class="section-title">Customer Favorites</div>
+        <h2>Popular Categories</h2>
+        <div class="category-grid">
+            <a href="#breakfast" class="category-item">
+                <div class="category-image">
+                    <div class="image-bg">
+                        <img src="Images/Breakfast.png" alt="Breakfast">
+                    </div>
+                </div>
+                <h3>Breakfast</h3>
+            </a>
+
+            <a href="#sandwiches" class="category-item">
+                <div class="category-image">
+                    <div class="image-bg">
+                        <img src="Images/Sandwich.png" alt="Sandwiches">
+                    </div>
+                </div>
+                <h3>Sandwiches</h3>
+            </a>
+            <a href="#salads" class="category-item">
+                <div class="category-image">
+                    <div class="image-bg">
+                        <img src="Images/Salads.png" alt="Salads">
+                    </div>
+                </div>
+                <h3>Salads</h3>
+            </a>
+            <a href="#plates" class="category-item">
+                <div class="category-image">
+                    <div class="image-bg">
+                        <img src="Images/Plates.png" alt="Plates">
+                    </div>
+                </div>
+                <h3>Plates</h3>
+            </a>
+            <a href="#extras" class="category-item">
+                <div class="category-image">
+                    <div class="image-bg">
+                        <img src="Images/Extras.png" alt="Extras">
+                    </div>
+                </div>
+                <h3>Extras</h3>
+            </a>
+        </div>
+    </div>
+</section>
+
+
+    <!-- Breakfast Section -->
+    <section id="breakfast" class="menu-section">
+        <div class="container">
+            <div class="section-title"> Breakfast</div>
+            <div class="menu-header">
+                <h2>Breakfast Dishes<br>From Our Menu</h2>
+                <div class="nav-arrows">
+                    <button class="nav-arrow">‹</button>
+                    <button class="nav-arrow">›</button>
+                </div>
+            </div>
+
+        <div class="menu-grid">
+            <!-- Dynamic breakfast items will be loaded here -->
+        </div>
+        </div>
+    </section>
+
+    <!-- Sandwiches Section -->
+    <section id="sandwiches" class="menu-section">
+        <div class="container">
+            <div class="section-title">Special Sandwiches</div>
+            <div class="menu-header">
+                <h2>Sandwiches<br>From Our Menu</h2>
+                <div class="nav-arrows">
+                    <button class="nav-arrow">‹</button>
+                    <button class="nav-arrow">›</button>
+                </div>
+            </div>
+
+        <div class="menu-grid">
+            <!-- Dynamic sandwich items will be loaded here -->
+        </div>
+        </div>
+
+    </section>
+
+    <!-- Salads Section -->
+    <section id="salads" class="menu-section">
+        <div class="container">
+            <div class="section-title">Special Salads</div>
+            <div class="menu-header">
+                <h2>Salad Dishes<br>From Our Menu</h2>
+                <div class="nav-arrows">
+                    <button class="nav-arrow">‹</button>
+                    <button class="nav-arrow">›</button>
+                </div>
+            </div>
+        <div class="menu-grid">
+            <!-- Dynamic salad items will be loaded here -->
+        </div>
+        </div>
+
+    </section>
+
+    <!-- Plates Section -->
+    <section id="plates" class="menu-section">
+        <div class="container">
+            <div class="section-title">Plates</div>
+            <div class="menu-header">
+                <h2>Plates <br>From Our Menu</h2>
+                <div class="nav-arrows">
+                    <button class="nav-arrow">‹</button>
+                    <button class="nav-arrow">›</button>
+                </div>
+            </div>
+        <div class="menu-grid">
+            <!-- Dynamic plate items will be loaded here -->
+        </div>
+        </div>
+
+    </section>
+
+    <!-- Extras Section -->
+    <section id="extras" class="menu-section">
+        <div class="container">
+            <div class="section-title">Extras</div>
+            <div class="menu-header">
+                <h2>Extras <br>From Our Menu</h2>
+                <div class="nav-arrows">
+                    <button class="nav-arrow">‹</button>
+                    <button class="nav-arrow">›</button>
+                </div>
+            </div>
+        <div class="menu-grid">
+            <!-- Dynamic extra items will be loaded here -->
+        </div>
+        </div>
+
+    </section>
+
+
+
+
+</body>
+</html>
+<script>
+    async function loadCategory(category) {
+        try {
+            // Call the servlet with category parameter
+            const res = await fetch(`/AllForOneBuffetAPP/menu?category=${category}`)
+            if (!res.ok) {
+                throw new Error("Servlet response error: " + res.status)
+            }
+            const items = await res.json()
+
+            const section = document.getElementById(category)
+            if (!section) {
+                console.error("No section found for category:", category)
+                return
+            }
+
+            const grid = section.querySelector(".menu-grid")
+            if (!grid) {
+                console.error("No grid found in section for category:", category)
+                return
+            }
+
+            grid.innerHTML = "" // Clear existing hardcoded items
+
+            if (!items || items.length === 0) {
+                console.log("No items found for category:", category)
+                return
+            }
+
+            items.forEach((item) => {
+                const card = document.createElement("div")
+                card.className = "menu-card"
+                let imageSrc = "Images/falafel.png" // Default fallback
+
+                if (item.image && item.image !== null) {
+                    // Handle different possible image path formats
+
+                        // If database contains just the filename
+                        imageSrc = `Images/${item.image}`
+
+                }
+                card.innerHTML = `
+                <button class="add-btn">+</button>
+                <img src="${imageSrc}" alt="${item.name}">
+                <div class="card-content">
+                    <h3>${item.name}</h3>
+                    <p class="card-description">${item.description || "Description of the item"}</p>
+                    <div class="card-footer">
+                        <span class="price">${item.price}</span>
+                        <div class="rating">⭐ 4.5</div>
+                    </div>
+                </div>
+            `
+                grid.appendChild(card)
+            })
+
+            console.log(`Successfully loaded ${items.length} items for ${category}`)
+        } catch (err) {
+            console.error("Error loading category:", category, err)
+        }
+    }
+
+    function initializeMenu() {
+        console.log("Initializing dynamic menu...")
+
+        // Load all categories
+        loadCategory("breakfast")
+        loadCategory("sandwiches")
+        loadCategory("salads")
+        loadCategory("plates")
+        loadCategory("extras")
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initializeMenu)
+    } else {
+        initializeMenu()
+    }
+
+</script>
+
+
+<script>
+    const menuGrid = document.querySelector('.menu-grid');
+    const prevBtn = document.querySelector('.nav-arrows .nav-arrow:first-child');
+    const nextBtn = document.querySelector('.nav-arrows .nav-arrow:last-child');
+
+    // width of 1 card (including margin/gap)
+    const cardWidth = menuGrid.querySelector('.menu-card').offsetWidth + 20;
+
+    prevBtn.addEventListener('click', () => {
+        menuGrid.scrollBy({ left: -cardWidth, behavior: 'smooth' });
+    });
+
+    nextBtn.addEventListener('click', () => {
+        menuGrid.scrollBy({ left: cardWidth, behavior: 'smooth' });
+    });
+</script>
+

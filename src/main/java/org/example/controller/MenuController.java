@@ -20,8 +20,8 @@ public class MenuController {
     }
 
     // ✅ Add item with type
-    public void addItem(String name, String desc, double price, boolean available, String type) throws SQLException {
-        MenuItem item = new MenuItem(0, name, desc, price, available, type);
+    public void addItem(String name, String desc, double price, boolean available, String type, String category, String image) throws SQLException {
+        MenuItem item = new MenuItem(0, name, desc, price, available, type, category, image);
         menuDAO.addMenuItem(item);
     }
 
@@ -45,8 +45,8 @@ public class MenuController {
     }
 
     // ✅ Update item with type
-    public void updateItem(int id, String name, String description, double price, boolean available, String type) throws SQLException {
-        MenuItem item = new MenuItem(id, name, description, price, available, type);
+    public void updateItem(int id, String name, String description, double price, boolean available, String type, String category, String image) throws SQLException {
+        MenuItem item = new MenuItem(id, name, description, price, available, type, category,image);
         menuDAO.updateMenuItem(item);
     }
 
