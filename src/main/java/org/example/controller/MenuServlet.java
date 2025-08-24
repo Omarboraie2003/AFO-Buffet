@@ -43,6 +43,7 @@ public class MenuServlet extends HttpServlet {
         String category = request.getParameter("category");
         String availableParam = request.getParameter("available");
         String todaysSpecialParam = request.getParameter("todaysSpecial");
+        String type = request.getParameter("type");
 
         if ("true".equalsIgnoreCase(todaysSpecialParam)) {
             try {
@@ -71,8 +72,13 @@ public class MenuServlet extends HttpServlet {
         List<MenuItem> items;
 
         try {
-            if (category != null && !category.isEmpty() && !"All".equalsIgnoreCase(category)) {
-                // Filter by specific category
+            if (type != null && !type.isEmpty()) {
+                if (available != null) {
+                    items = menuDAO.getMenuItemsByTypeAndAvailability(type, available);
+                } else {
+                    items = menuDAO.getMenuItemsByType(type);
+                }
+            } else if (category != null && !category.isEmpty() && !"All".equalsIgnoreCase(category)) {
                 if (available != null) {
                     if (available) {
                         items = menuDAO.getMenuItemsByCategoryAndAvailability(category, true);
@@ -83,7 +89,6 @@ public class MenuServlet extends HttpServlet {
                     items = menuDAO.getMenuItemsByCategory(category); // All items in category
                 }
             } else {
-                // No category filter or "All" selected
                 if (available != null) {
                     if (available) {
                         items = menuDAO.getAvailableMenuItems();
@@ -119,6 +124,11 @@ public class MenuServlet extends HttpServlet {
             return;
         }
 
+        if ("/clear-special".equals(pathInfo)) {
+            handleClearSpecial(request, response);
+            return;
+        }
+
         try {
             MenuItem newItem = gson.fromJson(request.getReader(), MenuItem.class);
 
@@ -127,6 +137,22 @@ public class MenuServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write(gson.toJson(
                         Map.of("success", false, "message", validationError)
+                ));
+                return;
+            }
+
+            try {
+                if (menuDAO.isItemNameExists(newItem.getName())) {
+                    response.setStatus(HttpServletResponse.SC_CONFLICT);
+                    response.getWriter().write(gson.toJson(
+                            Map.of("success", false, "message", "An item with this name already exists. Please choose a different name.")
+                    ));
+                    return;
+                }
+            } catch (SQLException e) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write(gson.toJson(
+                        Map.of("success", false, "message", "Database error while checking for duplicates")
                 ));
                 return;
             }
@@ -315,6 +341,31 @@ public class MenuServlet extends HttpServlet {
             response.getWriter().write(gson.toJson(
                     Map.of("success", false, "message", "Invalid item ID format")
             ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write(gson.toJson(
+                    Map.of("success", false, "message", "Server error: " + e.getMessage())
+            ));
+        }
+    }
+
+    private void handleClearSpecial(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
+        try {
+            boolean success = menuDAO.clearTodaysSpecial();
+
+            if (success) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write(gson.toJson(Map.of("success", true)));
+            } else {
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write(gson.toJson(
+                        Map.of("success", false, "message", "No special was set to clear")
+                ));
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

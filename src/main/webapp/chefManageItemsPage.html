@@ -237,10 +237,30 @@
 
     <!-- Category Filters -->
     <div class="category-filters">
-        <button class="category-btn" data-category="All">All</button>
+        <!-- Added search bar before category buttons -->
+        <div style="display: flex; align-items: center; gap: 15px; margin-right: 20px;">
+            <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search menu items..."
+                    style="padding: 10px 15px; border: 2px solid #ddd; border-radius: 20px; font-size: 14px; width: 250px; transition: all 0.3s ease;"
+                    onkeyup="handleSearch()"
+            >
+            <button
+                    id="clearSearchBtn"
+                    onclick="clearSearch()"
+                    style="padding: 8px 12px; border: 2px solid #ff8300; border-radius: 15px; background: white; color: #ff8300; font-size: 12px; cursor: pointer; transition: all 0.3s ease; display: none;"
+            >
+                Clear
+            </button>
+        </div>
+
+        <button class="category-btn active" data-category="All">All</button>
+        <!-- Added star filter button for special items -->
+        <button class="category-btn" data-category="Special" style="background: linear-gradient(135deg, #ff8300, #ffaa00); color: white; border-color: #ff8300;">⭐ Special Items</button>
         <button class="category-btn">Salads</button>
         <button class="category-btn">Breakfast</button>
-        <button class="category-btn active">Sandwiches</button>
+        <button class="category-btn">Sandwiches</button>
         <button class="category-btn">Meal</button>
         <button class="category-btn">Extras</button>
         <div class="availability-toggle">
@@ -403,14 +423,46 @@
             });
     }
 
-    // Function to load menu items
-    function loadMenu(category = null, available = null) {
+    function handleSearch() {
+        const searchTerm = document.getElementById('searchInput').value.trim();
+        const clearBtn = document.getElementById('clearSearchBtn');
+
+        // Show/hide clear button based on search input
+        if (searchTerm.length > 0) {
+            clearBtn.style.display = 'block';
+        } else {
+            clearBtn.style.display = 'none';
+        }
+
+        const activeCategoryBtn = document.querySelector('.category-btn.active');
+        let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
+        if (activeCategory === 'All') activeCategory = null;
+        const available = getAvailabilityState();
+
+        loadMenu(activeCategory, available, searchTerm);
+    }
+
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('clearSearchBtn').style.display = 'none';
+
+        const activeCategoryBtn = document.querySelector('.category-btn.active');
+        let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
+        if (activeCategory === 'All') activeCategory = null;
+        const available = getAvailabilityState();
+        loadMenu(activeCategory, available);
+    }
+
+    function loadMenu(category = null, available = null, searchTerm = '') {
         let url = contextPath + '/menu-items';
         const params = [];
 
-        if (category && category !== 'All') {
+        if (category === 'Special') {
+            params.push('type=special');
+        } else if (category && category !== 'All') {
             params.push('category=' + encodeURIComponent(category));
         }
+
         if (available !== null) {
             params.push('available=' + (available ? 'true' : 'false'));
         }
@@ -435,13 +487,28 @@
             .then(data => {
                 console.log('[v0] Received data:', data);
                 console.log('[v0] Number of items received:', data.length);
+
+                let filteredData = data;
+                if (searchTerm && searchTerm.length > 0) {
+                    const searchLower = searchTerm.toLowerCase();
+                    filteredData = data.filter(item =>
+                        item.name.toLowerCase().includes(searchLower) ||
+                        item.description.toLowerCase().includes(searchLower) ||
+                        item.category.toLowerCase().includes(searchLower)
+                    );
+                    console.log('[v0] Filtered to', filteredData.length, 'items for search:', searchTerm);
+                }
+
                 const grid = document.querySelector('.products-grid');
                 grid.innerHTML = '';
-                if (data.length === 0) {
-                    grid.innerHTML = '<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">No items found</p>';
+                if (filteredData.length === 0) {
+                    const noResultsMsg = searchTerm ?
+                        `No items found matching "${searchTerm}"` :
+                        'No items found';
+                    grid.innerHTML = `<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">${noResultsMsg}</p>`;
                     return;
                 }
-                data.forEach(item => {
+                filteredData.forEach(item => {
                     console.log('[v0] Processing item:', item.name, 'category:', item.category, 'available:', item.available);
                     const card = document.createElement('div');
                     card.className = 'product-card';
@@ -495,7 +562,11 @@
 
                         specialToggle.addEventListener('click', (e) => {
                             e.stopPropagation(); // Prevent opening edit form
-                            setTodaysSpecial(item.id, item.name);
+                            if (currentSpecialId === item.id) {
+                                clearTodaysSpecial();
+                            } else {
+                                setTodaysSpecial(item.id, item.name);
+                            }
                         });
 
                         details.appendChild(specialToggle);
@@ -518,75 +589,27 @@
             });
     }
 
-    function openEditForm(item) {
-        console.log('[v0] Opening edit form for item:', item.name);
-        document.getElementById('editItemId').value = item.id;
-        document.getElementById('editItemName').value = item.name;
-        document.getElementById('editItemDescription').value = item.description;
-        document.getElementById('editItemPrice').value = item.price;
-        document.getElementById('editItemCategory').value = item.category;
-        document.getElementById('editItemAvailable').value = item.available.toString();
-        document.getElementById('editItemType').value = item.type || 'normal';
-
-        const setSpecialBtn = document.getElementById('setSpecialBtn');
-        if (item.type === 'special') {
-            setSpecialBtn.style.display = 'flex';
-        } else {
-            setSpecialBtn.style.display = 'none';
-        }
-
-        document.getElementById('editItemFormContainer').style.display = 'block';
-        document.getElementById('modalOverlay').style.display = 'block';
-    }
-
-    function hideEditForm() {
-        document.getElementById('editItemFormContainer').style.display = 'none';
-        document.getElementById('modalOverlay').style.display = 'none';
-    }
-
-    function showDeleteConfirmation(itemName) {
-        document.getElementById('deleteItemName').textContent = itemName;
-        document.getElementById('deleteConfirmDialog').style.display = 'block';
-    }
-
-    function hideDeleteConfirmation() {
-        document.getElementById('deleteConfirmDialog').style.display = 'none';
-    }
-
-    function getAvailabilityState() {
-        const toggleSwitch = document.querySelector('.toggle-switch');
-        if (toggleSwitch.classList.contains('active')) return true;  // Show only available
-        if (toggleSwitch.classList.contains('off')) return false;    // Show only unavailable
-        return null; // Show all items
-    }
-
-    function initializeToggleState() {
-        const toggleSwitch = document.querySelector('.toggle-switch');
-        // Set initial state to "available only" to match the green appearance
-        toggleSwitch.classList.add('active');
-        toggleSwitch.style.backgroundColor = '#4CAF50'; // Green for available
-        console.log('[v0] Toggle initialized to available only state'); // Debug log
-    }
-
-    // Category button click
     document.querySelectorAll('.category-btn').forEach(button => {
         button.addEventListener('click', () => {
-            console.log('[v0] Category button clicked:', button.textContent.trim()); // Debug log
+            console.log('[v0] Category button clicked:', button.textContent.trim());
+
+            // Update active category button
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
 
-            let category = button.textContent.trim();
-            if (category === 'All') category = null; // Handle "All"
-
+            // Get current filters
+            let category = button.getAttribute('data-category') || button.textContent.trim();
+            if (category === 'All') category = null;
             const available = getAvailabilityState();
-            console.log('[v0] Loading with category:', category, 'available:', available); // Debug log
-            loadMenu(category, available);
+            const searchTerm = document.getElementById('searchInput').value.trim(); // Preserve search
+
+            console.log('[v0] Loading with category:', category, 'available:', available, 'search:', searchTerm);
+            loadMenu(category, available, searchTerm);
         });
     });
 
-    // Availability toggle
     document.querySelector('.toggle-switch').addEventListener('click', function () {
-        console.log('[v0] Toggle clicked, current classes:', this.className); // Debug log
+        console.log('[v0] Toggle clicked, current classes:', this.className);
 
         if (!this.classList.contains('active') && !this.classList.contains('off')) {
             // Currently showing all, switch to available only
@@ -603,187 +626,68 @@
             this.style.backgroundColor = '#ff9500'; // Orange for all
         }
 
+        // Get current filters and preserve them
         const activeCategoryBtn = document.querySelector('.category-btn.active');
-        let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
+        let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
         if (activeCategory === 'All') activeCategory = null;
-
         const available = getAvailabilityState();
-        console.log('[v0] Toggle changed, loading with category:', activeCategory, 'available:', available); // Debug log
-        loadMenu(activeCategory, available);
+        const searchTerm = document.getElementById('searchInput').value.trim(); // Preserve search
+
+        console.log('[v0] Toggle changed, loading with category:', activeCategory, 'available:', available, 'search:', searchTerm);
+        loadMenu(activeCategory, available, searchTerm);
     });
 
-    const addBtn = document.getElementById('addNewItemBtn');
-    const formContainer = document.getElementById('newItemFormContainer');
-    const modalOverlay = document.getElementById('modalOverlay');
-    const cancelBtn = document.getElementById('cancelNewItem');
-    const form = document.getElementById('newItemForm');
+    function getAvailabilityState() {
+        const toggle = document.querySelector('.toggle-switch');
+        if (toggle.classList.contains('active')) {
+            return true; // Available only
+        } else if (toggle.classList.contains('off')) {
+            return false; // Unavailable only
+        } else {
+            return null; // Show all
+        }
+    }
 
-    // Show form on plus click
-    addBtn.addEventListener('click', () => {
-        console.log('[v0] Plus button clicked'); // Debug log
-        formContainer.style.display = 'block';
+    function openEditForm(item) {
+        document.getElementById('editItemId').value = item.id;
+        document.getElementById('editItemName').value = item.name;
+        document.getElementById('editItemDescription').value = item.description;
+        document.getElementById('editItemPrice').value = item.price;
+        document.getElementById('editItemCategory').value = item.category;
+        document.getElementById('editItemAvailable').value = item.available.toString();
+        document.getElementById('editItemType').value = item.type;
+
+        const editFormContainer = document.getElementById('editItemFormContainer');
+        const modalOverlay = document.getElementById('modalOverlay');
+        editFormContainer.style.display = 'block';
         modalOverlay.style.display = 'block';
-    });
 
-    // Hide form on cancel or overlay click
-    function hideForm() {
-        formContainer.style.display = 'none';
+        // Show/hide "Set as Today's Special" button based on item type
+        const setSpecialBtn = document.getElementById('setSpecialBtn');
+        if (item.type === 'special') {
+            setSpecialBtn.style.display = 'block';
+        } else {
+            setSpecialBtn.style.display = 'none';
+        }
+    }
+
+    function hideEditForm() {
+        const editFormContainer = document.getElementById('editItemFormContainer');
+        const modalOverlay = document.getElementById('modalOverlay');
+        editFormContainer.style.display = 'none';
         modalOverlay.style.display = 'none';
     }
 
-    cancelBtn.addEventListener('click', hideForm);
-    modalOverlay.addEventListener('click', hideForm);
+    function showDeleteConfirmation(itemName) {
+        document.getElementById('deleteItemName').textContent = itemName;
+        document.getElementById('deleteConfirmDialog').style.display = 'block';
+        document.getElementById('modalOverlay').style.display = 'block';
+    }
 
-    // Handle form submission
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const name = document.getElementById('itemName').value.trim();
-        const description = document.getElementById('itemDescription').value.trim();
-        const price = parseFloat(document.getElementById('itemPrice').value);
-        const category = document.getElementById('itemCategory').value.trim();
-        const available = document.getElementById('itemAvailable').value === 'true';
-        const type = document.getElementById('itemType').value;
-
-        if (!name || !description || !category || isNaN(price) || price < 0) {
-            showToast('error', 'Validation Error', 'Please fill all fields correctly and ensure price is valid.');
-            return;
-        }
-
-        const menuItem = {
-            name: name,
-            description: description,
-            price: price,
-            category: category,
-            available: available,
-            type: type
-        };
-
-        fetch(contextPath + '/menu-items', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(menuItem)
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Item Added Successfully!', `"${name}" has been added to the ${category} menu.`);
-                    form.reset();
-                    hideForm();
-                    const activeCategoryBtn = document.querySelector('.category-btn.active');
-                    let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
-                    if (activeCategory === 'All') activeCategory = null;
-                    const available = getAvailabilityState();
-                    loadMenu(activeCategory, available);
-                } else {
-                    showToast('error', 'Failed to Add Item', data.message || 'An unexpected error occurred. Please try again.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
-            });
-    });
-
-    document.getElementById('cancelEditItem').addEventListener('click', hideEditForm);
-
-    document.getElementById('editItemForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const id = document.getElementById('editItemId').value;
-        const name = document.getElementById('editItemName').value.trim();
-        const description = document.getElementById('editItemDescription').value.trim();
-        const price = parseFloat(document.getElementById('editItemPrice').value);
-        const category = document.getElementById('editItemCategory').value.trim();
-        const available = document.getElementById('editItemAvailable').value === 'true';
-        const type = document.getElementById('editItemType').value;
-
-        if (!name || !description || !category || isNaN(price) || price < 0) {
-            showToast('error', 'Validation Error', 'Please fill all fields correctly and ensure price is valid.');
-            return;
-        }
-
-        const menuItem = {
-            id: parseInt(id),
-            name: name,
-            description: description,
-            price: price,
-            category: category,
-            available: available,
-            type: type
-        };
-
-        fetch(contextPath + '/menu-items', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(menuItem)
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Item Updated Successfully!', `"${name}" has been updated.`);
-                    hideEditForm();
-                    const activeCategoryBtn = document.querySelector('.category-btn.active');
-                    let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
-                    if (activeCategory === 'All') activeCategory = null;
-                    const available = getAvailabilityState();
-                    loadMenu(activeCategory, available);
-                } else {
-                    showToast('error', 'Failed to Update Item', data.message || 'An unexpected error occurred. Please try again.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
-            });
-    });
-
-    document.getElementById('deleteItemBtn').addEventListener('click', () => {
-        const itemName = document.getElementById('editItemName').value;
-        showDeleteConfirmation(itemName);
-    });
-
-    document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteConfirmation);
-
-    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-        const id = document.getElementById('editItemId').value;
-        const itemName = document.getElementById('editItemName').value;
-
-        fetch(contextPath + '/menu-items?id=' + id, {
-            method: 'DELETE'
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Item Deleted Successfully!', `"${itemName}" has been removed from the menu.`);
-                    hideDeleteConfirmation();
-                    hideEditForm();
-                    const activeCategoryBtn = document.querySelector('.category-btn.active');
-                    let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
-                    if (activeCategory === 'All') activeCategory = null;
-                    const available = getAvailabilityState();
-                    loadMenu(activeCategory, available);
-                } else {
-                    showToast('error', 'Failed to Delete Item', data.message || 'An unexpected error occurred. Please try again.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
-            });
-    });
-
-    document.getElementById('setSpecialBtn').addEventListener('click', () => {
-        const id = document.getElementById('editItemId').value;
-        const itemName = document.getElementById('editItemName').value;
-
-        setTodaysSpecial(id, itemName);
-        hideEditForm();
-    });
+    function hideDeleteConfirmation() {
+        document.getElementById('deleteConfirmDialog').style.display = 'none';
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
 
     function setTodaysSpecial(itemId, itemName) {
         fetch(contextPath + '/menu-items/set-special?id=' + itemId, {
@@ -794,14 +698,39 @@
                 if (data.success) {
                     showToast('success', 'Today\'s Special Set!', `"${itemName}" is now today\'s special.`);
                     loadTodaysSpecial(); // Refresh the banner
-                    // Reload the menu to update button states
                     const activeCategoryBtn = document.querySelector('.category-btn.active');
-                    let activeCategory = activeCategoryBtn ? activeCategoryBtn.textContent.trim() : null;
+                    let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
                     if (activeCategory === 'All') activeCategory = null;
                     const available = getAvailabilityState();
-                    loadMenu(activeCategory, available);
+                    const searchTerm = document.getElementById('searchInput').value.trim();
+                    loadMenu(activeCategory, available, searchTerm);
                 } else {
                     showToast('error', 'Failed to Set Special', data.message || 'An unexpected error occurred. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
+            });
+    }
+
+    function clearTodaysSpecial() {
+        fetch(contextPath + '/menu-items/clear-special', {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Special Cleared!', 'Today\'s special has been removed.');
+                    loadTodaysSpecial(); // Refresh the banner
+                    const activeCategoryBtn = document.querySelector('.category-btn.active');
+                    let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
+                    if (activeCategory === 'All') activeCategory = null;
+                    const available = getAvailabilityState();
+                    const searchTerm = document.getElementById('searchInput').value.trim();
+                    loadMenu(activeCategory, available, searchTerm);
+                } else {
+                    showToast('error', 'Failed to Clear Special', data.message || 'An unexpected error occurred. Please try again.');
                 }
             })
             .catch(error => {
@@ -839,10 +768,189 @@
         }, 4000);
     }
 
+    document.getElementById('addNewItemBtn').addEventListener('click', function() {
+        console.log('[v0] New Item button clicked!');
+        console.log('[v0] Form container element:', document.getElementById('newItemFormContainer'));
+        console.log('[v0] Modal overlay element:', document.getElementById('modalOverlay'));
+
+        const formContainer = document.getElementById('newItemFormContainer');
+        const modalOverlay = document.getElementById('modalOverlay');
+
+        if (formContainer && modalOverlay) {
+            formContainer.style.display = 'block';
+            modalOverlay.style.display = 'block';
+            console.log('[v0] Form and overlay should now be visible');
+        } else {
+            console.error('[v0] Could not find form container or modal overlay elements');
+        }
+    });
+
+    document.getElementById('cancelNewItem').addEventListener('click', function() {
+        console.log('[v0] Cancel new item clicked');
+        document.getElementById('newItemFormContainer').style.display = 'none';
+        document.getElementById('modalOverlay').style.display = 'none';
+        document.getElementById('newItemForm').reset();
+    });
+
+    document.getElementById('newItemForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const itemData = {
+            name: formData.get('name'),
+            description: formData.get('description'),
+            price: parseFloat(formData.get('price')),
+            category: formData.get('category'),
+            available: formData.get('available') === 'true',
+            type: formData.get('type')
+        };
+
+        fetch(contextPath + '/menu-items', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(itemData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Item Added!', `"${itemData.name}" has been added to the menu.`);
+                    document.getElementById('newItemFormContainer').style.display = 'none';
+                    document.getElementById('modalOverlay').style.display = 'none';
+                    document.getElementById('newItemForm').reset();
+
+                    // Refresh the menu
+                    const activeCategoryBtn = document.querySelector('.category-btn.active');
+                    let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
+                    if (activeCategory === 'All') activeCategory = null;
+                    const available = getAvailabilityState();
+                    const searchTerm = document.getElementById('searchInput').value.trim();
+                    loadMenu(activeCategory, available, searchTerm);
+                } else {
+                    if (data.message && data.message.includes('already exists')) {
+                        showToast('error', 'Duplicate Name Error', data.message);
+                    } else {
+                        showToast('error', 'Failed to Add Item', data.message || 'An unexpected error occurred.');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please try again.');
+            });
+    });
+
+    document.getElementById('cancelEditItem').addEventListener('click', hideEditForm);
+
+    document.getElementById('editItemForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const itemData = {
+            id: parseInt(formData.get('id')),
+            name: formData.get('name'),
+            description: formData.get('description'),
+            price: parseFloat(formData.get('price')),
+            category: formData.get('category'),
+            available: formData.get('available') === 'true',
+            type: formData.get('type')
+        };
+
+        fetch(contextPath + '/menu-items', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(itemData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Item Updated!', `"${itemData.name}" has been updated.`);
+                    hideEditForm();
+
+                    // Refresh the menu
+                    const activeCategoryBtn = document.querySelector('.category-btn.active');
+                    let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
+                    if (activeCategory === 'All') activeCategory = null;
+                    const available = getAvailabilityState();
+                    const searchTerm = document.getElementById('searchInput').value.trim();
+                    loadMenu(activeCategory, available, searchTerm);
+                } else {
+                    showToast('error', 'Failed to Update Item', data.message || 'An unexpected error occurred.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please try again.');
+            });
+    });
+
+    document.getElementById('deleteItemBtn').addEventListener('click', function() {
+        const itemName = document.getElementById('editItemName').value;
+        hideEditForm();
+        showDeleteConfirmation(itemName);
+    });
+
+    document.getElementById('setSpecialBtn').addEventListener('click', function() {
+        const itemId = document.getElementById('editItemId').value;
+        const itemName = document.getElementById('editItemName').value;
+        setTodaysSpecial(itemId, itemName);
+        hideEditForm();
+    });
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        const itemId = document.getElementById('editItemId').value;
+
+        fetch(contextPath + '/menu-items?id=' + itemId, {
+            method: 'DELETE'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Item Deleted!', 'The item has been removed from the menu.');
+                    hideDeleteConfirmation();
+
+                    // Refresh the menu
+                    const activeCategoryBtn = document.querySelector('.category-btn.active');
+                    let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
+                    if (activeCategory === 'All') activeCategory = null;
+                    const available = getAvailabilityState();
+                    const searchTerm = document.getElementById('searchInput').value.trim();
+                    loadMenu(activeCategory, available, searchTerm);
+                } else {
+                    showToast('error', 'Failed to Delete Item', data.message || 'An unexpected error occurred.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please try again.');
+            });
+    });
+
+    document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteConfirmation);
+
+    document.getElementById('modalOverlay').addEventListener('click', function() {
+        document.getElementById('newItemFormContainer').style.display = 'none';
+        document.getElementById('editItemFormContainer').style.display = 'none';
+        document.getElementById('deleteConfirmDialog').style.display = 'none';
+        this.style.display = 'none';
+    });
+
+    function initializeToggleState() {
+        const toggle = document.querySelector('.toggle-switch');
+        toggle.classList.add('active'); // Initially show only available items
+        toggle.style.backgroundColor = '#4CAF50'; // Green for available
+    }
+
+    console.log('[v0] Page loaded, initializing...');
+    console.log('[v0] Add new item button element:', document.getElementById('addNewItemBtn'));
+
     initializeToggleState();
     loadTodaysSpecial();
     const defaultCategoryBtn = document.querySelector('.category-btn.active');
-    let defaultCategory = defaultCategoryBtn ? defaultCategoryBtn.textContent.trim() : 'All';
+    let defaultCategory = defaultCategoryBtn ? (defaultCategoryBtn.getAttribute('data-category') || defaultCategoryBtn.textContent.trim()) : 'All';
     if (defaultCategory === 'All') defaultCategory = null;
     const initialAvailable = getAvailabilityState(); // This will now return true (available only)
     console.log('[v0] Initial load with category:', defaultCategory, 'available:', initialAvailable); // Debug log

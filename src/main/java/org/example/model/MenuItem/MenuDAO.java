@@ -9,6 +9,15 @@ public class MenuDAO {
 
     // Add new item
     public boolean addMenuItem(MenuItem item) {
+        try {
+            if (isItemNameExists(item.getName())) {
+                return false; // Name already exists
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
         String sql = "INSERT INTO MenuItems (name, description, price, category, available, type) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -234,6 +243,51 @@ public class MenuDAO {
             }
         }
         return items;
+    }
+
+    public List<MenuItem> getMenuItemsByType(String type) throws SQLException {
+        List<MenuItem> items = new ArrayList<>();
+        String sql = "SELECT * FROM MenuItems WHERE type = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, type);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    items.add(mapRowToMenuItem(rs));
+                }
+            }
+        }
+        return items;
+    }
+
+    public List<MenuItem> getMenuItemsByTypeAndAvailability(String type, boolean available) throws SQLException {
+        List<MenuItem> items = new ArrayList<>();
+        String sql = "SELECT * FROM MenuItems WHERE type = ? AND available = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, type);
+            ps.setBoolean(2, available);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    items.add(mapRowToMenuItem(rs));
+                }
+            }
+        }
+        return items;
+    }
+
+    public boolean isItemNameExists(String name) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM MenuItems WHERE name = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, name);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
     }
 
 }
