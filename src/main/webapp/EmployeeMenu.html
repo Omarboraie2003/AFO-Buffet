@@ -369,6 +369,12 @@
             gap: 10px;
         }
 
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .nav-arrow {
             width: 40px;
             height: 40px;
@@ -381,12 +387,13 @@
             align-items: center;
             justify-content: center;
             transition: background 0.3s;
+            font-size: 25px;
+            transform: translateY(150px); /* Moving arrows down slightly */
         }
 
         .nav-arrow:hover {
-            background: #ec8e58;
+            background: #d67a47;
         }
-
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -532,11 +539,62 @@
             text-decoration: none;
         }
 
-        /* hide scrollbar (optional) */
+
         .menu-grid::-webkit-scrollbar {
-            display: none;
+            height: 8px; /* Increased from 6px for better touch interaction */
         }
 
+        .menu-grid::-webkit-scrollbar-track {
+            background: rgba(241, 241, 241, 0.3); /* Made track more faded */
+            border-radius: 2px; /* Made more rectangular (reduced from 10px) */
+            margin: 0 5px; /* Adds margin to track for cleaner look */
+        }
+
+        .menu-grid::-webkit-scrollbar-thumb {
+            background: rgba(136, 136, 136, 0.4); /* Made thumb more faded and removed gradient */
+            border-radius: 2px; /* Made more rectangular (reduced from 10px) */
+            border: none; /* Removed border for cleaner look */
+            transition: all 0.3s ease;
+            min-width: 30px; /* Ensures thumb is always grabbable */
+        }
+
+        .menu-grid::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 102, 102, 0.6); /* Made hover state more faded */
+            transform: none; /* Removed scaling effect for simpler interaction */
+            box-shadow: none; /* Removed shadow for cleaner look */
+        }
+
+        .menu-grid::-webkit-scrollbar-thumb:active {
+            background: rgba(85, 85, 85, 0.7); /* Made active state more faded */
+        }
+
+        .nav-container:not(:hover) .menu-grid::-webkit-scrollbar {
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-container:hover .menu-grid::-webkit-scrollbar {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-container::after {
+            content: "";
+            position: absolute;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(136, 136, 136, 0.4)); /* Made scroll indicator more faded */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .nav-container:hover::after {
+            opacity: 0.6;
+        }
 
 
         /* Responsive Design */
@@ -677,15 +735,17 @@
             <div class="section-title"> Breakfast</div>
             <div class="menu-header">
                 <h2>Breakfast Dishes<br>From Our Menu</h2>
-                <div class="nav-arrows">
-                    <button class="nav-arrow">‹</button>
-                    <button class="nav-arrow">›</button>
+
+            </div>
+            <div class="nav-arrows">
+
+                <button class="nav-arrow nav-arrow-left" onclick="scrollMenu(this, 'left')">‹</button>
+                <div class="menu-grid">
+                    <!-- Your menu items will be loaded here dynamically -->
                 </div>
+                <button class="nav-arrow nav-arrow-right" onclick="scrollMenu(this, 'right')">›</button>
             </div>
 
-        <div class="menu-grid">
-            <!-- Dynamic breakfast items will be loaded here -->
-        </div>
         </div>
     </section>
 
@@ -695,15 +755,16 @@
             <div class="section-title">Special Sandwiches</div>
             <div class="menu-header">
                 <h2>Sandwiches<br>From Our Menu</h2>
-                <div class="nav-arrows">
-                    <button class="nav-arrow">‹</button>
-                    <button class="nav-arrow">›</button>
+
+            </div>
+            <div class="nav-arrows">
+                <button class="nav-arrow nav-arrow-left" onclick="scrollMenu(this, 'left')">‹</button>
+                <div class="menu-grid">
+                    <!-- Your menu items will be loaded here dynamically -->
                 </div>
+                <button class="nav-arrow nav-arrow-right" onclick="scrollMenu(this, 'right')">›</button>
             </div>
 
-        <div class="menu-grid">
-            <!-- Dynamic sandwich items will be loaded here -->
-        </div>
         </div>
 
     </section>
@@ -714,14 +775,16 @@
             <div class="section-title">Special Salads</div>
             <div class="menu-header">
                 <h2>Salad Dishes<br>From Our Menu</h2>
-                <div class="nav-arrows">
-                    <button class="nav-arrow">‹</button>
-                    <button class="nav-arrow">›</button>
-                </div>
+
             </div>
-        <div class="menu-grid">
-            <!-- Dynamic salad items will be loaded here -->
-        </div>
+            <div class="nav-arrows">
+                <button class="nav-arrow nav-arrow-left" onclick="scrollMenu(this, 'left')">‹</button>
+                <div class="menu-grid">
+                    <!-- Your menu items will be loaded here dynamically -->
+                </div>
+                <button class="nav-arrow nav-arrow-right" onclick="scrollMenu(this, 'right')">›</button>
+            </div>
+
         </div>
 
     </section>
@@ -732,14 +795,16 @@
             <div class="section-title">Plates</div>
             <div class="menu-header">
                 <h2>Plates <br>From Our Menu</h2>
-                <div class="nav-arrows">
-                    <button class="nav-arrow">‹</button>
-                    <button class="nav-arrow">›</button>
-                </div>
+
             </div>
-        <div class="menu-grid">
-            <!-- Dynamic plate items will be loaded here -->
-        </div>
+            <div class="nav-arrows">
+                <button class="nav-arrow nav-arrow-left" onclick="scrollMenu(this, 'left')">‹</button>
+                <div class="menu-grid">
+                    <!-- Your menu items will be loaded here dynamically -->
+                </div>
+                <button class="nav-arrow nav-arrow-right" onclick="scrollMenu(this, 'right')">›</button>
+            </div>
+
         </div>
 
     </section>
@@ -750,14 +815,16 @@
             <div class="section-title">Extras</div>
             <div class="menu-header">
                 <h2>Extras <br>From Our Menu</h2>
-                <div class="nav-arrows">
-                    <button class="nav-arrow">‹</button>
-                    <button class="nav-arrow">›</button>
-                </div>
+
             </div>
-        <div class="menu-grid">
-            <!-- Dynamic extra items will be loaded here -->
-        </div>
+            <div class="nav-arrows">
+                <button class="nav-arrow nav-arrow-left" onclick="scrollMenu(this, 'left')">‹</button>
+                <div class="menu-grid">
+                    <!-- Your menu items will be loaded here dynamically -->
+                </div>
+                <button class="nav-arrow nav-arrow-right" onclick="scrollMenu(this, 'right')">›</button>
+            </div>
+
         </div>
 
     </section>
@@ -768,6 +835,24 @@
 </body>
 </html>
 <script>
+    function setupNavigation() {
+        // Setup navigation for each section
+        const menuGrid = document.querySelector('.menu-grid');
+        const prevBtn = document.querySelector('.nav-arrows .nav-arrow:first-child');
+        const nextBtn = document.querySelector('.nav-arrows .nav-arrow:last-child');
+
+        // width of 1 card (including margin/gap)
+        const cardWidth = menuGrid.querySelector('.menu-card').offsetWidth + 20;
+
+        prevBtn.addEventListener('click', () => {
+            menuGrid.scrollBy({ left: -cardWidth, behavior: 'smooth' });
+        });
+
+        nextBtn.addEventListener('click', () => {
+            menuGrid.scrollBy({ left: cardWidth, behavior: 'smooth' });
+        });
+    }
+
     async function loadCategory(category) {
         try {
             // Call the servlet with category parameter
@@ -838,6 +923,8 @@
         loadCategory("salads")
         loadCategory("plates")
         loadCategory("extras")
+
+        setTimeout(setupNavigation, 100) // Small delay to ensure DOM is updated
     }
 
     if (document.readyState === "loading") {
@@ -849,20 +936,4 @@
 </script>
 
 
-<script>
-    const menuGrid = document.querySelector('.menu-grid');
-    const prevBtn = document.querySelector('.nav-arrows .nav-arrow:first-child');
-    const nextBtn = document.querySelector('.nav-arrows .nav-arrow:last-child');
-
-    // width of 1 card (including margin/gap)
-    const cardWidth = menuGrid.querySelector('.menu-card').offsetWidth + 20;
-
-    prevBtn.addEventListener('click', () => {
-        menuGrid.scrollBy({ left: -cardWidth, behavior: 'smooth' });
-    });
-
-    nextBtn.addEventListener('click', () => {
-        menuGrid.scrollBy({ left: cardWidth, behavior: 'smooth' });
-    });
-</script>
 

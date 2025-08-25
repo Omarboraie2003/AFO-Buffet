@@ -1,8 +1,8 @@
 package org.example.controller;
 
 import com.google.gson.Gson;
-import org.example.model.user.MenuDAO;
-import org.example.model.user.MenuItem;
+import org.example.model.MenuItem.MenuDAO;
+import org.example.model.MenuItem.MenuItem;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

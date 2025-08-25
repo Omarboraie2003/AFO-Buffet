@@ -1,8 +1,8 @@
 package org.example.controller;
 
 
-import org.example.model.user.MenuDAO;
-import org.example.model.user.MenuItem;
+import org.example.model.MenuItem.MenuItem;
+import org.example.model.MenuItem.MenuDAO;
 
 import java.sql.SQLException;
 
@@ -20,8 +20,8 @@ public class MenuController {
     }
 
     // ✅ Add item with type
-    public void addItem(String name, String desc, double price, boolean available, String type, String category, String image) throws SQLException {
-        MenuItem item = new MenuItem(0, name, desc, price, available, type, category, image);
+    public void addItem(String name, String desc, double price, boolean available, String type, String category, String image, boolean is_special) throws SQLException {
+        MenuItem item = new MenuItem(0, name, desc, price, available, type, category, image, is_special);
         menuDAO.addMenuItem(item);
     }
 
@@ -45,8 +45,8 @@ public class MenuController {
     }
 
     // ✅ Update item with type
-    public void updateItem(int id, String name, String description, double price, boolean available, String type, String category, String image) throws SQLException {
-        MenuItem item = new MenuItem(id, name, description, price, available, type, category,image);
+    public void updateItem(int id, String name, String description, double price, boolean available, String type, String category, String image, Boolean is_special) throws SQLException {
+        MenuItem item = new MenuItem(id, name, description, price, available, type, category,image, is_special);
         menuDAO.updateMenuItem(item);
     }
 
