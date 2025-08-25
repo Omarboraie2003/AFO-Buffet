@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.model.user.UserDAO;
 import org.example.model.user.UserModel;
+import org.example.util.PasswordUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -86,7 +87,8 @@ public class RegisterServlet extends HttpServlet {
                 return;
             }
 
-            boolean success = userDAO.addUser(registrationRequest.username, registrationRequest.password);
+            String hashedPassword = PasswordUtils.hashPassword(registrationRequest.password);
+            boolean success = userDAO.addUser(registrationRequest.username, hashedPassword);
             handleRegistrationResult(success, response, out);
 
         } catch (Exception e) {
@@ -255,4 +257,3 @@ public class RegisterServlet extends HttpServlet {
         }
     }
 }
-

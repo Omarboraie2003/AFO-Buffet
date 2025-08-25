@@ -25,9 +25,9 @@
         .featured-text{flex:1;position:relative;z-index:2}
         .featured-text h2{font-size:24px;color:rgba(255,255,255,0.9);margin-bottom:10px;font-weight:400}
         .featured-text h1{font-size:36px;color:#ff8300;font-weight:700;font-style:italic;text-shadow:0 2px 4px rgba(0,0,0,0.3)}
-        .featured-image{flex:1;display:flex;justify-content:center;align-items:center;max-width:250px;min-height:120px;background:rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.7);font-style:italic;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);position:relative;z-index:2}
-        .featured-image::after{content:"Featured Image"}
-        .featured-image img{width:100%;height:auto;border-radius:15px}
+        .featured-image{flex:1;display:flex;justify-content:center;align-items:center;width:250px;height:120px;background:rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.7);font-style:italic;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);position:relative;z-index:2;overflow:hidden}
+        .featured-image.no-image::after{content:"Featured Image"}
+        .featured-image img{width:100%;height:100%;border-radius:15px;object-fit:cover;transition:opacity 0.3s ease}
         .new-item-section{background:linear-gradient(135deg,#4a4a4a,#333);border-radius:20px;padding:25px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:white;cursor:pointer;transition:all 0.3s ease;height:220px}
         .new-item-section:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.2)}
         .plus-icon{width:50px;height:50px;border-radius:50%;background-color:#333;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:15px}
@@ -255,14 +255,14 @@
             </button>
         </div>
 
-        <button class="category-btn active" data-category="All">All</button>
+        <button class="category-btn active" data-category="All">All <span class="category-loader" style="display: none;">⏳</span></button>
         <!-- Added star filter button for special items -->
-        <button class="category-btn" data-category="Special" style="background: linear-gradient(135deg, #ff8300, #ffaa00); color: white; border-color: #ff8300;">⭐ Special Items</button>
-        <button class="category-btn">Salads</button>
-        <button class="category-btn">Breakfast</button>
-        <button class="category-btn">Sandwiches</button>
-        <button class="category-btn">Meal</button>
-        <button class="category-btn">Extras</button>
+        <button class="category-btn" data-category="Special" style="background: linear-gradient(135deg, #ff8300, #ffaa00); color: white; border-color: #ff8300;">⭐ Special Items <span class="category-loader" style="display: none;">⏳</span></button>
+        <button class="category-btn">Salads <span class="category-loader" style="display: none;">⏳</span></button>
+        <button class="category-btn">Breakfast <span class="category-loader" style="display: none;">⏳</span></button>
+        <button class="category-btn">Sandwiches <span class="category-loader" style="display: none;">⏳</span></button>
+        <button class="category-btn">Meal <span class="category-loader" style="display: none;">⏳</span></button>
+        <button class="category-btn">Extras <span class="category-loader" style="display: none;">⏳</span></button>
         <div class="availability-toggle">
             <span>Available</span>
             <div class="toggle-switch"></div>
@@ -290,10 +290,11 @@
             <textarea id="itemDescription" name="description" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px; min-height:80px; resize:vertical;"></textarea>
         </div>
 
-        <div>
+        <!-- Removed price input field since food is now free -->
+        <!-- <div>
             <label for="itemPrice" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Price:</label>
             <input type="number" id="itemPrice" name="price" step="0.01" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
-        </div>
+        </div> -->
 
         <div>
             <label for="itemCategory" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Category:</label>
@@ -323,6 +324,21 @@
             </select>
         </div>
 
+        <!-- Added photo upload field for new items -->
+        <div>
+            <label for="itemPhoto" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Photo:</label>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <input type="file" id="itemPhoto" name="photo" accept="image/*" style="flex:1; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+                <!-- Added X button to remove selected photo -->
+                <button type="button" id="removeNewPhoto" onclick="removeNewItemPhoto()" style="display:none; width:35px; height:35px; background:#f44336; color:white; border:none; border-radius:50%; cursor:pointer; font-size:16px; font-weight:bold; transition:all 0.2s ease;">×</button>
+            </div>
+            <small style="color:#666; font-size:12px; margin-top:5px; display:block;">Optional: Upload a photo for this menu item (JPG, PNG, GIF)</small>
+            <!-- Added image preview for new items -->
+            <div id="newPhotoPreview" style="margin-top:10px; display:none;">
+                <img id="newPhotoImg" src="/placeholder.svg" alt="Photo preview" style="max-width:150px; max-height:150px; border-radius:8px; border:1px solid #ddd;">
+            </div>
+        </div>
+
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button type="submit" style="flex:1; padding:12px; background:linear-gradient(135deg,#ff8300,#ffaa00); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Add Item</button>
             <button type="button" id="cancelNewItem" style="flex:1; padding:12px; background:#f5f5f5; color:#333; border:2px solid #ddd; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Cancel</button>
@@ -346,10 +362,11 @@
             <textarea id="editItemDescription" name="description" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px; min-height:80px; resize:vertical;"></textarea>
         </div>
 
-        <div>
+        <!-- Removed price input field from edit form since food is now free -->
+        <!-- <div>
             <label for="editItemPrice" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Price:</label>
             <input type="number" id="editItemPrice" name="price" step="0.01" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
-        </div>
+        </div> -->
 
         <div>
             <label for="editItemCategory" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Category:</label>
@@ -379,6 +396,30 @@
             </select>
         </div>
 
+        <!-- Added photo upload field for editing items -->
+        <div>
+            <label for="editItemPhoto" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Photo:</label>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <input type="file" id="editItemPhoto" name="photo" accept="image/*" style="flex:1; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
+                <!-- Added X button to remove current photo -->
+                <button type="button" id="removeEditPhoto" onclick="removeEditItemPhoto()" style="display:none; width:35px; height:35px; background:#f44336; color:white; border:none; border-radius:50%; cursor:pointer; font-size:16px; font-weight:bold; transition:all 0.2s ease;">×</button>
+            </div>
+            <small style="color:#666; font-size:12px; margin-top:5px; display:block;">Optional: Upload a new photo to replace the current one (JPG, PNG, GIF)</small>
+            <div id="currentPhotoPreview" style="margin-top:10px; display:none;">
+                <small style="color:#666; font-size:12px;">Current photo:</small>
+                <div style="position:relative; display:inline-block; margin-top:5px;">
+                    <img id="currentPhotoImg" src="/placeholder.svg" alt="Current photo" style="max-width:150px; max-height:150px; border-radius:8px; border:1px solid #ddd;">
+                    <!-- Added X button to remove current photo -->
+                    <button type="button" onclick="removeCurrentPhoto()" style="position:absolute; top:-8px; right:-8px; width:24px; height:24px; background:#f44336; color:white; border:none; border-radius:50%; cursor:pointer; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.2);">×</button>
+                </div>
+            </div>
+            <!-- Added preview for newly selected photo in edit mode -->
+            <div id="editPhotoPreview" style="margin-top:10px; display:none;">
+                <small style="color:#666; font-size:12px;">New photo preview:</small>
+                <img id="editPhotoImg" src="/placeholder.svg" alt="New photo preview" style="max-width:150px; max-height:150px; border-radius:8px; border:1px solid #ddd; margin-top:5px;">
+            </div>
+        </div>
+
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button type="submit" style="flex:1; padding:12px; background:linear-gradient(135deg,#4CAF50,#45a049); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Update Item</button>
             <button type="button" id="setSpecialBtn" style="display:none; flex:1; padding:12px; background:linear-gradient(135deg,#ff8300,#ffaa00); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Set as Today's Special</button>
@@ -406,20 +447,62 @@
 <script>
     const contextPath = '/AllForOneBuffetAPP'; // Your app context
 
+    let photoToRemove = false;
+
     function loadTodaysSpecial() {
         fetch(contextPath + '/menu-items?todaysSpecial=true')
             .then(res => res.json())
             .then(data => {
                 const specialNameElement = document.getElementById('todaysSpecialName');
+                const featuredImageElement = document.querySelector('.featured-image');
+
                 if (data && data.length > 0) {
-                    specialNameElement.textContent = data[0].name;
+                    const specialItem = data[0];
+                    specialNameElement.textContent = specialItem.name;
+
+                    if (specialItem.photoUrl) {
+                        let fullImageUrl;
+                        if (specialItem.photoUrl.startsWith(contextPath)) {
+                            fullImageUrl = specialItem.photoUrl;
+                        } else {
+                            fullImageUrl = contextPath + specialItem.photoUrl;
+                        }
+
+                        featuredImageElement.classList.remove('no-image');
+                        featuredImageElement.innerHTML = '';
+
+                        const img = document.createElement('img');
+                        img.src = fullImageUrl;
+                        img.alt = specialItem.name;
+                        img.loading = 'lazy';
+                        img.style.opacity = '0';
+
+                        img.onload = function() {
+                            this.style.opacity = '1';
+                        };
+
+                        img.onerror = function() {
+                            featuredImageElement.classList.add('no-image');
+                            featuredImageElement.innerHTML = '';
+                        };
+
+                        featuredImageElement.appendChild(img);
+                    } else {
+                        featuredImageElement.classList.add('no-image');
+                        featuredImageElement.innerHTML = '';
+                    }
                 } else {
                     specialNameElement.textContent = 'No special selected';
+                    featuredImageElement.classList.add('no-image');
+                    featuredImageElement.innerHTML = '';
                 }
             })
             .catch(err => {
-                console.error('[v0] Error loading today\'s special:', err);
+                console.error('Error loading today\'s special:', err);
                 document.getElementById('todaysSpecialName').textContent = 'No special selected';
+                const featuredImageElement = document.querySelector('.featured-image');
+                featuredImageElement.classList.add('no-image');
+                featuredImageElement.innerHTML = '';
             });
     }
 
@@ -454,6 +537,12 @@
     }
 
     function loadMenu(category = null, available = null, searchTerm = '') {
+        const activeBtn = document.querySelector('.category-btn.active');
+        const loader = activeBtn ? activeBtn.querySelector('.category-loader') : null;
+        if (loader) {
+            loader.style.display = 'inline';
+        }
+
         let url = contextPath + '/menu-items';
         const params = [];
 
@@ -480,13 +569,11 @@
                 }
                 return fetch(url);
             })
-            .then(res => {
-                console.log('[v0] Response status:', res.status);
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
-                console.log('[v0] Received data:', data);
-                console.log('[v0] Number of items received:', data.length);
+                if (loader) {
+                    loader.style.display = 'none';
+                }
 
                 let filteredData = data;
                 if (searchTerm && searchTerm.length > 0) {
@@ -496,7 +583,6 @@
                         item.description.toLowerCase().includes(searchLower) ||
                         item.category.toLowerCase().includes(searchLower)
                     );
-                    console.log('[v0] Filtered to', filteredData.length, 'items for search:', searchTerm);
                 }
 
                 const grid = document.querySelector('.products-grid');
@@ -508,12 +594,12 @@
                     grid.innerHTML = `<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">${noResultsMsg}</p>`;
                     return;
                 }
+
+                const fragment = document.createDocumentFragment();
                 filteredData.forEach(item => {
-                    console.log('[v0] Processing item:', item.name, 'category:', item.category, 'available:', item.available);
                     const card = document.createElement('div');
                     card.className = 'product-card';
                     card.addEventListener('click', (e) => {
-                        // Don't open edit form if clicking the special toggle button
                         if (!e.target.classList.contains('special-toggle')) {
                             openEditForm(item);
                         }
@@ -521,12 +607,20 @@
 
                     const imageDiv = document.createElement('div');
                     imageDiv.className = 'product-image';
-                    if (item.imageUrl) {
+                    if (item.photoUrl) {
                         const img = document.createElement('img');
-                        img.src = item.imageUrl;
+                        img.src = item.photoUrl;
+                        img.loading = 'lazy';
                         img.style.width = "100%";
                         img.style.height = "100%";
                         img.style.objectFit = "cover";
+                        img.style.transition = "opacity 0.3s ease";
+                        img.style.opacity = "0";
+
+                        img.onload = function() {
+                            this.style.opacity = "1";
+                        };
+
                         imageDiv.appendChild(img);
                     } else {
                         imageDiv.textContent = 'No Image';
@@ -543,10 +637,6 @@
                     desc.className = 'product-desc';
                     desc.textContent = item.description;
 
-                    const price = document.createElement('div');
-                    price.className = 'product-price';
-                    price.textContent = '$' + item.price.toFixed(2);
-
                     const avail = document.createElement('div');
                     avail.className = 'product-availability';
                     avail.textContent = item.available ? 'Available' : 'Unavailable';
@@ -561,7 +651,7 @@
                         }
 
                         specialToggle.addEventListener('click', (e) => {
-                            e.stopPropagation(); // Prevent opening edit form
+                            e.stopPropagation();
                             if (currentSpecialId === item.id) {
                                 clearTodaysSpecial();
                             } else {
@@ -574,24 +664,30 @@
 
                     details.appendChild(name);
                     details.appendChild(desc);
-                    details.appendChild(price);
                     details.appendChild(avail);
 
                     card.appendChild(imageDiv);
                     card.appendChild(details);
-                    grid.appendChild(card);
+                    fragment.appendChild(card);
                 });
+
+                grid.appendChild(fragment);
             })
-            .catch(err => {
-                console.error('[v0] Error fetching menu items:', err);
-                const grid = document.querySelector('.products-grid');
-                grid.innerHTML = '<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">Error loading items: ' + err.message + '</p>';
+            .catch(error => {
+                if (loader) {
+                    loader.style.display = 'none';
+                }
+                console.error('Error loading menu items:', error);
             });
     }
 
     document.querySelectorAll('.category-btn').forEach(button => {
         button.addEventListener('click', () => {
             console.log('[v0] Category button clicked:', button.textContent.trim());
+
+            document.querySelectorAll('.category-loader').forEach(loader => {
+                loader.style.display = 'none';
+            });
 
             // Update active category button
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
@@ -649,13 +745,27 @@
     }
 
     function openEditForm(item) {
+        photoToRemove = false;
+
         document.getElementById('editItemId').value = item.id;
         document.getElementById('editItemName').value = item.name;
         document.getElementById('editItemDescription').value = item.description;
-        document.getElementById('editItemPrice').value = item.price;
         document.getElementById('editItemCategory').value = item.category;
         document.getElementById('editItemAvailable').value = item.available.toString();
         document.getElementById('editItemType').value = item.type;
+
+        document.getElementById('editItemPhoto').value = '';
+        document.getElementById('editPhotoPreview').style.display = 'none';
+        document.getElementById('removeEditPhoto').style.display = 'none';
+
+        const currentPhotoPreview = document.getElementById('currentPhotoPreview');
+        const currentPhotoImg = document.getElementById('currentPhotoImg');
+        if (item.photoUrl) {
+            currentPhotoImg.src = item.photoUrl;
+            currentPhotoPreview.style.display = 'block';
+        } else {
+            currentPhotoPreview.style.display = 'none';
+        }
 
         const editFormContainer = document.getElementById('editItemFormContainer');
         const modalOverlay = document.getElementById('modalOverlay');
@@ -730,7 +840,7 @@
                     const searchTerm = document.getElementById('searchInput').value.trim();
                     loadMenu(activeCategory, available, searchTerm);
                 } else {
-                    showToast('error', 'Failed to Clear Special', data.message || 'An unexpected error occurred. Please try again.');
+                    showToast('error', 'Failed to Clear Special', data.message || 'An unexpected error occurred.');
                 }
             })
             .catch(error => {
@@ -790,32 +900,30 @@
         document.getElementById('newItemFormContainer').style.display = 'none';
         document.getElementById('modalOverlay').style.display = 'none';
         document.getElementById('newItemForm').reset();
+        document.getElementById('newPhotoPreview').style.display = 'none';
+        document.getElementById('removeNewPhoto').style.display = 'none';
     });
 
     document.getElementById('newItemForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
         const formData = new FormData(this);
-        const itemData = {
-            name: formData.get('name'),
-            description: formData.get('description'),
-            price: parseFloat(formData.get('price')),
-            category: formData.get('category'),
-            available: formData.get('available') === 'true',
-            type: formData.get('type')
-        };
+
+        // Log form data for debugging
+        console.log('[v0] Form data entries:');
+        for (let [key, value] of formData.entries()) {
+            console.log('[v0]', key, ':', value);
+        }
 
         fetch(contextPath + '/menu-items', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(itemData)
+            body: formData // Send FormData directly instead of JSON for file upload support
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showToast('success', 'Item Added!', `"${itemData.name}" has been added to the menu.`);
+                    const itemName = formData.get('name');
+                    showToast('success', 'Item Added!', `"${itemName}" has been added to the menu.`);
                     document.getElementById('newItemFormContainer').style.display = 'none';
                     document.getElementById('modalOverlay').style.display = 'none';
                     document.getElementById('newItemForm').reset();
@@ -837,9 +945,104 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('error', 'Connection Error', 'Unable to connect to server. Please try again.');
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
             });
     });
+
+    document.getElementById('itemPhoto').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('newPhotoPreview');
+        const previewImg = document.getElementById('newPhotoImg');
+        const removeBtn = document.getElementById('removeNewPhoto');
+
+        console.log('[v0] New item photo selected:', file);
+        console.log('[v0] Remove button element:', removeBtn);
+
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showToast('error', 'Invalid File Type', 'Please select an image file (JPG, PNG, GIF).');
+                e.target.value = '';
+                return;
+            }
+
+            if (file.size > 50 * 1024 * 1024) {
+                showToast('error', 'File Too Large', 'Please select an image smaller than 50MB.');
+                e.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                preview.style.display = 'block';
+                removeBtn.style.display = 'block';
+                console.log('[v0] X button should now be visible for new photo');
+                showToast('success', 'Photo Selected', 'Photo uploaded successfully! Click the X button to remove it.');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none';
+            removeBtn.style.display = 'none';
+            console.log('[v0] No file selected, X button hidden');
+        }
+    });
+
+    function removeNewItemPhoto() {
+        console.log('[v0] Removing new item photo');
+        document.getElementById('itemPhoto').value = '';
+        document.getElementById('newPhotoPreview').style.display = 'none';
+        document.getElementById('removeNewPhoto').style.display = 'none';
+        showToast('success', 'Photo Removed', 'The selected photo has been removed.');
+    }
+
+    document.getElementById('editItemPhoto').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('editPhotoPreview');
+        const previewImg = document.getElementById('editPhotoImg');
+        const removeBtn = document.getElementById('removeEditPhoto');
+
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showToast('error', 'Invalid File Type', 'Please select an image file (JPG, PNG, GIF).');
+                e.target.value = '';
+                return;
+            }
+
+            if (file.size > 50 * 1024 * 1024) {
+                showToast('error', 'File Too Large', 'Please select an image smaller than 50MB.');
+                e.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                preview.style.display = 'block';
+                removeBtn.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none';
+            removeBtn.style.display = 'none';
+        }
+    });
+
+    function removeEditItemPhoto() {
+        console.log('[v0] Removing edit item photo');
+        document.getElementById('editItemPhoto').value = '';
+        document.getElementById('editPhotoPreview').style.display = 'none';
+        document.getElementById('removeEditPhoto').style.display = 'none';
+        showToast('success', 'Photo Removed', 'The selected photo has been removed.');
+    }
+
+    function removeCurrentPhoto() {
+        console.log('[v0] Marking current photo for removal');
+        photoToRemove = true;
+        document.getElementById('currentPhotoPreview').style.display = 'none';
+        showToast('success', 'Photo Marked for Removal', 'The current photo will be removed when you save the item.');
+    }
 
     document.getElementById('cancelEditItem').addEventListener('click', hideEditForm);
 
@@ -847,27 +1050,26 @@
         e.preventDefault();
 
         const formData = new FormData(this);
-        const itemData = {
-            id: parseInt(formData.get('id')),
-            name: formData.get('name'),
-            description: formData.get('description'),
-            price: parseFloat(formData.get('price')),
-            category: formData.get('category'),
-            available: formData.get('available') === 'true',
-            type: formData.get('type')
-        };
+
+        if (photoToRemove) {
+            formData.append('removePhoto', 'true');
+        }
+
+        // Log form data for debugging
+        console.log('[v0] Edit form data entries:');
+        for (let [key, value] of formData.entries()) {
+            console.log('[v0]', key, ':', value);
+        }
 
         fetch(contextPath + '/menu-items', {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(itemData)
+            body: formData // Send FormData directly instead of JSON for file upload support
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showToast('success', 'Item Updated!', `"${itemData.name}" has been updated.`);
+                    const itemName = formData.get('name');
+                    showToast('success', 'Item Updated!', `"${itemName}" has been updated.`);
                     hideEditForm();
 
                     // Refresh the menu
@@ -883,7 +1085,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('error', 'Connection Error', 'Unable to connect to server. Please try again.');
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
             });
     });
 
@@ -925,7 +1127,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('error', 'Connection Error', 'Unable to connect to server. Please try again.');
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
             });
     });
 

@@ -1,28 +1,31 @@
 package org.example.model.MenuItem;
 
-
 public class MenuItem {
     private int id;
     private String name;
     private String description;
-    private double price;
     private boolean available;
     private String type;
     private String category;
+    private boolean isSpecial;
+    private String photoUrl; // Added photo URL field for image uploads
 
     // Constructors
     public MenuItem() {}
-    public MenuItem(int id, String name, String description, double price, boolean available, String type,String category) {
+
+    public MenuItem(int id, String name, String description, boolean available,
+                    String type, String category, boolean isSpecial, String photoUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.price = price;
         this.available = available;
         this.type = type;
         this.category = category;
+        this.isSpecial = isSpecial;
+        this.photoUrl = photoUrl;
     }
 
-    // Getters & Setters
+    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -31,9 +34,6 @@ public class MenuItem {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-
-    public double getPrice() { return price; }
-    public void setPrice(double price) { this.price = price; }
 
     public boolean isAvailable() { return available; }
     public void setAvailable(boolean available) { this.available = available; }
@@ -44,9 +44,10 @@ public class MenuItem {
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
 
-    @Override
-    public String toString() {
-        return "MenuItem{name='" + name + "', description='" + description +
-                "', price=" + price + ", category='" + category + "'}";
-    }
+    public boolean isSpecial() { return isSpecial; }
+    public void setSpecial(boolean special) { isSpecial = special; }
+
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+
 }
