@@ -1,13 +1,10 @@
 package org.example.controller;
 
 
-import org.example.model.MenuItem.MenuDAO;
 import org.example.model.MenuItem.MenuItem;
+import org.example.model.MenuItem.MenuDAO;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class MenuController {
     private MenuDAO menuDAO;
@@ -23,33 +20,23 @@ public class MenuController {
     }
 
     // ✅ Add item with type
-    public void addItem(String name, String desc, double price, boolean available, String type,String category) throws SQLException {
-        MenuItem item = new MenuItem(0, name, desc, price, available, type,category);
+    public void addItem(String name, String desc, double price, boolean available, String type, String category, String image, boolean is_special) throws SQLException {
+        MenuItem item = new MenuItem(0, name, desc, price, available, type, category, image, is_special);
         menuDAO.addMenuItem(item);
     }
 
-    // ✅ Show menu for employee (group by category)
+    // ✅ Show menu for employee (include type)
     public void showMenuForEmployee() throws SQLException {
-        List<MenuItem> items = menuDAO.getAvailableMenuItems();
-
-        // Group items by category
-        Map<String, List<MenuItem>> grouped = items.stream()
-                .collect(Collectors.groupingBy(MenuItem::getCategory));
-
-        for (String category : grouped.keySet()) {
-            System.out.println("\n=== " + category.toUpperCase() + " ===");
-            for (MenuItem item : grouped.get(category)) {
-                System.out.println(item.getType() + " | " + item.getName() + " - " + item.getPrice());
-            }
+        for (MenuItem item : menuDAO.getAvailableMenuItems()) {
+            System.out.println(item.getType() + " | " + item.getName() + " - " + item.getPrice());
         }
     }
 
-    // ✅ Show menu for chef (include type + category)
+    // ✅ Show menu for chef (include type)
     public void showMenuForChef() throws SQLException {
         for (MenuItem item : menuDAO.getAllMenuItems()) {
             System.out.println(
                     item.getId() + " | " +
-                            item.getCategory() + " | " +
                             item.getType() + " | " +
                             item.getName() + " | " +
                             item.getPrice() + " | Available: " + item.isAvailable()
@@ -58,8 +45,8 @@ public class MenuController {
     }
 
     // ✅ Update item with type
-    public void updateItem(int id, String name, String description, double price, boolean available, String type, String category) throws SQLException {
-        MenuItem item = new MenuItem(id, name, description, price, available, type, category );
+    public void updateItem(int id, String name, String description, double price, boolean available, String type, String category, String image, Boolean is_special) throws SQLException {
+        MenuItem item = new MenuItem(id, name, description, price, available, type, category,image, is_special);
         menuDAO.updateMenuItem(item);
     }
 
