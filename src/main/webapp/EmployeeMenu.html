@@ -231,18 +231,17 @@
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s;
-            transform: translateX(40%);
 
         }
         .nuggets-image {
             position: absolute;
             top: -120px;   /* move image upward over text box */
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-40%);
             z-index: 2;   /* make sure image is above text box */
         }
         .nuggets-image img {
-            width: 140%;
+            width: 120%;
             border-radius: 20px;
 
         }
@@ -595,6 +594,34 @@
         .nav-container:hover::after {
             opacity: 0.6;
         }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .popup-overlay.active {
+            display: flex;
+        }
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+        }
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+        }
 
 
         /* Responsive Design */
@@ -618,6 +645,147 @@
                 display: none;
             }
         }
+
+        /* Overlay */
+        .popup-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none; /* stays hidden until JS shows it */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* Popup container */
+        .popup-content {
+            background: #fff;
+            border-radius: 12px;
+            max-width: 900px;
+            width: 90%;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Close button */
+        .popup-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #eee;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* Layout */
+        .main-content {
+            display: flex;
+            gap: 30px;
+        }
+        .product-image img {
+            max-width: 280px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        /* Details */
+        .product-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .product-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .price {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ff6b35;
+        }
+        .rating {
+            font-size: 16px;
+            color: #555;
+        }
+
+        /* Bread options */
+        .bread-section {
+            margin: 20px 0;
+        }
+        .bread-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .bread-options {
+            display: flex;
+            gap: 15px;
+        }
+        .bread-option label {
+            margin-left: 5px;
+        }
+
+        /* Description */
+        .product-description {
+            margin: 15px 0;
+            color: #444;
+        }
+
+        /* Notes */
+        .order-notes-title {
+            font-weight: 600;
+            margin: 15px 0 5px;
+        }
+        .notes-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        /* Order button */
+        .order-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 30px;
+            background: #ff6b35;
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .order-btn:hover {
+            background: #e85a2c;
+        }
+        .description-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                align-items: center;
+            }
+            .product-image img {
+                max-width: 100%;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -654,28 +822,28 @@
         </div>
     </div>
 </section>
-
-<!-- Nuggets Section -->
+<!-- Special Dish Section -->
 <section class="nuggets-section">
     <div class="container">
         <div class="nuggets-content">
             <div class="nuggets-text">
-                <h2>NUGGETS</h2>
+                <h2 id="special-dish-title">NUGGETS</h2>
                 <button class="order-btn">Order now</button>
             </div>
             <div class="nuggets-image">
-                <img src="Images/nuggets.png" alt="Chicken Nuggets">
+                <img id="special-dish-image" src="Images/nuggets.png" alt="Chicken Nuggets">
                 <p class="special-text">Today's special</p>
             </div>
-            <div class= "nuggets-arrow1">
+            <div class="nuggets-arrow1">
                 <img src="Images/image1.png" alt="arrow1">
             </div>
-            <div class= "nuggets-arrow2">
+            <div class="nuggets-arrow2">
                 <img src="Images/image2.png" alt="arrow2">
             </div>
         </div>
     </div>
 </section>
+
 
 <!-- Categories Section -->
 <section id="categories" class="categories">
@@ -828,31 +996,87 @@
         </div>
 
     </section>
+<!-- Popup Modal -->
+<div class="popup-overlay" id="itemPopup">
+    <div class="popup-content">
+        <!-- Close button -->
+        <button class="popup-close" onclick="closeItemPopup()">×</button>
 
+        <main class="main-content">
+            <!-- Product Image -->
+            <div class="product-image">
+                <img id="popupProductImage" src="" alt="Product Image">
+            </div>
 
+            <!-- Product Details -->
+            <div class="product-details">
+                <!-- Title -->
+                <h1 class="product-title" id="popupProductTitle"></h1>
 
+                <!-- Price + Rating -->
+                <div class="product-meta">
+                    <div class="price">
+                        <span id="popupProductPrice"></span>
+                    </div>
+                    <div class="rating" id="popupProductRating"></div>
+                </div>
+
+                <!-- Description -->
+                <p class="description-label">Description of the item:</p>
+                <p class="product-description" id="popupProductDescription">
+                    <!-- JS will fill this -->
+                </p>
+
+                <!-- Bread Section (only for sandwiches) -->
+                <div class="bread-section" id="popupBreadSection" style="display:none;">
+                    <div class="bread-title">Bread :</div>
+                    <div class="bread-options">
+                        <div class="bread-option">
+                            <input type="radio" id="eish" name="bread" value="eish">
+                            <label for="eish">eish baladi</label>
+                        </div>
+                        <div class="bread-option">
+                            <input type="radio" id="toast" name="bread" value="toast" checked>
+                            <label for="toast">toast</label>
+                        </div>
+                        <div class="bread-option">
+                            <input type="radio" id="tortilla" name="bread" value="tortilla">
+                            <label for="tortilla">tortilla</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Notes -->
+                <div class="order-notes">
+                    <div class="order-notes-title">Order Notes:</div>
+                    <textarea class="notes-input" placeholder="Type here"></textarea>
+                </div>
+
+                <!-- Order Button -->
+                <button class="order-btn">Order now</button>
+            </div>
+        </main>
+    </div>
+</div>
 
 </body>
 </html>
 <script>
+
     function setupNavigation() {
         // Setup navigation for each section
         const menuGrid = document.querySelector('.menu-grid');
         const prevBtn = document.querySelector('.nav-arrows .nav-arrow:first-child');
         const nextBtn = document.querySelector('.nav-arrows .nav-arrow:last-child');
-
         // width of 1 card (including margin/gap)
         const cardWidth = menuGrid.querySelector('.menu-card').offsetWidth + 20;
-
         prevBtn.addEventListener('click', () => {
             menuGrid.scrollBy({ left: -cardWidth, behavior: 'smooth' });
         });
-
         nextBtn.addEventListener('click', () => {
             menuGrid.scrollBy({ left: cardWidth, behavior: 'smooth' });
         });
     }
-
     async function loadCategory(category) {
         try {
             // Call the servlet with category parameter
@@ -861,72 +1085,126 @@
                 throw new Error("Servlet response error: " + res.status)
             }
             const items = await res.json()
-
             const section = document.getElementById(category)
             if (!section) {
                 console.error("No section found for category:", category)
                 return
             }
-
             const grid = section.querySelector(".menu-grid")
             if (!grid) {
                 console.error("No grid found in section for category:", category)
                 return
             }
-
             grid.innerHTML = "" // Clear existing hardcoded items
-
             if (!items || items.length === 0) {
                 console.log("No items found for category:", category)
                 return
             }
-
             items.forEach((item) => {
-                const card = document.createElement("div")
-                card.className = "menu-card"
-                let imageSrc = "Images/falafel.png" // Default fallback
+                const card = document.createElement("div");
+                card.className = "menu-card";
 
+                let imageSrc = "Images/falafel.png";
                 if (item.image && item.image !== null) {
-                    // Handle different possible image path formats
-
-                        // If database contains just the filename
-                        imageSrc = `Images/${item.image}`
-
+                    imageSrc = `Images/${item.image}`;
                 }
+
                 card.innerHTML = `
-                <button class="add-btn">+</button>
-                <img src="${imageSrc}" alt="${item.name}">
-                <div class="card-content">
-                    <h3>${item.name}</h3>
-                    <p class="card-description">${item.description || "Description of the item"}</p>
-                    <div class="card-footer">
-                        <span class="price">${item.price}</span>
-                        <div class="rating">⭐ 4.5</div>
-                    </div>
-                </div>
-            `
-                grid.appendChild(card)
-            })
+    <button class="add-btn">+</button>
+    <img src="${imageSrc}" alt="${item.name}">
+    <div class="card-content">
+      <h3>${item.name}</h3>
+      <p class="card-description">${item.description || "Description of the item"}</p>
+      <div class="card-footer">
+        <span class="price">${item.price}</span>
+        <div class="rating">⭐ 4.5</div>
+      </div>
+    </div>
+  `;
+
+                // ✅ Click opens popup with details
+                card.addEventListener("click", () => openItemPopup(item));
+
+                grid.appendChild(card);
+            });
 
             console.log(`Successfully loaded ${items.length} items for ${category}`)
         } catch (err) {
             console.error("Error loading category:", category, err)
         }
     }
+    function openItemPopup(item) {
+        document.getElementById("popupProductTitle").textContent = item.name;
+        document.getElementById("popupProductPrice").textContent = item.price;
+        document.getElementById("popupProductRating").textContent = item.rating || "⭐ 4.5";
+        document.getElementById("popupProductImage").src = `Images/${item.image || "falafel.png"}`;
+        document.getElementById("popupProductImage").alt = item.name;
+        document.getElementById("popupProductDescription").textContent = item.description || "No description available.";
 
-    function initializeMenu() {
-        console.log("Initializing dynamic menu...")
+        if (item.category && item.category.toLowerCase() === "sandwiches") {
+            document.getElementById("popupBreadSection").style.display = "block";
+        } else {
+            document.getElementById("popupBreadSection").style.display = "none";
+        }
 
-        // Load all categories
-        loadCategory("breakfast")
-        loadCategory("sandwiches")
-        loadCategory("salads")
-        loadCategory("plates")
-        loadCategory("extras")
-
-        setTimeout(setupNavigation, 100) // Small delay to ensure DOM is updated
+        document.getElementById("itemPopup").classList.add("active");
+        document.body.style.overflow = "hidden";
     }
 
+
+    function closeItemPopup() {
+        document.getElementById("itemPopup").classList.remove("active");
+        document.body.style.overflow = "auto";
+    }
+
+
+    async function loadSpecialDish() {
+        try {
+            // Call backend for today's special
+            const res = await fetch("/AllForOneBuffetAPP/menu?is_special=true");
+            if (!res.ok) {
+                throw new Error("Servlet response error: " + res.status);
+            }
+            const special = await res.json();
+            console.log("Raw special response:", special);
+
+            if (!special) {
+                console.warn("No special dish found");
+                return;
+            }
+
+            // Update DOM
+            const titleEl = document.getElementById("special-dish-title");
+            const imgEl = document.getElementById("special-dish-image");
+
+            if (titleEl) titleEl.textContent = special.name;
+            if (imgEl) {
+                imgEl.src = `Images/${special.image || "falafel.png"}`;
+                imgEl.alt = special.name;
+            }
+
+            console.log("Today's special loaded:", special.name);
+
+        } catch (err) {
+            console.error("Error loading today's special:", err);
+        }
+    }
+
+    function initializeMenu() {
+        console.log("Initializing dynamic menu...");
+
+        // Load today's special
+        loadSpecialDish();
+
+        // Load all categories
+        loadCategory("breakfast");
+        loadCategory("sandwiches");
+        loadCategory("salads");
+        loadCategory("plates");
+        loadCategory("extras");
+
+        setTimeout(setupNavigation, 100); // Ensure DOM updated
+    }
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", initializeMenu)
     } else {
@@ -934,6 +1212,4 @@
     }
 
 </script>
-
-
 

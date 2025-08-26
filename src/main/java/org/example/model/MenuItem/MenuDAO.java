@@ -1,5 +1,4 @@
 package org.example.model.MenuItem;
-
 import java.sql.*;
 import java.util.*;
 
@@ -176,4 +175,33 @@ public class MenuDAO {
             return false;
         }
     }
+    public MenuItem getTodaysSpecial() throws SQLException {
+        String sql = "SELECT * FROM MenuItems WHERE is_special = 1 AND available = 1";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return new MenuItem(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getBoolean("available"),
+                        rs.getString("type"),
+                        rs.getString("category"),
+                        rs.getString("image"),
+                        rs.getBoolean("is_special")
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error in getTodaysSpecial: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+
+        return null; // No special dish found
+    }
+
 }

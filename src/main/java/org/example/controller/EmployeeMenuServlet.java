@@ -31,8 +31,8 @@ public class EmployeeMenuServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         String category = request.getParameter("category");
-
-        System.out.println("[DEBUG] MenuServlet doGet called with category: " + category);
+        String isSpecial = request.getParameter("is_special");
+        System.out.println("[DEBUG] MenuServlet doGet called with category: " + category + ", special: " + isSpecial);
 
         try {
             if (menuDAO == null) {
@@ -59,7 +59,19 @@ public class EmployeeMenuServlet extends HttpServlet {
                 response.getWriter().write("{\"error\":\"Database connection failed: " + dbTest.getMessage() + "\"}");
                 return;
             }
-
+            // ✅ Handle special dish request
+            if ( "true".equalsIgnoreCase(isSpecial)) {
+                System.out.println("[DEBUG] Fetching today's special item...");
+                MenuItem specialItem = menuDAO.getTodaysSpecial(); // your DAO method uses is_special column
+                if (specialItem == null) {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    response.getWriter().write("{\"error\":\"No special item found\"}");
+                } else {
+                    String json = gson.toJson(specialItem);
+                    response.getWriter().write(json);
+                }
+                return; // ✅ stop further category logic
+            }
             List<MenuItem> items;
 
             if (category != null && !category.isEmpty()) {
