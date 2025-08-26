@@ -823,7 +823,7 @@
     </div>
 </section>
 <!-- Special Dish Section -->
-<section class="nuggets-section">
+<section class="nuggets-section" id="nuggets">
     <div class="container">
         <div class="nuggets-content">
             <div class="nuggets-text">
@@ -1064,19 +1064,41 @@
 <script>
 
     function setupNavigation() {
-        // Setup navigation for each section
+        // Setup navigation for menu cards
         const menuGrid = document.querySelector('.menu-grid');
         const prevBtn = document.querySelector('.nav-arrows .nav-arrow:first-child');
         const nextBtn = document.querySelector('.nav-arrows .nav-arrow:last-child');
-        // width of 1 card (including margin/gap)
-        const cardWidth = menuGrid.querySelector('.menu-card').offsetWidth + 20;
-        prevBtn.addEventListener('click', () => {
-            menuGrid.scrollBy({ left: -cardWidth, behavior: 'smooth' });
-        });
-        nextBtn.addEventListener('click', () => {
-            menuGrid.scrollBy({ left: cardWidth, behavior: 'smooth' });
-        });
+
+        if (menuGrid && prevBtn && nextBtn) {
+            // width of 1 card (including margin/gap)
+            const cardWidth = menuGrid.querySelector('.menu-card').offsetWidth + 20;
+
+            prevBtn.addEventListener('click', () => {
+                menuGrid.scrollBy({ left: -cardWidth, behavior: 'smooth' });
+            });
+
+            nextBtn.addEventListener('click', () => {
+                menuGrid.scrollBy({ left: cardWidth, behavior: 'smooth' });
+            });
+        }
+
+        // Smooth scroll to nuggets section when clicking Explore
+        const exploreBtn = document.querySelector(".explore-btn");
+        const nuggetsSection = document.querySelector("#nuggets");
+
+        if (exploreBtn && nuggetsSection) {
+            exploreBtn.addEventListener("click", () => {
+                const yOffset = -120; // 👈 adjust this number (negative = stop earlier)
+                const y = nuggetsSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+                window.scrollTo({ top: y, behavior: "smooth" });
+            });
+        }
     }
+
+    // Run setup after DOM is ready
+    document.addEventListener("DOMContentLoaded", setupNavigation);
+
     async function loadCategory(category) {
         try {
             // Call the servlet with category parameter
