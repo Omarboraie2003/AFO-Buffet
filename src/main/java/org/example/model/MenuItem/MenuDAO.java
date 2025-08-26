@@ -300,6 +300,55 @@ public class MenuDAO {
         return null;
     }
 
+    // Search menu items by name, description, or category
+    public List<MenuItem> searchMenuItems(String searchTerm) {
+        List<MenuItem> items = new ArrayList<>();
+        String sql = "SELECT id, name, description, available, type, category, is_special, photo_url FROM MenuItems " +
+                "WHERE LOWER(name) LIKE ? OR LOWER(description) LIKE ? OR LOWER(category) LIKE ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            String searchPattern = "%" + searchTerm.toLowerCase() + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                items.add(mapRowToMenuItem(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return items;
+    }
+
+    // Search menu items with availability filter
+    public List<MenuItem> searchMenuItemsWithAvailability(String searchTerm, boolean available) {
+        List<MenuItem> items = new ArrayList<>();
+        String sql = "SELECT id, name, description, available, type, category, is_special, photo_url FROM MenuItems " +
+                "WHERE (LOWER(name) LIKE ? OR LOWER(description) LIKE ? OR LOWER(category) LIKE ?) AND available = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            String searchPattern = "%" + searchTerm.toLowerCase() + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            stmt.setBoolean(4, available);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                items.add(mapRowToMenuItem(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return items;
+    }
+
     private MenuItem mapRowToMenuItem(ResultSet rs) throws SQLException {
         MenuItem item = new MenuItem();
         item.setId(rs.getInt("id"));

@@ -21,6 +21,15 @@ public class UserModel {
         this.register = register;
     }
 
+    // Use this when loading user from database (with userId)
+    public UserModel(int userId, String username, String passwordHash, String accessLevel, boolean register) {
+        this.userId = userId;
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.accessLevel = accessLevel;
+        this.register = register;
+    }
+
     // --- Getters and Setters ---
     public int getUserId() {
         return userId;

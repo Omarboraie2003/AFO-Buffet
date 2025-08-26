@@ -9,6 +9,10 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +23,7 @@ import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import javax.imageio.ImageIO;
 
 @WebServlet({"/menu-items", "/menu-items/*"})
 @MultipartConfig(
@@ -57,6 +62,7 @@ public class MenuServlet extends HttpServlet {
         String availableParam = request.getParameter("available");
         String todaysSpecialParam = request.getParameter("todaysSpecial");
         String type = request.getParameter("type");
+        String searchTerm = request.getParameter("search");
 
         if ("true".equalsIgnoreCase(todaysSpecialParam)) {
             MenuItem special = menuDAO.getTodaysSpecial();
@@ -77,7 +83,13 @@ public class MenuServlet extends HttpServlet {
 
         List<MenuItem> items;
 
-        if (type != null && !type.isEmpty()) {
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            if (available != null) {
+                items = menuDAO.searchMenuItemsWithAvailability(searchTerm.trim(), available);
+            } else {
+                items = menuDAO.searchMenuItems(searchTerm.trim());
+            }
+        } else if (type != null && !type.isEmpty()) {
             if (available != null) {
                 items = menuDAO.getMenuItemsByTypeAndAvailability(type, available);
             } else {
@@ -91,7 +103,7 @@ public class MenuServlet extends HttpServlet {
                     items = menuDAO.getUnavailableMenuItemsByCategory(category);
                 }
             } else {
-                items = menuDAO.getMenuItemsByCategory(category); // All items in category
+                items = menuDAO.getMenuItemsByCategory(category);
             }
         } else {
             if (available != null) {
@@ -101,13 +113,12 @@ public class MenuServlet extends HttpServlet {
                     items = menuDAO.getUnavailableMenuItems();
                 }
             } else {
-                items = menuDAO.getAllMenuItems(); // All items regardless of availability
+                items = menuDAO.getAllMenuItems();
             }
         }
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(gson.toJson(items));
-
     }
 
     @Override
@@ -464,13 +475,94 @@ public class MenuServlet extends HttpServlet {
             uploadDir.mkdirs();
         }
 
-        // Save the file
+        byte[] compressedImageData = compressImageTo700KB(filePart.getInputStream());
+
+        // Save the compressed file
         Path filePath = Paths.get(uploadPath, uniqueFileName);
-        try (InputStream inputStream = filePart.getInputStream()) {
-            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-        }
+        Files.write(filePath, compressedImageData);
 
         // Return the URL path that can be used by the frontend
         return request.getContextPath() + "/images/menu-items/" + uniqueFileName;
+    }
+
+    private byte[] compressImageTo700KB(InputStream inputStream) throws IOException {
+        BufferedImage originalImage = ImageIO.read(inputStream);
+        if (originalImage == null) {
+            throw new IOException("Invalid image file");
+        }
+
+        // Start with high quality and reduce if needed
+        float quality = 0.9f;
+        byte[] compressedData;
+        int maxSizeKB = 700;
+
+        do {
+            // Resize image if it's too large (max 1920px width)
+            BufferedImage resizedImage = resizeImage(originalImage, 1920);
+
+            // Compress with current quality
+            compressedData = compressImage(resizedImage, quality);
+
+            // If still too large, reduce quality
+            if (compressedData.length > maxSizeKB * 1024) {
+                quality -= 0.1f;
+            }
+
+        } while (compressedData.length > maxSizeKB * 1024 && quality > 0.1f);
+
+        return compressedData;
+    }
+
+    private BufferedImage resizeImage(BufferedImage originalImage, int maxWidth) {
+        int originalWidth = originalImage.getWidth();
+        int originalHeight = originalImage.getHeight();
+
+        // If image is smaller than max width, return original
+        if (originalWidth <= maxWidth) {
+            return originalImage;
+        }
+
+        // Calculate new dimensions maintaining aspect ratio
+        int newWidth = maxWidth;
+        int newHeight = (originalHeight * maxWidth) / originalWidth;
+
+        // Create resized image
+        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = resizedImage.createGraphics();
+
+        // Enable high-quality rendering
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g2d.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+        g2d.dispose();
+
+        return resizedImage;
+    }
+
+    private byte[] compressImage(BufferedImage image, float quality) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        // Use ImageIO to write JPEG with specified quality
+        var writers = ImageIO.getImageWritersByFormatName("jpg");
+        if (!writers.hasNext()) {
+            throw new IOException("No JPEG writer available");
+        }
+
+        var writer = writers.next();
+        var ios = ImageIO.createImageOutputStream(baos);
+        writer.setOutput(ios);
+
+        var param = writer.getDefaultWriteParam();
+        param.setCompressionMode(javax.imageio.ImageWriteParam.MODE_EXPLICIT);
+        param.setCompressionQuality(quality);
+
+        writer.write(null, new javax.imageio.IIOImage(image, null, null), param);
+
+        writer.dispose();
+        ios.close();
+
+        return baos.toByteArray();
     }
 }

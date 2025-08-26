@@ -14,8 +14,8 @@
         body {
             font-family: 'Georgia', 'Times New Roman', serif;
             height: 100vh;
-            /* Replaced background image with modern gradient design */
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            /* Darker gradient background */
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #3a0ca3 50%, #7209b7 75%, #4361ee 100%);
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
             display: flex;
@@ -24,36 +24,29 @@
             overflow: hidden;
         }
 
-        /* Added animated gradient background */
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
-        /* Updated overlay for better contrast with new background */
         body::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.15) 100%);
+            top: 0; left: 0; right: 0; bottom: 0;
+            /* Stronger dark overlay */
+            background: linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%);
             z-index: 1;
         }
 
-        /* Added decorative geometric shapes */
         body::after {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
             background-image:
-                    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+                    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.05) 0%, transparent 50%),
+                    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.02) 0%, transparent 50%);
             animation: float 20s ease-in-out infinite;
             z-index: 1;
         }
@@ -75,32 +68,28 @@
         .main-content {
             text-align: center;
             z-index: 3;
-            /* Added backdrop blur and subtle background */
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(20, 20, 20, 0.6); /* darker glass effect */
             backdrop-filter: blur(10px);
             border-radius: 30px;
             padding: 60px 80px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             animation: fadeInUp 0.8s ease-out;
         }
 
         .welcome-title {
-            /* Enhanced typography with gradient text and shadow */
             font-size: 3.5rem;
-            /* Updated gradient colors to work better with new background */
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            background: linear-gradient(135deg, #f8f9fa 0%, #cfcfcf 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 50px;
             font-weight: bold;
             letter-spacing: 2px;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.7);
             position: relative;
         }
 
-        /* Added decorative underline */
         .welcome-title::after {
             content: '';
             position: absolute;
@@ -109,8 +98,7 @@
             transform: translateX(-50%);
             width: 100px;
             height: 4px;
-            /* Updated underline gradient to complement new background */
-            background: linear-gradient(90deg, #ff6b35, #f7931e, #ff6b35);
+            background: linear-gradient(90deg, #ff4500, #ff8800, #ff4500);
             border-radius: 2px;
             animation: pulse 2s ease-in-out infinite;
         }
@@ -129,8 +117,7 @@
         }
 
         .chef-button {
-            /* Modern gradient button design with enhanced styling */
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
             border: none;
             border-radius: 25px;
             padding: 18px 45px;
@@ -146,18 +133,15 @@
             letter-spacing: 1px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+            box-shadow: 0 8px 25px rgba(211, 84, 0, 0.4);
         }
 
-        /* Added shimmer effect */
         .chef-button::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.6s;
         }
 
@@ -166,63 +150,28 @@
         }
 
         .chef-button:hover {
-            /* Enhanced hover effects */
-            background: linear-gradient(135deg, #e55a2b 0%, #e8851a 100%);
+            background: linear-gradient(135deg, #a84300 0%, #bf6516 100%);
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(255, 107, 53, 0.4);
+            box-shadow: 0 15px 35px rgba(211, 84, 0, 0.6);
         }
 
         .chef-button:active {
             transform: translateY(-1px) scale(1.01);
-            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+            box-shadow: 0 8px 20px rgba(211, 84, 0, 0.5);
         }
 
-        /* Responsive design */
         @media (max-width: 768px) {
-            .main-container {
-                padding: 20px;
-            }
-
-            /* Responsive adjustments for mobile */
-            .main-content {
-                padding: 40px 50px;
-                border-radius: 20px;
-            }
-
-            .welcome-title {
-                font-size: 2.8rem;
-                margin-bottom: 40px;
-            }
-
-            .button-container {
-                flex-direction: column;
-                gap: 20px;
-                align-items: center;
-            }
-
-            .chef-button {
-                font-size: 1.1rem;
-                padding: 16px 40px;
-                min-width: 200px;
-            }
+            .main-container { padding: 20px; }
+            .main-content { padding: 40px 50px; border-radius: 20px; }
+            .welcome-title { font-size: 2.8rem; margin-bottom: 40px; }
+            .button-container { flex-direction: column; gap: 20px; align-items: center; }
+            .chef-button { font-size: 1.1rem; padding: 16px 40px; min-width: 200px; }
         }
 
         @media (max-width: 480px) {
-            .main-content {
-                padding: 30px 30px;
-                border-radius: 15px;
-            }
-
-            .welcome-title {
-                font-size: 2.2rem;
-                margin-bottom: 30px;
-            }
-
-            .chef-button {
-                font-size: 1rem;
-                padding: 14px 35px;
-                min-width: 180px;
-            }
+            .main-content { padding: 30px 30px; border-radius: 15px; }
+            .welcome-title { font-size: 2.2rem; margin-bottom: 30px; }
+            .chef-button { font-size: 1rem; padding: 14px 35px; min-width: 180px; }
         }
     </style>
 </head>
@@ -230,7 +179,6 @@
 <div class="main-container">
     <div class="main-content">
         <h1 class="welcome-title">Welcome, Chef</h1>
-
         <div class="button-container">
             <a href="chefManageItemsPage.html" class="chef-button">Manage Menu</a>
             <a href="#" class="chef-button">View Orders</a>
