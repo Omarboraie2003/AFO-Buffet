@@ -4,11 +4,10 @@ public class MenuItem {
     private int id;
     private String name;
     private String description;
-    private double price;
     private boolean available;
     private String type;       // existing field
     private String category;   // new field
-    private String image;   // new field
+    private String photoUrl;    // new field
     private boolean is_special;
 
 
@@ -16,15 +15,14 @@ public class MenuItem {
     // Constructors
     public MenuItem() {}
 
-    public MenuItem(int id, String name, String description, double price, boolean available, String type, String category, String image,boolean is_special) {
+    public MenuItem(int id, String name, String description, boolean available, String type, String category, String photoUrl,boolean is_special) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.price = price;
         this.available = available;
         this.type = type;
         this.category = category;
-        this.image = image;
+        this.photoUrl = photoUrl;
         this.is_special=is_special;
     }
 
@@ -38,8 +36,7 @@ public class MenuItem {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public double getPrice() { return price; }
-    public void setPrice(double price) { this.price = price; }
+
 
     public boolean isAvailable() { return available; }
     public void setAvailable(boolean available) { this.available = available; }
@@ -50,8 +47,8 @@ public class MenuItem {
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
 
-    public String getImage() { return image; }
-    public void setImage(String image) { this.image = image; }
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
 
     public boolean isSpecial() { return is_special; }
     public void setSpecial(boolean is_special) { this.is_special = is_special; }

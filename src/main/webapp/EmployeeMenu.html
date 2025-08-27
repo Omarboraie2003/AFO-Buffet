@@ -1013,13 +1013,7 @@
                 <!-- Title -->
                 <h1 class="product-title" id="popupProductTitle"></h1>
 
-                <!-- Price + Rating -->
-                <div class="product-meta">
-                    <div class="price">
-                        <span id="popupProductPrice"></span>
-                    </div>
-                    <div class="rating" id="popupProductRating"></div>
-                </div>
+
 
                 <!-- Description -->
                 <p class="description-label">Description of the item:</p>
@@ -1068,10 +1062,10 @@
         const menuGrid = document.querySelector('.menu-grid');
         const prevBtn = document.querySelector('.nav-arrows .nav-arrow:first-child');
         const nextBtn = document.querySelector('.nav-arrows .nav-arrow:last-child');
-
         if (menuGrid && prevBtn && nextBtn) {
-            // width of 1 card (including margin/gap)
-            const cardWidth = menuGrid.querySelector('.menu-card').offsetWidth + 20;
+            // ✅ check if there’s at least one menu-card
+            const firstCard = menuGrid.querySelector('.menu-card');
+            const cardWidth = firstCard ? firstCard.offsetWidth + 20 : 250; // fallback width
 
             prevBtn.addEventListener('click', () => {
                 menuGrid.scrollBy({ left: -cardWidth, behavior: 'smooth' });
@@ -1081,6 +1075,7 @@
                 menuGrid.scrollBy({ left: cardWidth, behavior: 'smooth' });
             });
         }
+
 
         // Smooth scroll to nuggets section when clicking Explore
         const exploreBtn = document.querySelector(".explore-btn");
@@ -1097,7 +1092,6 @@
     }
 
     // Run setup after DOM is ready
-    document.addEventListener("DOMContentLoaded", setupNavigation);
 
     async function loadCategory(category) {
         try {
@@ -1127,8 +1121,8 @@
                 card.className = "menu-card";
 
                 let imageSrc = "Images/falafel.png";
-                if (item.image && item.image !== null) {
-                    imageSrc = `Images/${item.image}`;
+                if (item.photoUrl && item.photoUrl !== null) {
+                    imageSrc = `Images/${item.photoUrl}`;
                 }
 
                 card.innerHTML = `
@@ -1136,10 +1130,9 @@
     <img src="${imageSrc}" alt="${item.name}">
     <div class="card-content">
       <h3>${item.name}</h3>
-      <p class="card-description">${item.description || "Description of the item"}</p>
       <div class="card-footer">
-        <span class="price">${item.price}</span>
-        <div class="rating">⭐ 4.5</div>
+              <p class="card-description">${item.description || "Description of the item"}</p>
+
       </div>
     </div>
   `;
@@ -1157,9 +1150,8 @@
     }
     function openItemPopup(item) {
         document.getElementById("popupProductTitle").textContent = item.name;
-        document.getElementById("popupProductPrice").textContent = item.price;
-        document.getElementById("popupProductRating").textContent = item.rating || "⭐ 4.5";
-        document.getElementById("popupProductImage").src = `Images/${item.image || "falafel.png"}`;
+
+        document.getElementById("popupProductImage").src = `Images/${item.photoUrl || "falafel.png"}`;
         document.getElementById("popupProductImage").alt = item.name;
         document.getElementById("popupProductDescription").textContent = item.description || "No description available.";
 
@@ -1201,7 +1193,7 @@
 
             if (titleEl) titleEl.textContent = special.name;
             if (imgEl) {
-                imgEl.src = `Images/${special.image || "falafel.png"}`;
+                imgEl.src = `Images/${special.photoUrl || "falafel.png"}`;
                 imgEl.alt = special.name;
             }
 

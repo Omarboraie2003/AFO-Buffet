@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart List - Food Ordering App</title>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-rounded/css/uicons-bold-rounded.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            background-color: #DFDFDF;
+            min-height: 100vh;
+            overflow: hidden;
+            box-shadow: none;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 32px;
+            background: #DFDFDF;
+            color: white;
+
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: black;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .search-btn, .notification-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: black;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-btn:hover, .notification-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-item {
+            color: black;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .nav-item:hover {
+            color: #ff6b35;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            color: #ff6b35;
+            background: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+        }
+
+        .menu-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: black;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-dropdown:hover {
+            color: #ff6b35;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .main-content {
+            padding: 40px 48px;
+            width: 100%;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            background: black;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .cart-items {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 80px;
+            padding: 24px;
+            background: #dfdfdf;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            justify-content: flex-start; /* keep items closer */
+
+
+        }
+
+        .cart-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 130px;
+            height: 100px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        .item-details {
+            flex: 1; /* take remaining space */
+            max-width: 700px; /* adjust as needed */
+        }
+
+
+
+        .item-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+
+        .order-notes {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 12px;
+            background: #dfdfdf;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border-left: 3px solid #ff6b35;
+        }
+
+        .order-notes-label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+            margin-left: 0; /* remove manual spacing */
+        }
+
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .confirm-order-btn {
+            background: linear-gradient(135deg, #dfdfdf 0%, #dfdfdf 100%);
+            color: black;
+            border: 2px solid #ff6b35;
+            padding: 18px 48px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+            min-width: 250px;
+            box-shadow: 0 8px 32px rgba(223, 223, 223, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .confirm-order-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(255, 107, 53, 0.4);
+        }
+
+        .confirm-order-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .back-btn i, .search-btn i, .notification-btn i, .delete-btn i {
+            font-size: 18px;
+        }
+
+        .star i {
+            color: #ffd700;
+            font-size: 16px;
+            filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
+        }
+
+        .menu-dropdown i {
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .header-right {
+                gap: 16px;
+            }
+
+            .nav-menu {
+                gap: 16px;
+            }
+
+            .nav-item, .menu-dropdown {
+                font-size: 14px;
+            }
+
+            .main-content {
+                padding: 24px 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+                margin-bottom: 24px;
+            }
+
+            .cart-item {
+                gap: 12px;
+            }
+
+
+            .item-name {
+                font-size: 16px;
+            }
+
+
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <div class="header-left">
+            <button class="back-btn" onclick="goBack()"><i class="fi fi-br-arrow-left"></i></button>
+        </div>
+
+        <div class="header-right">
+            <button class="search-btn"><i class="fi fi-br-search"></i></button>
+            <button class="notification-btn"><i class="fi fi-br-bell"></i></button>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-item">Home</a>
+                <a href="#" class="menu-dropdown">Menu <i class="fi fi-rr-angle-down"></i></a>
+                <a href="#" class="nav-item">History</a>
+                <a href="#" class="nav-item active">Cart</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <h1 class="page-title">Cart list</h1>
+
+        <div class="cart-items">
+            <div class="cart-item">
+                <img src="Sandwich.png" alt="Tuna Sandwich" class="item-image">
+                <div class="item-details">
+                    <h3 class="item-name">Tuna Sandwich</h3>
+
+                    <div class="order-notes">
+                        <span class="order-notes-label">Order notes:</span> no pickles, add more mayo
+                    </div>
+                </div>
+                <div class="item-price-section">
+
+                    <button class="delete-btn" onclick="removeItem(this)"><i class="fi fi-br-trash"></i></button>
+                </div>
+            </div>
+
+            <div class="cart-item">
+                <img src="nuggets.png" alt="Nuggets plate" class="item-image">
+                <div class="item-details">
+                    <h3 class="item-name">Nuggets plate</h3>
+                    <div class="order-notes">
+                        <span class="order-notes-label">Order notes:</span> add bbq sauce
+                    </div>
+                </div>
+                <div class="item-price-section">
+
+                    <button class="delete-btn" onclick="removeItem(this)"><i class="fi fi-br-trash"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <button class="confirm-order-btn" onclick="confirmOrder()">Confirm order</button>
+    </main>
+</div>
+
+<script>
+    function goBack() {
+        console.log('[v0] Going back to previous page');
+        // Add navigation logic here
+    }
+
+    function removeItem(button) {
+        const cartItem = button.closest('.cart-item');
+        cartItem.style.opacity = '0';
+        cartItem.style.transform = 'translateX(100px)';
+        cartItem.style.transition = 'all 0.3s ease';
+
+        setTimeout(() => {
+            cartItem.remove();
+            console.log('[v0] Item removed from cart');
+        }, 300);
+    }
+
+    function confirmOrder() {
+        console.log('[v0] Confirming order');
+        alert('Order confirmed! Redirecting to payment...');
+        // Add order confirmation logic here
+    }
+</script>
+</body>
+</html>

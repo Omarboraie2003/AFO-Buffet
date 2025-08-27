@@ -20,15 +20,15 @@ public class MenuController {
     }
 
     // ✅ Add item with type
-    public void addItem(String name, String desc, double price, boolean available, String type, String category, String image, boolean is_special) throws SQLException {
-        MenuItem item = new MenuItem(0, name, desc, price, available, type, category, image, is_special);
+    public void addItem(String name, String desc, boolean available, String type, String category, String photoUrl, boolean is_special) throws SQLException {
+        MenuItem item = new MenuItem(0, name, desc,  available, type, category, photoUrl, is_special);
         menuDAO.addMenuItem(item);
     }
 
     // ✅ Show menu for employee (include type)
     public void showMenuForEmployee() throws SQLException {
         for (MenuItem item : menuDAO.getAvailableMenuItems()) {
-            System.out.println(item.getType() + " | " + item.getName() + " - " + item.getPrice());
+            System.out.println(item.getType() + " | " + item.getName());
         }
     }
 
@@ -38,15 +38,14 @@ public class MenuController {
             System.out.println(
                     item.getId() + " | " +
                             item.getType() + " | " +
-                            item.getName() + " | " +
-                            item.getPrice() + " | Available: " + item.isAvailable()
+                            item.getName()  + " | Available: " + item.isAvailable()
             );
         }
     }
 
     // ✅ Update item with type
-    public void updateItem(int id, String name, String description, double price, boolean available, String type, String category, String image, Boolean is_special) throws SQLException {
-        MenuItem item = new MenuItem(id, name, description, price, available, type, category,image, is_special);
+    public void updateItem(int id, String name, String description,  boolean available, String type, String category, String photoUrl, Boolean is_special) throws SQLException {
+        MenuItem item = new MenuItem(id, name, description, available, type, category,photoUrl, is_special);
         menuDAO.updateMenuItem(item);
     }
 

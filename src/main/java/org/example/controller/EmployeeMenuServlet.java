@@ -77,7 +77,7 @@ public class EmployeeMenuServlet extends HttpServlet {
             if (category != null && !category.isEmpty()) {
                 category = category.trim();
                 System.out.println("[DEBUG] Fetching items for category: '" + category + "'");
-                items = menuDAO.getMenuItemsByCategory(category);
+                items = menuDAO.getMenuItemsByCategoryE(category);
             } else {
                 System.out.println("[DEBUG] Fetching all available menu items");
                 items = menuDAO.getAvailableMenuItems();
