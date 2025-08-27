@@ -368,18 +368,18 @@
             transform: translateX(100%);
             transition: transform 0.3s ease, opacity 0.3s ease;
             z-index: 1000;
-            opacity: 1;
+            opacity: 0;   /* <-- FIX: make hidden by default */
+            pointer-events: none; /* optional: avoid ghost clicks */
         }
-
         .toast.show {
             transform: translateX(0);
             opacity: 1;
         }
-
         .toast.hide {
             transform: translateX(100%);
             opacity: 0;
         }
+
 
         .loading {
             display: inline-block;
@@ -820,9 +820,12 @@
             toast.classList.add('hide');
 
             // Complete cleanup after animation
+            // Keep it hidden after animation
             setTimeout(() => {
-                toast.className = 'toast';
+                toast.classList.remove('show');
+                toast.classList.add('hide');
             }, 300);
+
         }, 3000);
     }
 

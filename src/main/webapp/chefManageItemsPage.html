@@ -45,7 +45,7 @@
             justify-content:center;
             align-items:center;
             width:380px;
-            height:220px;
+            height:300px;
             background:rgba(255,255,255,0.1);
             border-radius:16px;
             color:rgba(255,255,255,0.7);
@@ -66,7 +66,7 @@
         .featured-image.no-image::after{content:"Featured Image";font-size:16px;font-weight:500}
         .featured-image img{width:100%;height:100%;border-radius:14px;object-fit:cover;transition:all 0.3s ease}
         .featured-image img:hover{transform:scale(1.05)}
-        .new-item-section{background:linear-gradient(135deg,#4a4a4a,#333);border-radius:20px;padding:25px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:white;cursor:pointer;transition:all 0.3s ease;height:220px}
+        .new-item-section{background:linear-gradient(135deg,#4a4a4a,#333);border-radius:20px;padding:25px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:white;cursor:pointer;transition:all 0.3s ease;height:315px}
         .new-item-section:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.2)}
         .plus-icon{width:50px;height:50px;border-radius:50%;background-color:#333;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:15px}
         .new-item-section h3{font-size:18px;font-weight:500}
@@ -133,7 +133,7 @@
         .toggle-switch.off::after{right:calc(100% - 23px)}
         .products-grid{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 300px));
             gap: 25px;
             padding: 0 10px;
         }
@@ -551,20 +551,21 @@
         /* Added logout button and modal styles */
         .nav-btn.secondary{background:#ea580c;color:white;border-color:#ea580c}
         .nav-btn.secondary:hover{background:#dc2626;border-color:#dc2626;color:white}
+        /* Updated modal styling to be more compact and responsive */
         .modal{position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);backdrop-filter:blur(5px)}
-        .modal-content{background:linear-gradient(135deg,#1a1a1a 0%,#333333 100%);margin:15% auto;padding:0;border-radius:15px;width:90%;max-width:400px;box-shadow:0 8px 32px rgba(255,131,0,0.3);border:1px solid rgba(255,131,0,0.2);animation:modalSlideIn 0.3s ease}
-        .modal-header{padding:20px 25px 15px;border-bottom:1px solid rgba(255,131,0,0.2);display:flex;justify-content:space-between;align-items:center}
-        .modal-header h3{color:#ff8300;margin:0;font-size:1.2rem;font-weight:600}
-        .close{color:#ffffff;font-size:28px;font-weight:bold;cursor:pointer;transition:color 0.3s ease}
+        .modal-content{background:linear-gradient(135deg,#1a1a1a 0%,#333333 100%);margin:5% auto;padding:0;border-radius:15px;width:95%;max-width:450px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(255,131,0,0.3);border:1px solid rgba(255,131,0,0.2);animation:modalSlideIn 0.3s ease}
+        .modal-header{padding:15px 20px 10px;border-bottom:1px solid rgba(255,131,0,0.2);display:flex;justify-content:space-between;align-items:center}
+        .modal-header h3{color:#ff8300;margin:0;font-size:1.1rem;font-weight:600}
+        .close{color:#ffffff;font-size:24px;font-weight:bold;cursor:pointer;transition:color 0.3s ease}
         .close:hover{color:#ff8300}
-        .modal-body{padding:20px 25px;color:#ffffff;line-height:1.5}
-        .modal-footer{padding:15px 25px 20px;display:flex;gap:10px;justify-content:flex-end}
-        .modal-btn{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.3s ease}
+        .modal-body{padding:15px 20px;color:#ffffff;line-height:1.4}
+        .modal-footer{padding:10px 20px 15px;display:flex;gap:8px;justify-content:flex-end}
+        .modal-btn{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px;transition:all 0.3s ease}
         .modal-btn.cancel{background:#6b7280;color:white}
         .modal-btn.cancel:hover{background:#4b5563}
         .modal-btn.confirm{background:linear-gradient(135deg,#dc2626,#b91c1c);color:white}
         .modal-btn.confirm:hover{background:linear-gradient(135deg,#b91c1c,#dc2626);transform:translateY(-1px)}
-        @keyframes modalSlideIn{from{opacity:0;transform:translateY(-50px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes modalSlideIn{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
 
         /* Enhanced skeleton loader styles for better loading experience */
         .skeleton-loader {
@@ -620,42 +621,58 @@
         }
 
         /* Enhanced modal form styling with better spacing and visual hierarchy */
+        /* Compact form styling with better spacing */
         .form-container {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 131, 0, 0.2);
-            max-width: 500px;
-            margin: 0 auto;
+            max-width: 100%;
+            margin: 0;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
 
         .form-group label {
             display: block;
             color: #ff8300;
             font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 5px;
+            font-size: 13px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 15px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
             color: white;
-            font-size: 16px;
+            font-size: 14px;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+
+        /* Added specific styling for dropdown options to fix visibility */
+        .form-group select option {
+            background: #2a2a2a;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+        }
+
+        .form-group select option:hover,
+        .form-group select option:focus {
+            background: #ff8300;
+            color: white;
         }
 
         .form-group input:focus,
@@ -663,19 +680,19 @@
         .form-group textarea:focus {
             outline: none;
             border-color: #ff8300;
-            box-shadow: 0 0 0 3px rgba(255, 131, 0, 0.1);
-            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 2px rgba(255, 131, 0, 0.1);
+            background: rgba(255, 255, 255, 0.12);
         }
 
         .form-group textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
         }
 
         .form-validation-error {
             color: #ff4444;
-            font-size: 12px;
-            margin-top: 5px;
+            font-size: 11px;
+            margin-top: 3px;
             display: none;
         }
 
@@ -683,11 +700,26 @@
         .form-group.error select,
         .form-group.error textarea {
             border-color: #ff4444;
-            box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
+            box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.1);
         }
 
         .form-group.error .form-validation-error {
             display: block;
+        }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 98%;
+                margin: 2% auto;
+                max-height: 95vh;
+            }
+            .form-container {
+                padding: 15px;
+            }
+            .form-group {
+                margin-bottom: 12px;
+            }
         }
 
         /* Special items category button styling - black background */
@@ -731,19 +763,19 @@
         .nav-btn.secondary{background:#ea580c;color:white;border-color:#ea580c}
         .nav-btn.secondary:hover{background:#dc2626;border-color:#dc2626;color:white}
         .modal{position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);backdrop-filter:blur(5px)}
-        .modal-content{background:linear-gradient(135deg,#1a1a1a 0%,#333333 100%);margin:15% auto;padding:0;border-radius:15px;width:90%;max-width:400px;box-shadow:0 8px 32px rgba(255,131,0,0.3);border:1px solid rgba(255,131,0,0.2);animation:modalSlideIn 0.3s ease}
-        .modal-header{padding:20px 25px 15px;border-bottom:1px solid rgba(255,131,0,0.2);display:flex;justify-content:space-between;align-items:center}
-        .modal-header h3{color:#ff8300;margin:0;font-size:1.2rem;font-weight:600}
-        .close{color:#ffffff;font-size:28px;font-weight:bold;cursor:pointer;transition:color 0.3s ease}
+        .modal-content{background:linear-gradient(135deg,#1a1a1a 0%,#333333 100%);margin:5% auto;padding:0;border-radius:15px;width:95%;max-width:450px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(255,131,0,0.3);border:1px solid rgba(255,131,0,0.2);animation:modalSlideIn 0.3s ease}
+        .modal-header{padding:15px 20px 10px;border-bottom:1px solid rgba(255,131,0,0.2);display:flex;justify-content:space-between;align-items:center}
+        .modal-header h3{color:#ff8300;margin:0;font-size:1.1rem;font-weight:600}
+        .close{color:#ffffff;font-size:24px;font-weight:bold;cursor:pointer;transition:color 0.3s ease}
         .close:hover{color:#ff8300}
-        .modal-body{padding:20px 25px;color:#ffffff;line-height:1.5}
-        .modal-footer{padding:15px 25px 20px;display:flex;gap:10px;justify-content:flex-end}
-        .modal-btn{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.3s ease}
+        .modal-body{padding:15px 20px;color:#ffffff;line-height:1.4}
+        .modal-footer{padding:10px 20px 15px;display:flex;gap:8px;justify-content:flex-end}
+        .modal-btn{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px;transition:all 0.3s ease}
         .modal-btn.cancel{background:#6b7280;color:white}
         .modal-btn.cancel:hover{background:#4b5563}
         .modal-btn.confirm{background:linear-gradient(135deg,#dc2626,#b91c1c);color:white}
         .modal-btn.confirm:hover{background:linear-gradient(135deg,#b91c1c,#dc2626);transform:translateY(-1px)}
-        @keyframes modalSlideIn{from{opacity:0;transform:translateY(-50px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes modalSlideIn{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
 
         /* Enhanced skeleton loader styles for better loading experience */
         .skeleton-loader {
@@ -799,42 +831,58 @@
         }
 
         /* Enhanced modal form styling with better spacing and visual hierarchy */
+        /* Compact form styling with better spacing */
         .form-container {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 131, 0, 0.2);
-            max-width: 500px;
-            margin: 0 auto;
+            max-width: 100%;
+            margin: 0;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
 
         .form-group label {
             display: block;
             color: #ff8300;
             font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 5px;
+            font-size: 13px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 15px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
             color: white;
-            font-size: 16px;
+            font-size: 14px;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+
+        /* Added duplicate option styling for consistency across both form sections */
+        .form-group select option {
+            background: #2a2a2a;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+        }
+
+        .form-group select option:hover,
+        .form-group select option:focus {
+            background: #ff8300;
+            color: white;
         }
 
         .form-group input:focus,
@@ -842,19 +890,19 @@
         .form-group textarea:focus {
             outline: none;
             border-color: #ff8300;
-            box-shadow: 0 0 0 3px rgba(255, 131, 0, 0.1);
-            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 2px rgba(255, 131, 0, 0.1);
+            background: rgba(255, 255, 255, 0.12);
         }
 
         .form-group textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
         }
 
         .form-validation-error {
             color: #ff4444;
-            font-size: 12px;
-            margin-top: 5px;
+            font-size: 11px;
+            margin-top: 3px;
             display: none;
         }
 
@@ -862,7 +910,7 @@
         .form-group.error select,
         .form-group.error textarea {
             border-color: #ff4444;
-            box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
+            box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.1);
         }
 
         .form-group.error .form-validation-error {
@@ -1040,179 +1088,71 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
         }
 
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 98%;
+                margin: 2% auto;
+                max-height: 95vh;
+            }
+            .form-container {
+                padding: 15px;
+            }
+            .form-group {
+                margin-bottom: 12px;
+            }
         }
 
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+        /* Added CSS for main loading indicator */
+        .main-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
         }
 
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+        .loader-content {
+            text-align: center;
+            color: white;
         }
 
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ff6b35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
 
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+        .loader-content p {
+            font-size: 16px;
+            margin: 0;
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
+<!-- Added main loading indicator for initial page load -->
+<div id="mainLoader" class="main-loader" style="display: none;">
+    <div class="loader-content">
+        <div class="spinner"></div>
+        <p>Loading menu items...</p>
+    </div>
+</div>
 <div class="container">
     <!-- Header -->
     <header class="header">
@@ -1303,9 +1243,10 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- Hidden form for adding new menu item -->
-<div id="newItemFormContainer" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:15px; box-shadow:0 8px 32px rgba(0,0,0,0.3); z-index:1000; width:90%; max-width:500px;">
-    <h3 style="margin-bottom:20px; color:#333; text-align:center;">Add New Menu Item</h3>
-    <form id="newItemForm" style="display:flex; flex-direction:column; gap:15px;" class="form-container">
+<!-- Updated form containers to be more compact and scrollable -->
+<div id="newItemFormContainer" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%); padding:20px; border-radius:15px; box-shadow:0 15px 35px rgba(0,0,0,0.4); z-index:1000; width:95%; max-width:450px; max-height:90vh; overflow-y:auto; border:1px solid rgba(255,131,0,0.2);">
+    <h3 style="margin-bottom:15px; color:#ff8300; text-align:center; font-size:1.2rem;">Add New Menu Item</h3>
+    <form id="newItemForm" style="display:flex; flex-direction:column; gap:12px;" class="form-container">
         <div class="form-group">
             <label for="itemName">Name:</label>
             <input type="text" id="itemName" name="name" required>
@@ -1317,12 +1258,6 @@
             <textarea id="itemDescription" name="description" required></textarea>
             <div class="form-validation-error"></div>
         </div>
-
-        <!-- Removed price input field since food is now free -->
-        <!-- <div>
-            <label for="itemPrice" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Price:</label>
-            <input type="number" id="itemPrice" name="price" step="0.01" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
-        </div> -->
 
         <div class="form-group">
             <label for="itemCategory">Category:</label>
@@ -1354,32 +1289,30 @@
             <div class="form-validation-error"></div>
         </div>
 
-        <!-- Added photo upload field for new items -->
         <div class="form-group">
             <label for="itemPhoto">Photo:</label>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <input type="file" id="itemPhoto" name="photo" accept="image/*" style="flex:1; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
-                <!-- Added X button to remove selected photo -->
-                <button type="button" id="removeNewPhoto" onclick="removeNewItemPhoto()" style="display:none; width:35px; height:35px; background:#f44336; color:white; border:none; border-radius:50%; cursor:pointer; font-size:16px; font-weight:bold; transition:all 0.2s ease;">×</button>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <input type="file" id="itemPhoto" name="photo" accept="image/*" style="flex:1; padding:8px; border:1px solid rgba(255,255,255,0.2); border-radius:6px; font-size:13px; background:rgba(255,255,255,0.08); color:white;">
+                <button type="button" id="removeNewPhoto" onclick="removeNewItemPhoto()" style="display:none; width:30px; height:30px; background:#f44336; color:white; border:none; border-radius:50%; cursor:pointer; font-size:14px; font-weight:bold;">×</button>
             </div>
-            <small style="color:#666; font-size:12px; margin-top:5px; display:block;">Optional: Upload a photo for this menu item (JPG, PNG, GIF)</small>
-            <!-- Added image preview for new items -->
-            <div id="newPhotoPreview" style="margin-top:10px; display:none;">
-                <img id="newPhotoImg" src="/placeholder.svg" alt="Photo preview" style="max-width:150px; max-height:150px; border-radius:8px; border:1px solid #ddd;">
+            <small style="color:#ccc; font-size:11px; margin-top:3px; display:block;">Optional: Upload a photo (JPG, PNG, GIF)</small>
+            <div id="newPhotoPreview" style="margin-top:8px; display:none;">
+                <img id="newPhotoImg" src="/placeholder.svg" alt="Photo preview" style="max-width:120px; max-height:120px; border-radius:6px; border:1px solid rgba(255,255,255,0.2);">
             </div>
         </div>
 
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button type="submit" id="addItemBtn" style="flex:1; padding:12px; background:linear-gradient(135deg,#ff8300,#ffaa00); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Add Item</button>
-            <button type="button" id="cancelNewItem" style="flex:1; padding:12px; background:#f5f5f5; color:#333; border:2px solid #ddd; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Cancel</button>
+        <div style="display:flex; gap:8px; margin-top:15px;">
+            <button type="submit" id="addItemBtn" style="flex:1; padding:10px; background:linear-gradient(135deg,#ff8300,#ffaa00); color:white; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer;">Add Item</button>
+            <button type="button" id="cancelNewItem" style="flex:1; padding:10px; background:#6b7280; color:white; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer;">Cancel</button>
         </div>
     </form>
 </div>
 
 <!-- Added edit form modal for editing existing items -->
-<div id="editItemFormContainer" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:15px; box-shadow:0 8px 32px rgba(0,0,0,0.3); z-index:1000; width:90%; max-width:500px;">
-    <h3 style="margin-bottom:20px; color:#333; text-align:center;">Edit Menu Item</h3>
-    <form id="editItemForm" style="display:flex; flex-direction:column; gap:15px;" class="form-container">
+<!-- Updated edit form container to be more compact -->
+<div id="editItemFormContainer" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%); padding:20px; border-radius:15px; box-shadow:0 15px 35px rgba(0,0,0,0.4); z-index:1000; width:95%; max-width:450px; max-height:90vh; overflow-y:auto; border:1px solid rgba(255,131,0,0.2);">
+    <h3 style="margin-bottom:15px; color:#ff8300; text-align:center; font-size:1.2rem;">Edit Menu Item</h3>
+    <form id="editItemForm" style="display:flex; flex-direction:column; gap:12px;" class="form-container">
         <input type="hidden" id="editItemId" name="id">
 
         <div class="form-group">
@@ -1393,12 +1326,6 @@
             <textarea id="editItemDescription" name="description" required></textarea>
             <div class="form-validation-error"></div>
         </div>
-
-        <!-- Removed price input field from edit form since food is now free -->
-        <!-- <div>
-            <label for="editItemPrice" style="display:block; margin-bottom:5px; font-weight:500; color:#333;">Price:</label>
-            <input type="number" id="editItemPrice" name="price" step="0.01" required style="width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
-        </div> -->
 
         <div class="form-group">
             <label for="editItemCategory">Category:</label>
@@ -1430,35 +1357,31 @@
             <div class="form-validation-error"></div>
         </div>
 
-        <!-- Added photo upload field for editing items -->
         <div class="form-group">
             <label for="editItemPhoto">Photo:</label>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <input type="file" id="editItemPhoto" name="photo" accept="image/*" style="flex:1; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px;">
-                <!-- Added X button to remove current photo -->
-                <button type="button" id="removeEditPhoto" onclick="removeEditItemPhoto()" style="display:none; width:35px; height:35px; background:#f44336; color:white; border:none; border-radius:50%; cursor:pointer; font-size:16px; font-weight:bold; transition:all 0.2s ease;">×</button>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <input type="file" id="editItemPhoto" name="photo" accept="image/*" style="flex:1; padding:8px; border:1px solid rgba(255,255,255,0.2); border-radius:6px; font-size:13px; background:rgba(255,255,255,0.08); color:white;">
+                <button type="button" id="removeEditPhoto" onclick="removeEditItemPhoto()" style="display:none; width:30px; height:30px; background:#f44336; color:white; border:none; border-radius:50%; cursor:pointer; font-size:14px; font-weight:bold;">×</button>
             </div>
-            <small style="color:#666; font-size:12px; margin-top:5px; display:block;">Optional: Upload a new photo to replace the current one (JPG, PNG, GIF)</small>
-            <div id="currentPhotoPreview" style="margin-top:10px; display:none;">
-                <small style="color:#666; font-size:12px;">Current photo:</small>
-                <div style="position:relative; display:inline-block; margin-top:5px;">
-                    <img id="currentPhotoImg" src="/placeholder.svg" alt="Current photo" style="max-width:150px; max-height:150px; border-radius:8px; border:1px solid #ddd;">
-                    <!-- Added X button to remove current photo -->
-                    <button type="button" onclick="removeCurrentPhoto()" style="position:absolute; top:-8px; right:-8px; width:24px; height:24px; background:#f44336; color:white; border:none; border-radius:50%; cursor:pointer; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.2);">×</button>
+            <small style="color:#ccc; font-size:11px; margin-top:3px; display:block;">Optional: Upload new photo to replace current</small>
+            <div id="currentPhotoPreview" style="margin-top:8px; display:none;">
+                <small style="color:#ccc; font-size:11px;">Current:</small>
+                <div style="position:relative; display:inline-block; margin-top:3px;">
+                    <img id="currentPhotoImg" src="/placeholder.svg" alt="Current photo" style="max-width:120px; max-height:120px; border-radius:6px; border:1px solid rgba(255,255,255,0.2);">
+                    <button type="button" onclick="removeCurrentPhoto()" style="position:absolute; top:-6px; right:-6px; width:20px; height:20px; background:#f44336; color:white; border:none; border-radius:50%; cursor:pointer; font-size:10px; font-weight:bold;">×</button>
                 </div>
             </div>
-            <!-- Added preview for newly selected photo in edit mode -->
-            <div id="editPhotoPreview" style="margin-top:10px; display:none;">
-                <small style="color:#666; font-size:12px;">New photo preview:</small>
-                <img id="editPhotoImg" src="/placeholder.svg" alt="New photo preview" style="max-width:150px; max-height:150px; border-radius:8px; border:1px solid #ddd; margin-top:5px;">
+            <div id="editPhotoPreview" style="margin-top:8px; display:none;">
+                <small style="color:#ccc; font-size:11px;">New preview:</small>
+                <img id="editPhotoImg" src="/placeholder.svg" alt="New photo preview" style="max-width:120px; max-height:120px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); margin-top:3px;">
             </div>
         </div>
 
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button type="submit" id="updateItemBtn" style="flex:1; padding:12px; background:linear-gradient(135deg,#4CAF50,#45a049); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Update Item</button>
-            <button type="button" id="setSpecialBtn" style="display:none; flex:1; padding:12px; background:linear-gradient(135deg,#ff8300,#ffaa00); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Set as Today's Special</button>
-            <button type="button" id="deleteItemBtn" style="flex:1; padding:12px; background:linear-gradient(135deg,#f44336,#d32f2f); color:white; border:none; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Delete Item</button>
-            <button type="button" id="cancelEditItem" style="flex:1; padding:12px; background:#f5f5f5; color:#333; border:2px solid #ddd; border-radius:8px; font-size:16px; font-weight:500; cursor:pointer; transition:all 0.3s ease;">Cancel</button>
+        <div style="display:flex; gap:6px; margin-top:15px; flex-wrap:wrap;">
+            <button type="submit" id="updateItemBtn" style="flex:1; min-width:80px; padding:10px; background:linear-gradient(135deg,#4CAF50,#45a049); color:white; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">Update</button>
+            <button type="button" id="setSpecialBtn" style="display:none; flex:1; min-width:80px; padding:10px; background:linear-gradient(135deg,#ff8300,#ffaa00); color:white; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">Special</button>
+            <button type="button" id="deleteItemBtn" style="flex:1; min-width:80px; padding:10px; background:linear-gradient(135deg,#f44336,#d32f2f); color:white; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">Delete</button>
+            <button type="button" id="cancelEditItem" style="flex:1; min-width:80px; padding:10px; background:#6b7280; color:white; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">Cancel</button>
         </div>
     </form>
 </div>
@@ -1583,9 +1506,23 @@
         loadMenu(activeCategory, available);
     }
 
+    function showMainLoader() {
+        document.getElementById('mainLoader').style.display = 'flex';
+    }
+
+    function hideMainLoader() {
+        document.getElementById('mainLoader').style.display = 'none';
+    }
+
     function loadMenu(category = null, available = null, searchTerm = '') {
         const activeBtn = document.querySelector('.category-btn.active');
         const loader = activeBtn ? activeBtn.querySelector('.category-loader') : null;
+
+        // Show main loader if this is initial load (no search term and default category)
+        if (!searchTerm && (!category || category === 'All')) {
+            showMainLoader();
+        }
+
         if (loader) {
             loader.style.display = 'inline';
         }
@@ -1618,6 +1555,8 @@
             })
             .then(res => res.json())
             .then(data => {
+                hideMainLoader();
+
                 if (loader) {
                     loader.style.display = 'none';
                 }
@@ -1738,10 +1677,14 @@
                 });
             })
             .catch(error => {
+                hideMainLoader();
+
                 if (loader) {
                     loader.style.display = 'none';
                 }
-                console.error('Error loading menu items:', error);
+                console.error('Error loading menu:', error);
+                const grid = document.querySelector('.products-grid');
+                grid.innerHTML = '<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">Failed to load menu items. Please refresh the page.</p>';
             });
     }
 
@@ -2297,16 +2240,9 @@
     }
 
     console.log('[v0] Page loaded, initializing...');
-    console.log('[v0] Add new item button element:', document.getElementById('addNewItemBtn'));
+    showMainLoader();
 
-    initializeToggleState();
-    loadTodaysSpecial();
-    const defaultCategoryBtn = document.querySelector('.category-btn.active');
-    let defaultCategory = defaultCategoryBtn ? (defaultCategoryBtn.getAttribute('data-category') || defaultCategoryBtn.textContent.trim()) : 'All';
-    if (defaultCategory === 'All') defaultCategory = null;
-    const initialAvailable = getAvailabilityState(); // This will now return true (available only)
-    console.log('[v0] Initial load with category:', defaultCategory, 'available:', initialAvailable); // Debug log
-    loadMenu(defaultCategory, initialAvailable);
+    console.log('[v0] Add new item button element:', document.getElementById('addNewItemBtn'));
 
     function showLogoutModal() {
         document.getElementById('logoutModal').style.display = 'block';
@@ -2327,6 +2263,15 @@
             hideLogoutModal();
         }
     }
+
+    initializeToggleState();
+    loadTodaysSpecial();
+    const defaultCategoryBtn = document.querySelector('.category-btn.active');
+    let defaultCategory = defaultCategoryBtn ? (defaultCategoryBtn.getAttribute('data-category') || defaultCategoryBtn.textContent.trim()) : 'All';
+    if (defaultCategory === 'All') defaultCategory = null;
+    const initialAvailable = getAvailabilityState(); // This will now return true (available only)
+    console.log('[v0] Initial load with category:', defaultCategory, 'available:', initialAvailable); // Debug log
+    loadMenu(defaultCategory, initialAvailable);
 </script>
 </body>
 </html>
