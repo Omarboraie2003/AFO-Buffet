@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Management - BuffetWebApp</title>
@@ -670,44 +673,46 @@
     function renderUsersTable() {
         const tbody = document.getElementById('usersTableBody');
 
-        const filteredUsers = users.filter(user => user.accessLevel !== 'chef');
+        const filteredUsers = users.filter(user => user.accessLevel !== '');
 
         if (filteredUsers.length === 0) {
             tbody.innerHTML = `
-                    <tr>
-                        <td colspan="4" style="text-align: center; padding: 2rem; color: rgba(255, 255, 255, 0.6);">
-                            No users found
-                        </td>
-                    </tr>
-                `;
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem; color: rgba(255, 255, 255, 0.6);">
+                        No users found
+                    </td>
+                </tr>
+            `;
             return;
         }
 
         tbody.innerHTML = filteredUsers.map(user => `
-                <tr>
-                    <!-- Added individual user checkboxes -->
-                    <td>
-                        <input type="checkbox" class="checkbox user-checkbox" value="${user.userId}">
-                    </td>
-                    <td>${user.username}</td>
-                    <td>
-                        <span class="role-badge">${user.accessLevel}</span>
-                    </td>
-                    <td>
-                        <span class="status-badge ${user.register === true ? 'status-active' : 'status-inactive'}">
-                            ${user.register === true ? 'Active' : 'Inactive'}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="action-btn toggle" onclick="toggleUserStatus(${user.userId})" title="Toggle Status">
-                            ${user.register === true ? 'Deactivate' : 'Activate'}
-                        </button>
-                        <button class="action-btn delete" onclick="showDeleteModal(${user.userId})" title="Delete User">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+            <tr>
+                <!-- Added individual user checkboxes -->
+                <td>
+                    <input type="checkbox" class="checkbox user-checkbox" value="${user.userId}">
+                </td>
+                <td>${user.username}</td>
+                <td>
+                    <span class="role-badge">${user.accessLevel}</span>
+                </td>
+                <td>
+                    <!-- FIXED: Use isActive instead of register -->
+                    <span class="status-badge ${user.active === true ? 'status-active' : 'status-inactive'}">
+                        ${user.active === true ? 'Active' : 'Inactive'}
+                    </span>
+                </td>
+                <td>
+                    <!-- FIXED: Use isActive instead of register -->
+                    <button class="action-btn toggle" onclick="toggleUserStatus(${user.userId})" title="Toggle Status">
+                        ${user.active === true ? 'Deactivate' : 'Activate'}
+                    </button>
+                    <button class="action-btn delete" onclick="showDeleteModal(${user.userId})" title="Delete User">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `).join('');
     }
 
     async function addUser(event) {
@@ -837,8 +842,56 @@
         document.getElementById('logoutModal').style.display = 'none';
     }
 
-    function confirmLogout() {
-        window.location.href = 'login.html';
+    // Update your confirmLogout() function in accountManagement.html
+    async function confirmLogout() {
+        console.log("[DEBUG] Starting logout process...");
+
+        try {
+            // Call logout servlet
+            const response = await fetch('/AllForOneBuffetAPP/logout', {
+                method: 'POST',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                console.log("[DEBUG] Server logout successful");
+            }
+        } catch (error) {
+            console.error('[DEBUG] Logout error:', error);
+        }
+
+        // Always clear client-side data and redirect
+        clearClientSideData();
+
+        // Clear browser history to prevent back button
+        window.history.pushState(null, null, window.location.href);
+
+        // Force redirect with cache busting
+        const timestamp = new Date().getTime();
+        window.location.replace(`login.html?t=${timestamp}`);
+    }
+
+    function clearClientSideData() {
+        // Clear browser storage
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+        } catch (e) {
+            console.log("Storage clearing failed:", e);
+        }
+
+        // Clear any cached data
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+            });
+        }
+
+        console.log("[DEBUG] Client-side data cleared");
     }
 
     // Added delete modal functions
@@ -971,6 +1024,41 @@
             showToast('Error deleting users', 'error');
         }
     }
+
+    // Prevent caching with JavaScript
+    window.addEventListener('beforeunload', function() {
+        // Clear any cached data when leaving page
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                names.forEach(function(name) {
+                    caches.delete(name);
+                });
+            });
+        }
+    });
+
+    // Add cache-busting timestamp to any AJAX requests
+    function fetchWithoutCache(url, options = {}) {
+        const timestamp = new Date().getTime();
+        const separator = url.includes('?') ? '&' : '?';
+        const cacheBustUrl = `${url}${separator}nocache=${timestamp}`;
+
+        return fetch(cacheBustUrl, {
+            ...options,
+            headers: {
+                'Cache-Control': 'no-cache',
+                ...options.headers
+            }
+        });
+    }
+
+    // Force reload when coming back to this page
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+
 </script>
 </body>
 </html>

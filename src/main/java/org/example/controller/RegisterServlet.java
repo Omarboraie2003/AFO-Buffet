@@ -4,7 +4,6 @@ import org.example.model.user.UserDAO;
 import org.example.model.user.UserModel;
 import org.example.util.PasswordUtils;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -88,7 +87,10 @@ public class RegisterServlet extends HttpServlet {
             }
 
             String hashedPassword = PasswordUtils.hashPassword(registrationRequest.password);
-            boolean success = userDAO.addUser(registrationRequest.username, hashedPassword);
+            existingUser.setPasswordHash(hashedPassword);
+            existingUser.setRegister(true);            // Mark as registered
+
+            boolean success = userDAO.registerUser(existingUser);
             handleRegistrationResult(success, response, out);
 
         } catch (Exception e) {
@@ -163,13 +165,17 @@ public class RegisterServlet extends HttpServlet {
     }
 
     private String validateBusinessLogic(UserModel existingUser) {
-        if (existingUser == null) {
+
+        if (existingUser == null  || !existingUser.isActive()) {
             return ERROR_CONTACT_ADMIN;
         }
+
 
         if (existingUser.isRegister()) {
             return ERROR_ALREADY_REGISTERED;
         }
+
+
 
         return null;
     }

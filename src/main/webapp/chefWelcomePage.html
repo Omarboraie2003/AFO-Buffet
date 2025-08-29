@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome, Chef</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Georgia', 'Times New Roman', serif;
             height: 100vh;
-            /* Darker gradient background */
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #3a0ca3 50%, #7209b7 75%, #4361ee 100%);
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
@@ -23,22 +20,14 @@
             position: relative;
             overflow: hidden;
         }
-
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         body::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            /* Stronger dark overlay */
             background: linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%);
             z-index: 1;
         }
-
         body::after {
             content: '';
             position: absolute;
@@ -50,25 +39,12 @@
             animation: float 20s ease-in-out infinite;
             z-index: 1;
         }
-
-        @keyframes float {
-            0%, 100% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.1); }
-        }
-
-        .main-container {
-            display: flex;
-            height: 100vh;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-            position: relative;
-        }
-
+        @keyframes float { 0%,100% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.1); } }
+        .main-container { display: flex; height: 100vh; align-items: center; justify-content: center; z-index: 2; position: relative; }
         .main-content {
             text-align: center;
             z-index: 3;
-            background: rgba(20, 20, 20, 0.6); /* darker glass effect */
+            background: rgba(20, 20, 20, 0.6);
             backdrop-filter: blur(10px);
             border-radius: 30px;
             padding: 60px 80px;
@@ -76,7 +52,6 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             animation: fadeInUp 0.8s ease-out;
         }
-
         .welcome-title {
             font-size: 3.5rem;
             background: linear-gradient(135deg, #f8f9fa 0%, #cfcfcf 100%);
@@ -89,7 +64,6 @@
             text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.7);
             position: relative;
         }
-
         .welcome-title::after {
             content: '';
             position: absolute;
@@ -102,90 +76,77 @@
             border-radius: 2px;
             animation: pulse 2s ease-in-out infinite;
         }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: translateX(-50%) scaleX(1); }
-            50% { opacity: 0.8; transform: translateX(-50%) scaleX(1.1); }
-        }
-
-        .button-container {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 40px;
-        }
-
+        @keyframes pulse { 0%,100% { opacity:1; transform: translateX(-50%) scaleX(1); } 50% { opacity:0.8; transform: translateX(-50%) scaleX(1.1); } }
+        .button-container { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
         .chef-button {
             background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
-            border: none;
-            border-radius: 25px;
-            padding: 18px 45px;
-            font-size: 1.2rem;
-            font-family: 'Georgia', 'Times New Roman', serif;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            min-width: 220px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 25px rgba(211, 84, 0, 0.4);
+            border: none; border-radius: 25px; padding: 18px 45px;
+            font-size: 1.2rem; font-family: 'Georgia', 'Times New Roman', serif;
+            color: white; text-decoration: none; display: inline-block;
+            transition: all 0.4s cubic-bezier(0.4,0,0.2,1); cursor: pointer;
+            min-width: 220px; font-weight: 600; letter-spacing: 1px; position: relative; overflow: hidden;
+            box-shadow: 0 8px 25px rgba(211,84,0,0.4);
         }
-
-        .chef-button::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.6s;
-        }
-
-        .chef-button:hover::before {
-            left: 100%;
-        }
-
-        .chef-button:hover {
-            background: linear-gradient(135deg, #a84300 0%, #bf6516 100%);
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(211, 84, 0, 0.6);
-        }
-
-        .chef-button:active {
-            transform: translateY(-1px) scale(1.01);
-            box-shadow: 0 8px 20px rgba(211, 84, 0, 0.5);
-        }
-
-        @media (max-width: 768px) {
-            .main-container { padding: 20px; }
-            .main-content { padding: 40px 50px; border-radius: 20px; }
-            .welcome-title { font-size: 2.8rem; margin-bottom: 40px; }
-            .button-container { flex-direction: column; gap: 20px; align-items: center; }
-            .chef-button { font-size: 1.1rem; padding: 16px 40px; min-width: 200px; }
-        }
-
-        @media (max-width: 480px) {
-            .main-content { padding: 30px 30px; border-radius: 15px; }
-            .welcome-title { font-size: 2.2rem; margin-bottom: 30px; }
-            .chef-button { font-size: 1rem; padding: 14px 35px; min-width: 180px; }
-        }
+        .chef-button::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition:left 0.6s; }
+        .chef-button:hover::before { left:100%; }
+        .chef-button:hover { background: linear-gradient(135deg, #a84300 0%, #bf6516 100%); transform: translateY(-3px) scale(1.02); box-shadow:0 15px 35px rgba(211,84,0,0.6);}
+        .chef-button:active { transform: translateY(-1px) scale(1.01); box-shadow:0 8px 20px rgba(211,84,0,0.5); }
+        .username-display { color: #ff8800; font-weight: bold; text-shadow:0 0 10px rgba(255,136,0,0.5); }
+        .loading-text { color:#aaa; font-style:italic; }
+        @keyframes fadeInUp { from {opacity:0; transform: translateY(30px);} to {opacity:1; transform: translateY(0);} }
+        @media (max-width:768px) { .main-container{padding:20px;} .main-content{padding:40px 50px; border-radius:20px;} .welcome-title{font-size:2.8rem; margin-bottom:40px;} .button-container{flex-direction:column; gap:20px; align-items:center;} .chef-button{font-size:1.1rem; padding:16px 40px; min-width:200px;} }
+        @media (max-width:480px) { .main-content{padding:30px 30px; border-radius:15px;} .welcome-title{font-size:2.2rem; margin-bottom:30px;} .chef-button{font-size:1rem; padding:14px 35px; min-width:180px;} }
     </style>
 </head>
 <body>
 <div class="main-container">
     <div class="main-content">
-        <h1 class="welcome-title">Welcome, Chef</h1>
+        <h1 class="welcome-title">Welcome, Chef <span id="user" class="username-display loading-text">Loading...</span></h1>
         <div class="button-container">
             <a href="chefManageItemsPage.html" class="chef-button">Manage Menu</a>
             <a href="#" class="chef-button">View Orders</a>
-            <!-- New Manage Accounts button -->
             <a href="accountManagement.html" class="chef-button">Manage Accounts</a>
         </div>
     </div>
 </div>
+<script>
+    async function loadUserInfo() {
+        console.log("[DEBUG] Loading user info from session");
+
+        try {
+            const response = await fetchWithoutCache('/AllForOneBuffetAPP/sessionInfo');
+            const data = await response.json();
+            console.log("[DEBUG] Parsed session JSON:", data);
+
+            const usernameElement = document.getElementById('user');
+
+            if (data.isLoggedIn && data.accessLevel === 'chef') {
+                // Extract name before @ symbol
+                const chefName = data.username.split('@')[0];
+                usernameElement.textContent = chefName;
+            } else {
+                usernameElement.textContent = 'Unknown';
+            }
+
+            usernameElement.classList.remove('loading-text');
+
+        } catch (error) {
+            console.error("[DEBUG] Error loading user info:", error);
+            const usernameElement = document.getElementById('user');
+            usernameElement.textContent = 'Unknown';
+            usernameElement.classList.remove('loading-text');
+        }
+    }
+
+    function fetchWithoutCache(url, options = {}) {
+        const timestamp = new Date().getTime();
+        const separator = url.includes('?') ? '&' : '?';
+        const cacheBustUrl = `${url}${separator}nocache=${timestamp}`;
+        return fetch(cacheBustUrl, { ...options, headers: { 'Cache-Control':'no-cache', ...options.headers } });
+    }
+
+    window.addEventListener('pageshow', function(event){ if(event.persisted){ window.location.reload(); } });
+    document.addEventListener('DOMContentLoaded', loadUserInfo);
+</script>
 </body>
 </html>

@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 @WebServlet({"/account-management", "/account-management/*"})
 public class AccountManagementServlet extends HttpServlet {
@@ -23,6 +22,9 @@ public class AccountManagementServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -60,7 +62,7 @@ public class AccountManagementServlet extends HttpServlet {
                     handleDeleteUser(request, response);
                     break;
                 case "toggle":
-                    handleToggleUser(request, response);
+                    toggleUserActivity(request, response);
                     break;
                 case "bulkDelete":
                     handleBulkDelete(request, response);
@@ -143,7 +145,7 @@ public class AccountManagementServlet extends HttpServlet {
         }
     }
 
-    private void handleToggleUser(HttpServletRequest request, HttpServletResponse response)
+    private void toggleUserActivity(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
         String userIdStr = request.getParameter("userId");
@@ -156,7 +158,12 @@ public class AccountManagementServlet extends HttpServlet {
 
         try {
             int userId = Integer.parseInt(userIdStr);
-            boolean success = userDAO.toggleUserStatus(userId);
+
+            // Get current status and toggle it
+            boolean currentStatus = userDAO.isUserActive(userId);
+            boolean newStatus = !currentStatus;
+
+            boolean success = userDAO.updateUserActivityStatus(userId, newStatus);
 
             if (success) {
                 response.setStatus(HttpServletResponse.SC_OK);

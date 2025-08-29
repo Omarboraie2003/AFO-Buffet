@@ -7,9 +7,9 @@ import java.util.ArrayList;
 
 public class UserDAO {
 
-    // --- Validate user for login ---
+    // --- Validate user for login (now checks is_active) ---
     public String validateUser(String username, String password) {
-        String sql = "SELECT password_hash, access_level FROM Users WHERE username = ? AND register = 1";
+        String sql = "SELECT password_hash, access_level FROM Users WHERE username = ? AND register = 1 AND is_active = 1";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
@@ -29,91 +29,90 @@ public class UserDAO {
 
     // --- Find user by email ---
     public UserModel findUserByEmail(String email) {
-        String sql = "SELECT username, password_hash, access_level, register FROM Users WHERE username = ?";
+        String sql = "SELECT * FROM Users WHERE username = ?";
+
+        // Debug logging
+        System.out.println("=== DEBUG findUserByEmail ===");
+        System.out.println("Looking for email: '" + email + "'");
+        System.out.println("SQL Query: " + sql);
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, email);
+            System.out.println("Executing query with parameter: '" + email + "'");
+
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new UserModel(
-                        rs.getString("username"),
-                        rs.getString("password_hash"),
-                        rs.getString("access_level"),
-                        rs.getBoolean("register")
-                );
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+                System.out.println("Found user record!");
 
-    // --- Register user (update existing record) --- (admin only)
-    public boolean registerUser(String email, String passwordHash) {
-        String sql = "UPDATE Users SET password_hash = ?, register = ? WHERE username = ?";
+                // Debug each column
+                try {
+                    int userId = rs.getInt("user_id");
+                    String username = rs.getString("username");
+                    String passwordHash = rs.getString("password_hash");
+                    String accessLevel = rs.getString("access_level");
+                    boolean register = rs.getBoolean("register");
+                    boolean isActive = rs.getBoolean("is_active");
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    System.out.println("User ID: " + userId);
+                    System.out.println("Username: " + username);
+                    System.out.println("Password Hash: " + (passwordHash != null ? "***HIDDEN***" : "NULL"));
+                    System.out.println("Access Level: " + accessLevel);
+                    System.out.println("Register Status: " + register);
+                    System.out.println("Active Status: " + isActive);
 
-            stmt.setString(1, passwordHash);
-            stmt.setBoolean(2, true);
-            stmt.setString(3, email);
+                    UserModel user = new UserModel(userId, username, passwordHash, accessLevel, rs.getBoolean("register"), register);
+                    user.setActive(isActive);
+                    System.out.println("UserModel created successfully");
+                    return user;
 
-            return stmt.executeUpdate() > 0;
+                } catch (SQLException columnError) {
+                    System.out.println("Error reading columns: " + columnError.getMessage());
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+                    // Let's see what columns are actually available
+                    ResultSetMetaData metaData = rs.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+                    System.out.println("Available columns:");
+                    for (int i = 1; i <= columnCount; i++) {
+                        System.out.println("  " + i + ": " + metaData.getColumnName(i) + " (" + metaData.getColumnTypeName(i) + ")");
+                    }
+                    throw columnError;
+                }
+            } else {
+                System.out.println("No user found with email: '" + email + "'");
 
-    // --- Add new user (admin only) ---
-    public boolean addUser(String email, String passwordHash) {
-        String sql = "INSERT INTO Users (username, password_hash, access_level, register) VALUES (?, ?, ?, ?)";
+                // Let's see what users DO exist
+                String debugSql = "SELECT username FROM Users LIMIT 5";
+                try (PreparedStatement debugStmt = conn.prepareStatement(debugSql);
+                     ResultSet debugRs = debugStmt.executeQuery()) {
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, email);
-            stmt.setString(2, passwordHash);
-            stmt.setString(3, "user"); // default role
-            stmt.setInt(4, 0); // register = 0 initially
-
-            return stmt.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // --- Get user access level ---
-    public String getUserAccessLevel(String username, String password) {
-        String sql = "SELECT password_hash, access_level FROM Users WHERE username = ? AND register = 1";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                String storedHash = rs.getString("password_hash");
-                // Use PasswordUtils to verify the plain text password against stored hash
-                if (PasswordUtils.verifyPassword(password, storedHash)) {
-                    return rs.getString("access_level");
+                    System.out.println("Sample usernames in database:");
+                    while (debugRs.next()) {
+                        System.out.println("  - '" + debugRs.getString("username") + "'");
+                    }
+                } catch (SQLException debugError) {
+                    System.out.println("Could not fetch sample usernames: " + debugError.getMessage());
                 }
             }
+
         } catch (SQLException e) {
+            System.out.println("SQL Error in findUserByEmail: " + e.getMessage());
+            System.out.println("SQL State: " + e.getSQLState());
+            System.out.println("Error Code: " + e.getErrorCode());
             e.printStackTrace();
         }
+
+        System.out.println("Returning null");
+        System.out.println("=== END DEBUG ===");
         return null;
     }
 
     // --- Get all users (admin only) ---
     public List<UserModel> getAllUsers() {
         List<UserModel> users = new ArrayList<>();
-        String sql = "SELECT user_id, username, password_hash, access_level, register FROM Users ORDER BY username";
+        String sql = "SELECT user_id, username, password_hash, access_level, register, is_active FROM Users ORDER BY username";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -125,8 +124,9 @@ public class UserDAO {
                         rs.getString("username"),
                         rs.getString("password_hash"),
                         rs.getString("access_level"),
-                        rs.getBoolean("register")
+                        rs.getBoolean("register"), rs.getBoolean("register")
                 );
+                user.setActive(rs.getBoolean("is_active"));
                 users.add(user);
             }
         } catch (SQLException e) {
@@ -139,7 +139,7 @@ public class UserDAO {
     public boolean addNewUser(String email, String role) {
         String defaultPassword = "temppass123";
         String hashedPassword = PasswordUtils.hashPassword(defaultPassword);
-        String sql = "INSERT INTO Users (username, password_hash, access_level, register) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (username, password_hash, access_level, register, is_active) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -148,6 +148,7 @@ public class UserDAO {
             stmt.setString(2, hashedPassword);
             stmt.setString(3, role);
             stmt.setInt(4, 0); // register = 0 initially
+            stmt.setInt(5, 1); // is_active = 1 by default
 
             return stmt.executeUpdate() > 0;
 
@@ -160,22 +161,6 @@ public class UserDAO {
     // --- Delete user (hard delete) ---
     public boolean deleteUser(int userId) {
         String sql = "DELETE FROM Users WHERE user_id = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, userId);
-            return stmt.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // --- Toggle user active/inactive status ---
-    public boolean toggleUserStatus(int userId) {
-        String sql = "UPDATE Users SET register = CASE WHEN register = 1 THEN 0 ELSE 1 END WHERE user_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -215,11 +200,11 @@ public class UserDAO {
         }
     }
 
-    // --- Bulk toggle user status ---
+    // --- Bulk toggle user status (CORRECTED) ---
     public boolean bulkToggleUserStatus(List<Integer> userIds) {
         if (userIds.isEmpty()) return false;
 
-        StringBuilder sql = new StringBuilder("UPDATE Users SET register = CASE WHEN register = 1 THEN 0 ELSE 1 END WHERE user_id IN (");
+        StringBuilder sql = new StringBuilder("UPDATE Users SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END WHERE user_id IN (");
         for (int i = 0; i < userIds.size(); i++) {
             sql.append("?");
             if (i < userIds.size() - 1) sql.append(",");
@@ -259,5 +244,113 @@ public class UserDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    // --- Set the new password that the user entered while registering ---
+    public boolean registerUser(UserModel user) {
+        String sql = "UPDATE Users SET username = ?, password_hash = ?, access_level = ?, register = ?, is_active = ? WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getPasswordHash());
+            stmt.setString(3, user.getAccessLevel());
+            stmt.setBoolean(4, user.isRegister());
+            stmt.setBoolean(5, user.isActive());
+            stmt.setInt(6, user.getUserId());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // --- Get user by username (for session management) ---
+    public UserModel getUserByUsername(String username) {
+        String sql = "SELECT * FROM Users WHERE username = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new UserModel(
+                        rs.getInt("user_id"),
+                        rs.getString("username"),
+                        rs.getString("password_hash"),
+                        rs.getString("access_level"),
+                        rs.getBoolean("register"),
+                        rs.getBoolean("is_active")
+                );
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // --- Update user activity status ---
+    public boolean updateUserActivityStatus(int userId, boolean isActive) {
+        String sql = "UPDATE Users SET is_active = ? WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, isActive ? 1 : 0); // Convert boolean to int for SQL Server BIT
+            stmt.setInt(2, userId);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // --- Check if user is active ---
+    public boolean isUserActive(int userId) {
+        String sql = "SELECT is_active FROM Users WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("is_active") == 1; // For SQL Server BIT type
+            }
+            return false; // User not found
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // --- Get only active users ---
+    public List<UserModel> getActiveUsers() {
+        List<UserModel> users = new ArrayList<>();
+        String sql = "SELECT user_id, username, password_hash, access_level, register, is_active FROM Users WHERE is_active = 1 ORDER BY username";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                UserModel user = new UserModel(
+                        rs.getInt("user_id"),
+                        rs.getString("username"),
+                        rs.getString("password_hash"),
+                        rs.getString("access_level"),
+                        rs.getBoolean("register"), rs.getBoolean("register")
+                );
+                user.setActive(rs.getBoolean("is_active"));
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
     }
 }
