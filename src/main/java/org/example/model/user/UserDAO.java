@@ -10,13 +10,14 @@ import java.util.List;
 public class UserDAO {
     // Create a new user
     public boolean addUser(UserModel user) {
-        String sql = "INSERT INTO Users (username, password_hash, access_level) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Users (username, password_hash, access_level, cart_id) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());
             stmt.setString(3, user.getAccessLevel());
+            stmt.setInt(4, 0);
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -80,7 +81,8 @@ public class UserDAO {
                         rs.getInt("user_id"),
                         rs.getString("username"),
                         rs.getString("password_hash"),
-                        rs.getString("access_level")
+                        rs.getString("access_level"),
+                        rs.getInt("cart_id")
                 );
                 users.add(user);
             }
@@ -104,7 +106,8 @@ public class UserDAO {
                         rs.getInt("user_id"),
                         rs.getString("username"),
                         rs.getString("password_hash"),
-                        rs.getString("access_level")
+                        rs.getString("access_level"),
+                        rs.getInt("cart_id")
                 );
             }
         } catch (SQLException e) {
@@ -113,16 +116,40 @@ public class UserDAO {
         return null;
     }
 
+//    public UserModel getUserByUsername(String username) {
+//        String sql = "SELECT * FROM Users WHERE username = ?";
+//        try (Connection conn = DBConnection.getConnection();
+//             PreparedStatement stmt = conn.prepareStatement(sql)) {
+//
+//            stmt.setString(1, username);
+//            ResultSet rs = stmt.executeQuery();
+//
+//            if (rs.next()) {
+//                return new UserModel(
+//                        rs.getInt("user_id"),
+//                        rs.getString("username"),
+//                        rs.getString("password_hash"),
+//                        rs.getString("access_level"),
+//                        rs.getInt("cart_id")
+//                );
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+
     // Update a user
     public boolean updateUser(UserModel user) {
-        String sql = "UPDATE Users SET username = ?, password_hash = ?, access_level = ? WHERE user_id = ?";
+        String sql = "UPDATE Users SET username = ?, password_hash = ?, access_level = ?, cart_id = ? WHERE user_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());
             stmt.setString(3, user.getAccessLevel());
-            stmt.setInt(4, user.getUserId());
+            stmt.setInt(4, user.getCartId());
+            stmt.setInt(5, user.getUserId());
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {

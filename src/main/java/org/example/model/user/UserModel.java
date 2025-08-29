@@ -1,11 +1,14 @@
 package org.example.model.user;
 
+import org.example.model.Order.OrderDAO;
+
 public class UserModel {
 
     private int userId;
     private String username;
     private String passwordHash;
     private String accessLevel;
+    private int cartId;
 
     // --- Constructors ---
 
@@ -23,11 +26,12 @@ public class UserModel {
      * Use this when retrieving an existing user from the database.
      */
 
-    public UserModel(int userId, String username, String passwordHash, String accessLevel) {
+    public UserModel(int userId, String username, String passwordHash, String accessLevel, int cartId) {
         this.userId = userId;
         this.username = username;
         this.passwordHash = passwordHash;
         this.accessLevel = accessLevel;
+        this.cartId = cartId;
     }
 
     /**
@@ -40,6 +44,7 @@ public class UserModel {
         this.username = username;
         this.passwordHash = passwordHash;
         this.accessLevel = accessLevel;
+        this.cartId = 0; // default value indicating no cart assigned yet
     }
 
     // --- Getters and Setters ---
@@ -74,6 +79,9 @@ public class UserModel {
     public void setAccessLevel(String accessLevel) {
         this.accessLevel = accessLevel;
     }
+
+    public int getCartId() {return cartId;}
+    public void setCartId(int cartId) {this.cartId = cartId;}
 
     // --- toString() for easy printing ---
     @Override
