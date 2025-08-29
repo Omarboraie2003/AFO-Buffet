@@ -8,6 +8,17 @@
     <artifactId>AllForOneBuffetAPP</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <url>http://localhost:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>internal.snapshots</id>
+            <url>http://localhost:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 
     <repositories>
         <repository>
@@ -33,6 +44,11 @@
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
             <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.12</version>
         </dependency>
 
         <dependency>
