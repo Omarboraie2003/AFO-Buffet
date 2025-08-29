@@ -30,7 +30,17 @@ public class AccountManagementServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         try {
-            List<UserModel> users = userDAO.getAllUsers();
+            String statusFilter = request.getParameter("status");
+            List<UserModel> users;
+
+            if ("active".equals(statusFilter)) {
+                users = userDAO.getActiveUsers();
+            } else if ("inactive".equals(statusFilter)) {
+                users = userDAO.getInactiveUsers();
+            } else {
+                users = userDAO.getAllUsers(); // default for "all" or null
+            }
+
             String jsonResponse = gson.toJson(users);
 
             PrintWriter out = response.getWriter();

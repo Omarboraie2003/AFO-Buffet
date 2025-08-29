@@ -137,7 +137,7 @@
         .toggle-switch.off::after{right:calc(100% - 23px)}
         .products-grid{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 300px));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
             padding: 0 10px;
         }
@@ -461,7 +461,7 @@
         /* Enhanced product grid and cards */
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 25px;
             padding: 0 10px;
         }
@@ -2257,17 +2257,9 @@
     }
 
     function confirmLogout() {
-        // Call the logout servlet to clear server session
-        fetch('/AllForOneBuffetAPP/logout', {
-            method: 'POST'
-        }).then(() => {
-            // Always redirect regardless of response
-            window.location.href = 'login.html';
-        }).catch(() => {
-            // Even if logout fails, redirect anyway
-            window.location.href = 'login.html';
-        });
+        window.location.href = 'login.html';
     }
+
     // Close modal when clicking outside of it
     window.onclick = function(event) {
         const modal = document.getElementById('logoutModal');
@@ -2318,8 +2310,6 @@
             window.location.reload();
         }
     });
-
-
 </script>
 </body>
 </html>

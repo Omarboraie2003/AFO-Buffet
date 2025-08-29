@@ -616,6 +616,12 @@
                 <input type="checkbox" class="checkbox" id="selectAll" onchange="toggleSelectAll()">
                 Select All
             </label>
+            <label for="statusFilter">Status Filter</label>
+            <select id="statusFilter" onchange="filterUsers()">
+                <option value="all">All Users</option>
+                <option value="active">Active Only</option>
+                <option value="inactive">Inactive Only</option>
+            </select>
             <button type="button" class="toggle" onclick="toggleSelectedUsers()">Toggle Status</button>
             <button type="button" onclick="deleteSelectedUsers()">Delete</button>
         </div>
@@ -653,11 +659,17 @@
     let users = [];
     let userToDelete = null; // Added variable to track user being deleted
 
-    document.addEventListener('DOMContentLoaded', loadUsers);
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUsers();
+    });
 
-    async function loadUsers() {
+    async function loadUsers(statusFilter = 'all') {
         try {
-            const response = await fetch(`/AllForOneBuffetAPP/account-management`);
+            const url = statusFilter === 'all' ?
+                `/AllForOneBuffetAPP/account-management` :
+                `/AllForOneBuffetAPP/account-management?status=${statusFilter}`;
+
+            const response = await fetch(url);
             if (response.ok) {
                 users = await response.json();
                 renderUsersTable();
@@ -670,49 +682,56 @@
         }
     }
 
+    function filterUsers() {
+        const filterSelect = document.getElementById('statusFilter');
+        const selectedFilter = filterSelect.value;
+
+        loadUsers(selectedFilter);
+
+        const filterText = selectedFilter === 'all' ? 'all users' :
+            selectedFilter === 'active' ? 'active users only' :
+                'inactive users only';
+        showToast(`Showing ${filterText}`);
+    }
+
     function renderUsersTable() {
         const tbody = document.getElementById('usersTableBody');
 
-        const filteredUsers = users.filter(user => user.accessLevel !== '');
-
-        if (filteredUsers.length === 0) {
+        if (users.length === 0) {
             tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" style="text-align: center; padding: 2rem; color: rgba(255, 255, 255, 0.6);">
-                        No users found
-                    </td>
-                </tr>
-            `;
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem; color: rgba(255, 255, 255, 0.6);">
+                    No users found
+                </td>
+            </tr>
+        `;
             return;
         }
 
-        tbody.innerHTML = filteredUsers.map(user => `
-            <tr>
-                <!-- Added individual user checkboxes -->
-                <td>
-                    <input type="checkbox" class="checkbox user-checkbox" value="${user.userId}">
-                </td>
-                <td>${user.username}</td>
-                <td>
-                    <span class="role-badge">${user.accessLevel}</span>
-                </td>
-                <td>
-                    <!-- FIXED: Use isActive instead of register -->
-                    <span class="status-badge ${user.active === true ? 'status-active' : 'status-inactive'}">
-                        ${user.active === true ? 'Active' : 'Inactive'}
-                    </span>
-                </td>
-                <td>
-                    <!-- FIXED: Use isActive instead of register -->
-                    <button class="action-btn toggle" onclick="toggleUserStatus(${user.userId})" title="Toggle Status">
-                        ${user.active === true ? 'Deactivate' : 'Activate'}
-                    </button>
-                    <button class="action-btn delete" onclick="showDeleteModal(${user.userId})" title="Delete User">
-                        Delete
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = users.map(user => `
+        <tr>
+            <td>
+                <input type="checkbox" class="checkbox user-checkbox" value="${user.userId}">
+            </td>
+            <td>${user.username}</td>
+            <td>
+                <span class="role-badge">${user.accessLevel}</span>
+            </td>
+            <td>
+                <span class="status-badge ${user.active === true ? 'status-active' : 'status-inactive'}">
+                    ${user.active === true ? 'Active' : 'Inactive'}
+                </span>
+            </td>
+            <td>
+                <button class="action-btn toggle" onclick="toggleUserStatus(${user.userId})" title="Toggle Status">
+                    ${user.active === true ? 'Deactivate' : 'Activate'}
+                </button>
+                <button class="action-btn delete" onclick="showDeleteModal(${user.userId})" title="Delete User">
+                    Delete
+                </button>
+            </td>
+        </tr>
+    `).join('');
     }
 
     async function addUser(event) {
@@ -736,7 +755,7 @@
                 showToast('User added successfully');
                 document.getElementById('userEmail').value = '';
                 document.getElementById('userRole').value = 'employee';
-                loadUsers();
+                await loadUsers();
             } else {
                 showToast('Failed to add user', 'error');
             }
@@ -784,7 +803,7 @@
 
             if (response.ok) {
                 showToast('User status updated');
-                loadUsers();
+                await loadUsers();
             } else {
                 showToast('Failed to update user status', 'error');
             }
@@ -919,7 +938,7 @@
 
             if (response.ok) {
                 showToast('User deleted successfully');
-                loadUsers();
+                await loadUsers();
                 hideDeleteModal();
             } else {
                 showToast('Failed to delete user', 'error');
@@ -981,7 +1000,7 @@
             }
 
             showToast(`Status updated for ${selectedUserIds.length} user(s)`);
-            loadUsers();
+            await loadUsers();
             document.getElementById('selectAll').checked = false;
         } catch (error) {
             console.error('Error toggling user status:', error);
@@ -1017,7 +1036,7 @@
             }
 
             showToast(`${selectedUserIds.length} user(s) deleted successfully`);
-            loadUsers();
+            await loadUsers();
             document.getElementById('selectAll').checked = false;
         } catch (error) {
             console.error('Error deleting users:', error);
@@ -1058,6 +1077,8 @@
             window.location.reload();
         }
     });
+
+
 
 </script>
 </body>

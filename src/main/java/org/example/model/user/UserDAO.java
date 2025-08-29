@@ -343,7 +343,8 @@ public class UserDAO {
                         rs.getString("username"),
                         rs.getString("password_hash"),
                         rs.getString("access_level"),
-                        rs.getBoolean("register"), rs.getBoolean("register")
+                        rs.getBoolean("register"),
+                        rs.getBoolean("is_active")
                 );
                 user.setActive(rs.getBoolean("is_active"));
                 users.add(user);
@@ -353,4 +354,31 @@ public class UserDAO {
         }
         return users;
     }
+
+    public List<UserModel> getInactiveUsers() {
+        List<UserModel> users = new ArrayList<>();
+        String sql = "SELECT user_id, username, password_hash, access_level, register, is_active FROM Users WHERE is_active = 0 ORDER BY username";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                UserModel user = new UserModel(
+                        rs.getInt("user_id"),
+                        rs.getString("username"),
+                        rs.getString("password_hash"),
+                        rs.getString("access_level"),
+                        rs.getBoolean("register"),
+                        rs.getBoolean("is_active")
+                );
+                user.setActive(rs.getBoolean("is_active"));
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
 }
