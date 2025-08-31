@@ -2256,8 +2256,37 @@
         document.getElementById('logoutModal').style.display = 'none';
     }
 
-    function confirmLogout() {
-        window.location.href = 'login.html';
+    // confirm logout and erase cookies
+    async function confirmLogout() {
+        console.log("[DEBUG] Starting logout process...");
+
+        try {
+            // Call logout servlet
+            const response = await fetch('/AllForOneBuffetAPP/logout', {
+                method: 'POST',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                console.log("[DEBUG] Server logout successful");
+            }
+        } catch (error) {
+            console.error('[DEBUG] Logout error:', error);
+        }
+
+        // Always clear client-side data and redirect
+        clearClientSideData();
+
+        // Clear browser history to prevent back button
+        window.history.pushState(null, null, window.location.href);
+
+        // Force redirect with cache busting
+        const timestamp = new Date().getTime();
+        window.location.replace(`login.html?t=${timestamp}`);
     }
 
     // Close modal when clicking outside of it
@@ -2310,6 +2339,26 @@
             window.location.reload();
         }
     });
+
+    function clearClientSideData() {
+        // Clear browser storage
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+        } catch (e) {
+            console.log("Storage clearing failed:", e);
+        }
+
+        // Clear any cached data
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+            });
+        }
+
+        console.log("[DEBUG] Client-side data cleared");
+    }
+
 </script>
 </body>
 </html>
