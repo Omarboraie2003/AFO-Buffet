@@ -1,19 +1,18 @@
 package org.example.model.Order;
 
-import org.example.model.MenuItem.MenuItem;
-import org.example.model.user.UserModel;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class OrderModel {
     private int orderId;
     private int employeeId;
     private LocalDateTime orderDate;
     private String status;
-    private ArrayList<Integer> menuItemIds;
-    
+    private ArrayList<Integer> item_ids;
+    private ArrayList<Integer> item_options;
+    private ArrayList<Integer> item_notes_ids;
+
+
     public OrderModel() {}
 
     public OrderModel(int orderId, int employeeId, LocalDateTime orderDate, String status) {
@@ -21,14 +20,18 @@ public class OrderModel {
         this.employeeId = employeeId;
         this.orderDate = orderDate;
         this.status = status;
-        this.menuItemIds = new ArrayList<>();
+        this.item_ids = new ArrayList<>();
+        this.item_options = new ArrayList<>();
+        this.item_notes_ids = new ArrayList<>();
     }
 
     public OrderModel(int employeeId, LocalDateTime orderDate, String status) {
         this.employeeId = employeeId;
         this.orderDate = orderDate;
         this.status = status;
-        this.menuItemIds = new ArrayList<>();
+        this.item_ids = new ArrayList<>();
+        this.item_options = new ArrayList<>();
+        this.item_notes_ids = new ArrayList<>();
     }
 
     public int getOrderId() { return orderId; }
@@ -43,17 +46,23 @@ public class OrderModel {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public ArrayList<Integer> getOrderItemIds() { return menuItemIds; }
-    public void setOrderItemIds(ArrayList<Integer> menuItemIds) { this.menuItemIds = menuItemIds; }
-    public void addOrderItemId(int menuItemId) { this.menuItemIds.add(menuItemId); }
-    public void removeOrderItemId(int menuItemId) { this.menuItemIds.remove(Integer.valueOf(menuItemId)); }
+    public ArrayList<Integer> getOrderItemIds() { return item_ids; }
+    public void setOrderItemIds(ArrayList<Integer> menuItemIds) { this.item_ids = menuItemIds; }
+    public void addOrderItemId(int menuItemId) { this.item_ids.add(menuItemId); }
+    public void removeOrderItemId(int menuItemId) { this.item_ids.remove(Integer.valueOf(menuItemId)); }
+
+    public ArrayList<Integer> getItemOptions() { return item_options; }
+    public void setItemOptions(ArrayList<Integer> item_options) { this.item_options = item_options; }
+
+    public ArrayList<Integer> getItemNotesIds() { return item_notes_ids; }
+    public void setItemNotesIds(ArrayList<Integer> item_notes_ids) { this.item_notes_ids = item_notes_ids; }
 
     public void showOrderDetails() {
         System.out.println("Order ID: " + orderId);
         System.out.println("Employee ID: " + employeeId);
         System.out.println("Order Date: " + orderDate);
         System.out.println("Status: " + status);
-        System.out.println("Menu Item IDs: " + menuItemIds);
+        System.out.println("Menu Item IDs: " + item_ids);
     }
 }
 
