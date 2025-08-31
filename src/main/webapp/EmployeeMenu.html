@@ -1093,27 +1093,27 @@
 
     // Run setup after DOM is ready
 
-    async function loadCategory(category) {
+    async function loadCategory(item_category) {
         try {
             // Call the servlet with category parameter
-            const res = await fetch(`/AllForOneBuffetAPP/menu?category=${category}`)
+            const res = await fetch(`/AllForOneBuffetAPP/menu?item_category=${item_category}`)
             if (!res.ok) {
                 throw new Error("Servlet response error: " + res.status)
             }
             const items = await res.json()
-            const section = document.getElementById(category)
+            const section = document.getElementById(item_category)
             if (!section) {
-                console.error("No section found for category:", category)
+                console.error("No section found for category:", item_category)
                 return
             }
             const grid = section.querySelector(".menu-grid")
             if (!grid) {
-                console.error("No grid found in section for category:", category)
+                console.error("No grid found in section for category:", item_category)
                 return
             }
             grid.innerHTML = "" // Clear existing hardcoded items
             if (!items || items.length === 0) {
-                console.log("No items found for category:", category)
+                console.log("No items found for category:", item_category)
                 return
             }
             items.forEach((item) => {
@@ -1127,11 +1127,11 @@
 
                 card.innerHTML = `
     <button class="add-btn">+</button>
-    <img src="${imageSrc}" alt="${item.name}">
+    <img src="${imageSrc}" alt="${item.item_name}">
     <div class="card-content">
-      <h3>${item.name}</h3>
+      <h3>${item.item_name}</h3>
       <div class="card-footer">
-              <p class="card-description">${item.description || "Description of the item"}</p>
+              <p class="card-description">${item.item_description || "Description of the item"}</p>
 
       </div>
     </div>
@@ -1143,17 +1143,17 @@
                 grid.appendChild(card);
             });
 
-            console.log(`Successfully loaded ${items.length} items for ${category}`)
+            console.log(`Successfully loaded ${items.length} items for ${item_category}`)
         } catch (err) {
-            console.error("Error loading category:", category, err)
+            console.error("Error loading category:", item_category, err)
         }
     }
     function openItemPopup(item) {
-        document.getElementById("popupProductTitle").textContent = item.name;
+        document.getElementById("popupProductTitle").textContent = item.item_name;
 
         document.getElementById("popupProductImage").src = `Images/${item.photoUrl || "falafel.png"}`;
-        document.getElementById("popupProductImage").alt = item.name;
-        document.getElementById("popupProductDescription").textContent = item.description || "No description available.";
+        document.getElementById("popupProductImage").alt = item.item_name;
+        document.getElementById("popupProductDescription").textContent = item.item_description || "No description available.";
 
         if (item.category && item.category.toLowerCase() === "sandwiches") {
             document.getElementById("popupBreadSection").style.display = "block";
@@ -1191,13 +1191,13 @@
             const titleEl = document.getElementById("special-dish-title");
             const imgEl = document.getElementById("special-dish-image");
 
-            if (titleEl) titleEl.textContent = special.name;
+            if (titleEl) titleEl.textContent = special.item_name;
             if (imgEl) {
                 imgEl.src = `Images/${special.photoUrl || "falafel.png"}`;
-                imgEl.alt = special.name;
+                imgEl.alt = special.item_name;
             }
 
-            console.log("Today's special loaded:", special.name);
+            console.log("Today's special loaded:", special.item_name);
 
         } catch (err) {
             console.error("Error loading today's special:", err);

@@ -8,16 +8,7 @@
     <artifactId>AllForOneBuffetAPP</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
-    <distributionManagement>
-        <repository>
-            <id>internal.repo</id>
-            <url>http://localhost:8081/repository/maven-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>internal.snapshots</id>
-            <url>http://localhost:8081/repository/maven-snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
+
 
 
     <repositories>
@@ -82,5 +73,14 @@
 
 
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

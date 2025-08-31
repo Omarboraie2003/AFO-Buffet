@@ -30,9 +30,9 @@ public class EmployeeMenuServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String category = request.getParameter("category");
+        String category = request.getParameter("item_category");
         String isSpecial = request.getParameter("is_special");
-        System.out.println("[DEBUG] MenuServlet doGet called with category: " + category + ", special: " + isSpecial);
+        System.out.println("[DEBUG] MenuServlet doGet called with item_category: " + category + ", special: " + isSpecial);
 
         try {
             if (menuDAO == null) {
