@@ -63,7 +63,7 @@ public class OrderDAO {
                 } else {
                     System.out.println("order_date is NULL in DB");
                 }
-                order.setStatus(rs.getString("status"));
+                order.setStatus(rs.getString("order_status"));
                 order.setOrderItemIds(parseStringToArrayList(rs.getString("item_ids")));
             }
             return order;
@@ -85,7 +85,7 @@ public class OrderDAO {
             order.setOrderId(rs.getInt("order_id"));
             order.setEmployeeId(rs.getInt("user_id"));
             order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
-            order.setStatus(rs.getString("status"));
+            order.setStatus(rs.getString("order_status"));
             order.setOrderItemIds(parseStringToArrayList(rs.getString("item_ids")));
             orders.add(order);
         }
@@ -105,7 +105,7 @@ public class OrderDAO {
             order.setOrderId(rs.getInt("order_id"));
             order.setEmployeeId(rs.getInt("user_id"));
             order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
-            order.setStatus(rs.getString("status"));
+            order.setStatus(rs.getString("order_status"));
             orders.add(order);
         }
 

@@ -26,13 +26,12 @@ public class MenuDAO {
 
     // Add new item
     public void addMenuItem(MenuItem item) throws SQLException {
-        String sql = "INSERT INTO MenuItems (name, description, price, available, type) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO MenuItems (name, description, price, available, type) VALUES (?, ?, ?, ?)";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setString(1, item.getName());
         ps.setString(2, item.getDescription());
-        ps.setDouble(3, item.getPrice());
-        ps.setBoolean(4, item.isAvailable());
-        ps.setString(5, item.getType());
+        ps.setBoolean(3, item.isAvailable());
+        ps.setString(4, item.getType());
         ps.executeUpdate();
     }
 
@@ -44,12 +43,11 @@ public class MenuDAO {
         ResultSet rs = stmt.executeQuery(sql);
         while (rs.next()) {
             items.add(new MenuItem(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getString("description"),
-                    rs.getDouble("price"),
-                    rs.getBoolean("available"),
-                    rs.getString("type")
+                    rs.getInt("item_id"),
+                    rs.getString("item_name"),
+                    rs.getString("item_description"),
+                    rs.getBoolean("is_available"),
+                    rs.getString("item_type")
             ));
         }
         return items;
@@ -63,12 +61,11 @@ public class MenuDAO {
         ResultSet rs = stmt.executeQuery(sql);
         while (rs.next()) {
             items.add(new MenuItem(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getString("description"),
-                    rs.getDouble("price"),
-                    rs.getBoolean("available"),
-                    rs.getString("type")
+                    rs.getInt("item_id"),
+                    rs.getString("item_name"),
+                    rs.getString("item_description"),
+                    rs.getBoolean("is_available"),
+                    rs.getString("item_type")
             ));
         }
         return items;
@@ -76,14 +73,13 @@ public class MenuDAO {
 
     // Update item
     public void updateMenuItem(MenuItem item) throws SQLException {
-        String sql = "UPDATE MenuItems SET name=?, description=?, price=?, available=?, type=? WHERE id=?";
+        String sql = "UPDATE MenuItems SET name=?, description=?, available=?, type=? WHERE id=?";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setString(1, item.getName());
         ps.setString(2, item.getDescription());
-        ps.setDouble(3, item.getPrice());
-        ps.setBoolean(4, item.isAvailable());
-        ps.setString(5, item.getType());
-        ps.setInt(6, item.getId());
+        ps.setBoolean(3, item.isAvailable());
+        ps.setString(4, item.getType());
+        ps.setInt(5, item.getId());
         ps.executeUpdate();
     }
 
