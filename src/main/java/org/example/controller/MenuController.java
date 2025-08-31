@@ -24,7 +24,7 @@ public class MenuController {
 
     // ✅ Add item with type
     public void addItem(String name, String desc, double price, boolean available, String type,String category) throws SQLException {
-        MenuItem item = new MenuItem(0, name, desc, price, available, type,category);
+        MenuItem item = new MenuItem(0, name, desc, available, type,category);
         menuDAO.addMenuItem(item);
     }
 
@@ -39,7 +39,7 @@ public class MenuController {
         for (String category : grouped.keySet()) {
             System.out.println("\n=== " + category.toUpperCase() + " ===");
             for (MenuItem item : grouped.get(category)) {
-                System.out.println(item.getType() + " | " + item.getName() + " - " + item.getPrice());
+                System.out.println(item.getType() + " | " + item.getName());
             }
         }
     }
@@ -51,15 +51,14 @@ public class MenuController {
                     item.getId() + " | " +
                             item.getCategory() + " | " +
                             item.getType() + " | " +
-                            item.getName() + " | " +
-                            item.getPrice() + " | Available: " + item.isAvailable()
+                            item.getName() + " | Available: " + item.isAvailable()
             );
         }
     }
 
     // ✅ Update item with type
-    public void updateItem(int id, String name, String description, double price, boolean available, String type, String category) throws SQLException {
-        MenuItem item = new MenuItem(id, name, description, price, available, type, category );
+    public void updateItem(int id, String name, String description, boolean available, String type, String category) throws SQLException {
+        MenuItem item = new MenuItem(id, name, description, available, type, category );
         menuDAO.updateMenuItem(item);
     }
 

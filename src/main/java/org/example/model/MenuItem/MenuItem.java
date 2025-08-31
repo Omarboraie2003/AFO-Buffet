@@ -5,18 +5,16 @@ public class MenuItem {
     private int id;
     private String name;
     private String description;
-    private double price;
     private boolean available;
     private String type;
     private String category;
 
     // Constructors
     public MenuItem() {}
-    public MenuItem(int id, String name, String description, double price, boolean available, String type,String category) {
+    public MenuItem(int id, String name, String description, boolean available, String type, String category) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.price = price;
         this.available = available;
         this.type = type;
         this.category = category;
@@ -31,9 +29,6 @@ public class MenuItem {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-
-    public double getPrice() { return price; }
-    public void setPrice(double price) { this.price = price; }
 
     public boolean isAvailable() { return available; }
     public void setAvailable(boolean available) { this.available = available; }
