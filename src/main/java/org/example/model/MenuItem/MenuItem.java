@@ -39,7 +39,7 @@ public class MenuItem {
 
 
     public boolean isAvailable() { return is_available; }
-    public void setAvailable(boolean available) {this.is_available = available;}
+    public void setAvailable(boolean available) { this.is_available = is_available; }
 
     public String getType() { return item_type; }
     public void setType(String item_type) { this.item_type = item_type; }
