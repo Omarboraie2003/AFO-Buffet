@@ -689,7 +689,7 @@
         loadUsers(selectedFilter);
 
         const filterText = selectedFilter === 'all' ? 'all users' :
-            selectedFilter === 'active' ? 'active users only' :
+            selectedFilter === 'is_active' ? 'active users only' :
                 'inactive users only';
         showToast(`Showing ${filterText}`);
     }
@@ -718,13 +718,13 @@
                 <span class="role-badge">${user.accessLevel}</span>
             </td>
             <td>
-                <span class="status-badge ${user.active === true ? 'status-active' : 'status-inactive'}">
-                    ${user.active === true ? 'Active' : 'Inactive'}
+                <span class="status-badge ${user.is_active === true ? 'status-active' : 'status-inactive'}">
+                    ${user.is_active === true ? 'Active' : 'Inactive'}
                 </span>
             </td>
             <td>
                 <button class="action-btn toggle" onclick="toggleUserStatus(${user.userId})" title="Toggle Status">
-                    ${user.active === true ? 'Deactivate' : 'Activate'}
+                    ${user.is_active === true ? 'Deactivate' : 'Activate'}
                 </button>
                 <button class="action-btn delete" onclick="showDeleteModal(${user.userId})" title="Delete User">
                     Delete

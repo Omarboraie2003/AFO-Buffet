@@ -6,29 +6,29 @@ public class UserModel {
     private String username;
     private String passwordHash;
     private String accessLevel;
-    private boolean register;
-    private boolean active;
+    private boolean is_registered;
+    private boolean is_active;
 
     // --- Constructors ---
 
     // Use this when creating a new user (before DB insert)
-    public UserModel(int userId, String username, String passwordHash, String accessLevel, boolean register,boolean active) {
+    public UserModel(int userId, String username, String passwordHash, String accessLevel, boolean is_registered, boolean is_active) {
         this.userId = userId;
         this.username = username;
         this.passwordHash = passwordHash;
         this.accessLevel = accessLevel;
-        this.register = register;
-        this.active = active;
+        this.is_registered = is_registered;
+        this.is_active = is_active;
     }
 
 
     // Use this when loading user from database (with userId)
-    public UserModel(String username, String passwordHash, String accessLevel, boolean register, boolean isActive) {
+    public UserModel(String username, String passwordHash, String accessLevel, boolean is_registered, boolean isActive) {
         this.username = username;
         this.passwordHash = passwordHash;
         this.accessLevel = accessLevel;
-        this.register = register;
-        this.active = isActive;
+        this.is_registered = is_registered;
+        this.is_active = isActive;
     }
 
     // --- Getters and Setters ---
@@ -60,13 +60,13 @@ public class UserModel {
         this.accessLevel = accessLevel;
     }
 
-    public boolean isRegister() {return this.register;}
-    public void setRegister(boolean register) {
-        this.register = register;
+    public boolean isRegister() {return this.is_registered;}
+    public void setRegister(boolean is_registered) {
+        this.is_registered = is_registered;
     }
 
-    public boolean isActive() { return this.active; }
-    public void setActive(boolean active) { this.active = active; }
+    public boolean isActive() { return this.is_active; }
+    public void setActive(boolean is_active) { this.is_active = is_active; }
 
     @Override
     public String toString() {
@@ -74,7 +74,7 @@ public class UserModel {
                 "userId=" + userId +
                 ", username='" + username + '\'' +
                 ", accessLevel='" + accessLevel + '\'' +
-                ", register=" + register +
+                ", register=" + is_registered +
                 '}';
     }
 }

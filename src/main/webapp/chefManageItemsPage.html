@@ -406,93 +406,188 @@
         }
 
         /* ========================================
-           PRODUCTS GRID
+           PRODUCTS GRID - ENHANCED
         ======================================== */
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
             margin-bottom: 40px;
         }
 
-        /* Improved product card layout and spacing */
+        /* Enhanced product card with better placeholder and data display */
         .product-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 131, 0, 0.1);
             display: flex;
             flex-direction: column;
             height: 100%;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 131, 0, 0.2);
+            border-color: rgba(255, 131, 0, 0.3);
         }
 
         .product-image {
-            height: 180px;
-            background: #f5f5f5;
+            height: 220px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #999;
+            color: #6c757d;
             font-style: italic;
+            font-size: 16px;
+            font-weight: 500;
             overflow: hidden;
             flex-shrink: 0;
+            position: relative;
+            border-bottom: 2px solid rgba(255, 131, 0, 0.1);
+        }
+
+        .product-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg,
+            transparent 40%,
+            rgba(255, 131, 0, 0.05) 50%,
+            transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .product-card:hover .product-image::before {
+            opacity: 1;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        /* Enhanced placeholder styling */
+        .product-image.no-image {
+            background: linear-gradient(135deg, #f8f9fa 0%, #dee2e6 50%, #f8f9fa 100%);
+            position: relative;
+        }
+
+        .product-image.no-image::after {
+            content: "📷\ANo Image Available";
+            white-space: pre;
+            text-align: center;
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.4;
         }
 
         .product-details {
-            padding: 16px;
+            padding: 20px;
             color: #333;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
+            background: white;
         }
 
         .product-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
             line-height: 1.3;
-        }
-
-        .product-desc {
-            font-size: 13px;
-            color: #666;
-            line-height: 1.4;
-            flex-grow: 1;
+            margin-bottom: 8px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            min-height: 46px;
+        }
+
+        .product-desc {
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.5;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 16px;
+            min-height: 63px;
+        }
+
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .product-availability {
-            font-size: 11px;
-            font-weight: 500;
-            color: #4CAF50;
+            font-size: 12px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: auto;
+            letter-spacing: 0.8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
         .product-availability.unavailable {
-            color: #f44336;
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .product-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ff8300;
+            margin-left: auto;
         }
 
         .special-toggle {
             background: linear-gradient(135deg, #ff8300, #ffaa00);
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 11px;
-            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 8px;
             transition: all 0.3s ease;
-            align-self: flex-start;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 10;
+        }
+
+        .special-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 131, 0, 0.4);
         }
 
         /* ========================================
@@ -537,27 +632,47 @@
             opacity: 0.9;
         }
 
-        /* Skeleton Loading Cards */
+        /* Enhanced Skeleton Loading Cards */
         .skeleton-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
             overflow: hidden;
-            padding: 20px;
+            padding: 0;
             animation: pulse 1.5s ease-in-out infinite alternate;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
         }
 
         .skeleton-image {
-            height: 160px;
-            background: #e0e0e0;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            height: 220px;
+            background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 0;
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+
+        .skeleton-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .skeleton-text {
             height: 16px;
-            background: #e0e0e0;
-            border-radius: 4px;
-            margin-bottom: 10px;
+            background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        .skeleton-text.title {
+            height: 20px;
+            margin-bottom: 8px;
         }
 
         .skeleton-text.short {
@@ -568,101 +683,203 @@
             width: 80%;
         }
 
+        .skeleton-text.long {
+            width: 95%;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
         @keyframes pulse {
             0% { opacity: 1; }
-            100% { opacity: 0.6; }
+            100% { opacity: 0.8; }
         }
 
         /* ========================================
-           MODAL STYLES
+           ENHANCED MODAL STYLES
         ======================================== */
         .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
+            position: fixed !important;
+            z-index: 10000 !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-color: rgba(0, 0, 0, 0.75) !important;
+            backdrop-filter: blur(8px) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px !important;
+            animation: modalFadeIn 0.3s ease-out !important;
         }
 
+        /* Alternative centering method if flexbox fails */
         .modal-content {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            background: #2d2d2d !important;
+            border-radius: 16px !important;
+            padding: 0 !important;
+            max-width: 420px !important;
+            width: 90% !important;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(255, 131, 0, 0.3) !important;
+            animation: modalSlideIn 0.3s ease-out forwards !important;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+            to {
+                opacity: 1;
+                backdrop-filter: blur(8px);
+            }
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translate(-50%, -50%) scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
         }
 
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 20px 24px !important;
+            background: #2d2d2d !important;
+            color: #ff8300 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
 
         .modal-header h3 {
-            color: #333;
-            font-size: 20px;
-            margin: 0;
+            font-size: 20px !important;
+            font-weight: 600 !important;
+            margin: 0 !important;
+            color: #ff8300 !important;
         }
 
         .close {
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #999;
-            transition: color 0.3s ease;
+            font-size: 24px !important;
+            font-weight: bold !important;
+            cursor: pointer !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+            transition: all 0.2s ease !important;
+            width: 32px !important;
+            height: 32px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 4px !important;
+            background: transparent !important;
+            border: none !important;
         }
 
         .close:hover {
-            color: #333;
+            color: white !important;
+            background: rgba(255, 255, 255, 0.1) !important;
         }
 
         .modal-body {
-            margin-bottom: 25px;
-            color: #666;
-            line-height: 1.5;
+            padding: 24px !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            line-height: 1.5 !important;
+            font-size: 15px !important;
+            text-align: left !important;
+            background: #2d2d2d !important;
+        }
+
+        .modal-body p {
+            margin: 0 !important;
         }
 
         .modal-footer {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
+            display: flex !important;
+            gap: 12px !important;
+            justify-content: flex-end !important;
+            padding: 20px 24px 24px !important;
+            background: #2d2d2d !important;
         }
 
         .modal-btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            padding: 10px 20px !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            min-width: 80px !important;
         }
 
         .modal-btn.cancel {
-            background: #f5f5f5;
-            color: #333;
-            border: 2px solid #ddd;
+            background: #6b7280 !important;
+            color: white !important;
         }
 
         .modal-btn.cancel:hover {
-            background: #e0e0e0;
+            background: #5b6570 !important;
         }
 
         .modal-btn.confirm {
-            background: linear-gradient(135deg, #f44336, #d32f2f);
-            color: white;
+            background: #dc3545 !important;
+            color: white !important;
         }
 
         .modal-btn.confirm:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+            background: #c82333 !important;
         }
 
+        .modal-btn:active {
+            transform: scale(0.98) !important;
+        }
+
+        /* Force modal to always center - multiple fallback methods */
+        .modal.show {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .modal .modal-content {
+            margin: auto !important;
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            transform: none !important;
+        }
+
+        /* Fallback centering using margin */
+        .modal-centered {
+            display: table !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .modal-centered .modal-content {
+            display: table-cell !important;
+            vertical-align: middle !important;
+            text-align: center !important;
+        }
+
+        .modal-centered .modal-content > div {
+            display: inline-block ;
+            text-align: left ;
+            vertical-align: middle ;
+        }
         /* ========================================
            FORM STYLES
         ======================================== */
@@ -840,6 +1057,18 @@
         /* ========================================
            RESPONSIVE DESIGN
         ======================================== */
+        @media (max-width: 1024px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 25px;
+            }
+
+            .modal-content {
+                max-width: 400px;
+                margin: 20px;
+            }
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -849,6 +1078,7 @@
             .category-filters {
                 flex-direction: column;
                 gap: 15px;
+                padding: 20px;
             }
 
             .search-container input {
@@ -868,6 +1098,155 @@
             .nav-btn {
                 padding: 10px 20px;
                 font-size: 14px;
+            }
+
+            .modal-content {
+                max-width: 350px;
+                margin: 15px;
+            }
+
+            .modal-header {
+                padding: 20px 24px;
+            }
+
+            .modal-header h3 {
+                font-size: 20px;
+            }
+
+            .modal-body {
+                padding: 24px;
+            }
+
+            .modal-footer {
+                padding: 20px 24px 24px;
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+
+            .modal-btn:last-child {
+                margin-bottom: 0;
+            }
+
+            .featured-section {
+                flex-direction: column;
+                text-align: center;
+                padding: 30px 20px;
+                min-height: auto;
+            }
+
+            .featured-text {
+                padding-right: 0;
+                margin-bottom: 20px;
+            }
+
+            .featured-text h1 {
+                font-size: 32px;
+            }
+
+            .featured-image {
+                width: 100%;
+                max-width: 300px;
+                height: 200px;
+            }
+
+            .product-card:hover {
+                transform: translateY(-4px) scale(1.01);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .product-card {
+                min-height: auto;
+            }
+
+            .product-image {
+                height: 180px;
+            }
+
+            .modal-content {
+                max-width: 320px;
+                margin: 10px;
+            }
+
+            .modal-header h3 {
+                font-size: 18px;
+            }
+
+            .modal-body {
+                padding: 20px;
+                font-size: 15px;
+            }
+
+            .modal-body .logout-icon {
+                font-size: 48px;
+                margin-bottom: 15px;
+            }
+
+            .toast {
+                min-width: 280px;
+                max-width: 320px;
+            }
+        }
+
+        /* ========================================
+           ACCESSIBILITY IMPROVEMENTS
+        ======================================== */
+        .modal-btn:focus,
+        .nav-btn:focus,
+        .category-btn:focus,
+        .search-container input:focus,
+        .special-toggle:focus {
+            outline: 2px solid #ff8300;
+            outline-offset: 2px;
+        }
+
+        .product-card:focus {
+            outline: 2px solid #ff8300;
+            outline-offset: 4px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ========================================
+           PRINT STYLES
+        ======================================== */
+        @media print {
+            .modal,
+            .toast-container,
+            .main-loader {
+                display: none !important;
+            }
+
+            .product-card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
             }
         }
     </style>
