@@ -1,3 +1,5 @@
+package org.example.controller;
+
 import org.example.model.user.UserDAO;
 import org.example.model.user.UserModel;
 import com.google.gson.Gson;

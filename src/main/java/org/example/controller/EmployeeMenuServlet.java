@@ -30,9 +30,9 @@ public class EmployeeMenuServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String category = request.getParameter("item_category");
-        String isSpecial = request.getParameter("is_special");
-        System.out.println("[DEBUG] MenuServlet doGet called with item_category: " + category + ", special: " + isSpecial);
+        String item_category = request.getParameter("item_category");
+        String is_special = request.getParameter("is_special");
+        System.out.println("[DEBUG] MenuServlet doGet called with item_category: " + item_category + ", special: " + is_special);
 
         try {
             if (menuDAO == null) {
@@ -60,9 +60,9 @@ public class EmployeeMenuServlet extends HttpServlet {
                 return;
             }
             // ✅ Handle special dish request
-            if ( "true".equalsIgnoreCase(isSpecial)) {
+            if ( "true".equalsIgnoreCase(is_special)) {
                 System.out.println("[DEBUG] Fetching today's special item...");
-                MenuItem specialItem = menuDAO.getTodaysSpecial(); // your DAO method uses is_special column
+                MenuItem specialItem = menuDAO.getTodaysSpecialE(); // your DAO method uses is_special column
                 if (specialItem == null) {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     response.getWriter().write("{\"error\":\"No special item found\"}");
@@ -74,13 +74,13 @@ public class EmployeeMenuServlet extends HttpServlet {
             }
             List<MenuItem> items;
 
-            if (category != null && !category.isEmpty()) {
-                category = category.trim();
-                System.out.println("[DEBUG] Fetching items for category: '" + category + "'");
-                items = menuDAO.getMenuItemsByCategoryE(category);
+            if (item_category != null && !item_category.isEmpty()) {
+                item_category = item_category.trim();
+                System.out.println("[DEBUG] Fetching items for category: '" + item_category + "'");
+                items = menuDAO.getMenuItemsByCategory(item_category);
             } else {
                 System.out.println("[DEBUG] Fetching all available menu items");
-                items = menuDAO.getAvailableMenuItems();
+                items = menuDAO.getAvailableMenuItemsE();
             }
 
             if (items == null) {
@@ -93,15 +93,15 @@ public class EmployeeMenuServlet extends HttpServlet {
             String json = gson.toJson(items);
             response.getWriter().write(json);
 
-            System.out.println("[SUCCESS] DAO returned " + items.size() + " items for category '" + category + "'");
+            System.out.println("[SUCCESS] DAO returned " + items.size() + " items for category '" + item_category + "'");
 
-        } catch (SQLException e) {
-            System.err.println("[SQL ERROR] Database error in MenuServlet: " + e.getMessage());
-            System.err.println("[SQL ERROR] SQL State: " + e.getSQLState());
-            System.err.println("[SQL ERROR] Error Code: " + e.getErrorCode());
-            e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\":\"Database error: " + e.getMessage() + "\"}");
+//        } catch (SQLException e) {
+//            System.err.println("[SQL ERROR] Database error in MenuServlet: " + e.getMessage());
+//            System.err.println("[SQL ERROR] SQL State: " + e.getSQLState());
+//            System.err.println("[SQL ERROR] Error Code: " + e.getErrorCode());
+//            e.printStackTrace();
+//            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+//            response.getWriter().write("{\"error\":\"Database error: " + e.getMessage() + "\"}");
         } catch (Exception e) {
             System.err.println("[ERROR] Unexpected error in MenuServlet: " + e.getClass().getSimpleName() + " - " + e.getMessage());
             e.printStackTrace();

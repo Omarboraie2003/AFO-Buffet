@@ -13,7 +13,7 @@ public class DBConnection {
             + "trustServerCertificate=true";
 
     private static final String USER = "sa";
-    private static final String PASSWORD = "StrongPassword123!";
+    private static final String PASSWORD = "MySecurePass123";
 
     public static Connection getConnection() {
         try {

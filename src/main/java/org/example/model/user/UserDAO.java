@@ -1,4 +1,6 @@
 package org.example.model.user;
+import org.example.model.Order.OrderDAO;
+import org.example.model.Order.OrderModel;
 import org.example.util.DBConnection;
 import java.sql.*;
 import org.example.util.PasswordUtils;
@@ -165,7 +167,7 @@ public class UserDAO {
 
     // --- Add new user with default password (admin only) ---
     public boolean addNewUser(String email, String role) {
-        String sql = "INSERT INTO Users (username, password_hash, access_level, is_registered, is_active, cart_id) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (username, password_hash, access_level, is_registered, is_active, cart_id) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -287,6 +289,7 @@ public class UserDAO {
             stmt.setInt(6, user.getUserId());
 
             return stmt.executeUpdate() > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

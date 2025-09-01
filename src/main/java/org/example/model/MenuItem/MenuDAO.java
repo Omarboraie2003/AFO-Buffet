@@ -19,23 +19,45 @@ public class MenuDAO {
     }
 
     // Add new item
-    public void addMenuItem(MenuItem item) throws SQLException {
-        String sql = "INSERT INTO MenuItems (item_name, item_description, is_available, item_type, item_category, photo_url, is_special) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // Add new menu item
+    public boolean addMenuItem(MenuItem item) {
+        String sql = "INSERT INTO MenuItems (item_name, item_description, is_available, item_type, item_category, is_special, photo_url) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, item.getName());
-            ps.setString(2, item.getDescription());
-            ps.setBoolean(4, item.isAvailable());
-            ps.setString(5, item.getType());
-            ps.setString(6, item.getCategory());
-            ps.setString(7, item.getPhotoUrl());
-            ps.setBoolean(8, item.isSpecial());
-            ps.executeUpdate();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, item.getName());
+            stmt.setString(2, item.getDescription());
+            stmt.setBoolean(3, item.isAvailable());
+            stmt.setString(4, item.getType());
+            stmt.setString(5, item.getCategory());
+            stmt.setBoolean(6, item.isSpecial());
+            stmt.setString(7, item.getPhotoUrl());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
+    public List<MenuItem> getAvailableMenuItems() {
+        List<MenuItem> items = new ArrayList<>();
+        String sql = "SELECT item_id, item_name, item_description, is_available, item_type, item_category, is_special, photo_url FROM MenuItems WHERE is_available = 1";
 
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                items.add(mapRowToMenuItem(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return items;
+    }
     // Get all available items (for employees)
-    public List<MenuItem> getAvailableMenuItems() throws SQLException {
+    public List<MenuItem> getAvailableMenuItemsE() throws SQLException {
         List<MenuItem> items = new ArrayList<>();
         String sql = "SELECT * FROM MenuItems WHERE is_available = 1";
         try (Connection conn = DBConnection.getConnection();
@@ -56,54 +78,59 @@ public class MenuDAO {
         }
         return items;
     }
-
-    // Get all items (for chef)
-    public List<MenuItem> getAllMenuItems() throws SQLException {
+    public List<MenuItem> getAllMenuItems() {
         List<MenuItem> items = new ArrayList<>();
-        String sql = "SELECT * FROM MenuItems";
+        String sql = "SELECT item_id, item_name, item_description, is_available, item_type, item_category, is_special, photo_url FROM MenuItems";
+
         try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                items.add(new MenuItem(
-                        rs.getInt("item_id"),
-                        rs.getString("item_name"),
-                        rs.getString("item_description"),
-                        rs.getBoolean("is_available"),
-                        rs.getString("item_type"),
-                        rs.getString("item_category"),
-                        rs.getString("photo_url"),
-                        rs.getBoolean("is_special")
-                ));
+                items.add(mapRowToMenuItem(rs));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return items;
     }
 
-    // Update item
-    public void updateMenuItem(MenuItem item) throws SQLException {
-        String sql = "UPDATE MenuItems SET item_name=?, item_description=?, is_available=?, item_type=?, item_category=?, photo_url=?, is_special=? WHERE item_id=?";
+
+
+    //update omar menu
+    public boolean updateMenuItem(MenuItem item) {
+        String sql = "UPDATE MenuItems SET item_name = ?, item_description = ?, is_available = ?, item_type = ?, item_category = ?, is_special = ?, photo_url = ? WHERE item_id = ?";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, item.getName());
-            ps.setString(2, item.getDescription());
-            ps.setBoolean(4, item.isAvailable());
-            ps.setString(5, item.getType());
-            ps.setString(6, item.getCategory());
-            ps.setString(7, item.getPhotoUrl());
-            ps.setBoolean(8, item.isSpecial());
-            ps.setInt(9, item.getId());
-            ps.executeUpdate();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, item.getName());
+            stmt.setString(2, item.getDescription());
+            stmt.setBoolean(3, item.isAvailable());
+            stmt.setString(4, item.getType());
+            stmt.setString(5, item.getCategory());
+            stmt.setBoolean(6, item.isSpecial());
+            stmt.setString(7, item.getPhotoUrl());
+            stmt.setInt(8, item.getId());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
+    // delete
+    public boolean deleteMenuItem(int id) {
+        String sql = "DELETE FROM MenuItems WHERE item_id = ?";
 
-    // Delete item
-    public void deleteMenuItem(int item_id) throws SQLException {
-        String sql = "DELETE FROM MenuItems WHERE item_id=?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, item_id);
-            ps.executeUpdate();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -140,8 +167,21 @@ public class MenuDAO {
         return items;
     }
 
+    public MenuItem getTodaysSpecial() {
+        String sql = "SELECT item_id, item_name, item_description, is_available, item_type, item_category, is_special, photo_url FROM MenuItems WHERE is_special = 1";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-    public MenuItem getTodaysSpecial() throws SQLException {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return mapRowToMenuItem(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public MenuItem getTodaysSpecialE() throws SQLException {
         String sql = "SELECT * FROM MenuItems WHERE is_special = 1 AND is_available = 1";
 
         try (Connection conn = DBConnection.getConnection();
@@ -172,15 +212,15 @@ public class MenuDAO {
 
 
     // Get menu items by type and availability
-    public List<MenuItem> getMenuItemsByTypeAndAvailability(String item_type, boolean is_available) {
+    public List<MenuItem> getMenuItemsByTypeAndAvailability(String type, boolean available) {
         List<MenuItem> items = new ArrayList<>();
         String sql = "SELECT item_id, item_name, item_description, is_available, item_type, item_category, is_special, photo_url FROM MenuItems WHERE item_type = ? AND is_available = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, item_type);
-            stmt.setBoolean(2, is_available);
+            stmt.setString(1, type);
+            stmt.setBoolean(2, available);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 items.add(mapRowToMenuItem(rs));
@@ -192,14 +232,14 @@ public class MenuDAO {
     }
 
     // Get menu items by type
-    public List<MenuItem> getMenuItemsByType(String item_type) {
+    public List<MenuItem> getMenuItemsByType(String type) {
         List<MenuItem> items = new ArrayList<>();
         String sql = "SELECT item_id, item_name, item_description, is_available, item_type, item_category, is_special, photo_url FROM MenuItems WHERE item_type = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, item_type);
+            stmt.setString(1, type);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 items.add(mapRowToMenuItem(rs));
@@ -211,14 +251,14 @@ public class MenuDAO {
     }
 
     // Get menu items by category
-    public List<MenuItem> getMenuItemsByCategory(String item_category) {
+    public List<MenuItem> getMenuItemsByCategory(String category) {
         List<MenuItem> items = new ArrayList<>();
         String sql = "SELECT item_id, item_name, item_description, is_available, item_type, item_category, is_special, photo_url FROM MenuItems WHERE item_category = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, item_category);
+            stmt.setString(1, category);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 items.add(mapRowToMenuItem(rs));
@@ -230,15 +270,15 @@ public class MenuDAO {
     }
 
     // Get menu items by category and availability
-    public List<MenuItem> getMenuItemsByCategoryAndAvailability(String item_category, boolean is_available) {
+    public List<MenuItem> getMenuItemsByCategoryAndAvailability(String category, boolean available) {
         List<MenuItem> items = new ArrayList<>();
         String sql = "SELECT item_id, item_name, item_description, is_available, item_type, item_category, is_special, photo_url FROM MenuItems WHERE item_category = ? AND is_available = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, item_category);
-            stmt.setBoolean(2, is_available);
+            stmt.setString(1, category);
+            stmt.setBoolean(2, available);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 items.add(mapRowToMenuItem(rs));
@@ -250,8 +290,8 @@ public class MenuDAO {
     }
 
     // Get unavailable menu items by category
-    public List<MenuItem> getUnavailableMenuItemsByCategory(String item_category) {
-        return getMenuItemsByCategoryAndAvailability(item_category, false);
+    public List<MenuItem> getUnavailableMenuItemsByCategory(String category) {
+        return getMenuItemsByCategoryAndAvailability(category, false);
     }
 
     // Get all unavailable menu items
@@ -273,13 +313,13 @@ public class MenuDAO {
     }
 
     // Check if item name already exists
-    public boolean isItemNameExists(String item_name) throws SQLException {
+    public boolean isItemNameExists(String name) throws SQLException {
         String sql = "SELECT COUNT(*) FROM MenuItems WHERE item_name = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, item_name);
+            stmt.setString(1, name);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1) > 0;
@@ -289,7 +329,7 @@ public class MenuDAO {
     }
 
     // Set today's special
-    public boolean setTodaysSpecial(int item_id) {
+    public boolean setTodaysSpecial(int id) {
         String clearSql = "UPDATE MenuItems SET is_special = 0";
         String setSql = "UPDATE MenuItems SET is_special = 1 WHERE item_id = ?";
 
@@ -303,7 +343,7 @@ public class MenuDAO {
 
             // Set new special
             try (PreparedStatement setStmt = conn.prepareStatement(setSql)) {
-                setStmt.setInt(1, item_id);
+                setStmt.setInt(1, id);
                 int updated = setStmt.executeUpdate();
 
                 if (updated > 0) {
@@ -334,13 +374,13 @@ public class MenuDAO {
         }
     }
 
-    public MenuItem getMenuItemById(int item_id) {
+    public MenuItem getMenuItemById(int id) {
         String sql = "SELECT item_id, item_name, item_description, is_available, item_type, item_category, is_special, photo_url FROM MenuItems WHERE item_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, item_id);
+            stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return mapRowToMenuItem(rs);
@@ -376,7 +416,7 @@ public class MenuDAO {
     }
 
     // Search menu items with availability filter
-    public List<MenuItem> searchMenuItemsWithAvailability(String searchTerm, boolean is_available) {
+    public List<MenuItem> searchMenuItemsWithAvailability(String searchTerm, boolean available) {
         List<MenuItem> items = new ArrayList<>();
         String sql = "SELECT item_id, item_name, item_description, is_available, item_type, item_category, is_special, photo_url FROM MenuItems " +
                 "WHERE (LOWER(item_name) LIKE ? OR LOWER(item_description) LIKE ? OR LOWER(item_category) LIKE ?) AND is_available = ?";
@@ -388,7 +428,7 @@ public class MenuDAO {
             stmt.setString(1, searchPattern);
             stmt.setString(2, searchPattern);
             stmt.setString(3, searchPattern);
-            stmt.setBoolean(4, is_available);
+            stmt.setBoolean(4, available);
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -412,5 +452,4 @@ public class MenuDAO {
         item.setPhotoUrl(rs.getString("photo_url"));
         return item;
     }
-
 }
