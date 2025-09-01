@@ -6,14 +6,15 @@ public class UserModel {
     private String username;
     private String passwordHash;
     private String accessLevel;
-    private boolean register;
-    private boolean active;
+    private boolean is_registered;
+    private boolean is_active;
     private int cartId;
 
     // --- Constructors ---
 
     // Use this when creating a new user (before DB insert)
-    public UserModel(int userId, String username, String passwordHash, String accessLevel, boolean register,boolean active) {}
+    public UserModel(int userId, String username, String passwordHash, String accessLevel, boolean is_registered, boolean active) {
+    }
     /**
      * Default constructor.
      * Needed for frameworks like Hibernate, JSP/Servlets, or tools that use reflection
@@ -21,35 +22,14 @@ public class UserModel {
      */
 
 
-    /**
-     * Full constructor including userId.
-     * Use this when retrieving an existing user from the database.
-     */
-
-    public UserModel(int userId, String username, String passwordHash, String accessLevel, int cartId) {
+        // Use this when loading user from database (with userId)
+   public UserModel(int userId, String username, String passwordHash, String accessLevel, boolean is_registered, boolean isActive, int cartId) {
         this.userId = userId;
         this.username = username;
         this.passwordHash = passwordHash;
         this.accessLevel = accessLevel;
-        this.register = register;
-        this.active = active;
-        this.cartId = cartId;
-    }
-
-
-        // Use this when loading user from database (with userId)
-   public UserModel(String username, String passwordHash, String accessLevel, boolean register, boolean isActive) {
-            this.username = username;
-            this.passwordHash = passwordHash;
-            this.accessLevel = accessLevel;
-            this.register = register;
-            this.active = isActive;
-        }
-    public UserModel(String username, String passwordHash, String accessLevel) {
-        this.username = username;
-        this.passwordHash = passwordHash;
-        this.accessLevel = accessLevel;
-        this.cartId = 0; // default value indicating no cart assigned yet
+        this.is_registered = is_registered;
+        this.is_active = isActive;
     }
 
     // --- Getters and Setters ---
@@ -81,13 +61,13 @@ public class UserModel {
         this.accessLevel = accessLevel;
     }
 
-    public boolean isRegister() {return this.register;}
-    public void setRegister(boolean register) {
-        this.register = register;
+    public boolean isRegister() {return this.is_registered;}
+    public void setRegister(boolean is_registered) {
+        this.is_registered = is_registered;
     }
 
-    public boolean isActive() { return this.active; }
-    public void setActive(boolean active) { this.active = active; }
+    public boolean isActive() { return this.is_active; }
+    public void setActive(boolean is_active) { this.is_active = is_active; }
 
     public int getCartId() {return cartId;}
     public void setCartId(int cartId) {this.cartId = cartId;}
@@ -99,7 +79,7 @@ public class UserModel {
                 "userId=" + userId +
                 ", username='" + username + '\'' +
                 ", accessLevel='" + accessLevel + '\'' +
-                ", register=" + register +
+                ", register=" + is_registered +
                 '}';
     }
 }

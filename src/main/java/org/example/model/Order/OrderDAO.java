@@ -1,6 +1,5 @@
 package org.example.model.Order;
 
-import org.example.model.MenuItem.MenuItem;
 import org.example.model.user.UserDAO;
 import org.example.model.user.UserModel;
 import org.example.util.DBConnection;
@@ -11,7 +10,6 @@ import java.util.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.Date;
 
 public class OrderDAO {
     private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=BuffetDB;encrypt=true;trustServerCertificate=true";
@@ -193,7 +191,8 @@ public class OrderDAO {
         UserDAO userDAO = new UserDAO();
         UserModel user = userDAO.getUserById(user_id);
         user.setCartId(checkIfCartExists(user.getUserId()));
-        userDAO.updateUser(user);
+//        userDAO.updateUser(user);
+        userDAO.updateUserCartId(user_id, user.getCartId());
     }
 
     public static void main(String[] args) {
