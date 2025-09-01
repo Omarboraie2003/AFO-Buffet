@@ -2,12 +2,13 @@ package org.example.controller;
 
 import org.example.model.user.UserDAO;
 import org.example.model.user.UserModel;
+import org.example.util.PasswordUtils;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+//import javax.servlet.annotation.WebServlet;
+//import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.regex.Pattern;
@@ -86,7 +87,11 @@ public class RegisterServlet extends HttpServlet {
                 return;
             }
 
-            boolean success = userDAO.addUser(registrationRequest.username, registrationRequest.password);
+            String hashedPassword = PasswordUtils.hashPassword(registrationRequest.password);
+            existingUser.setPasswordHash(hashedPassword);
+            existingUser.setRegister(true);            // Mark as registered
+
+            boolean success = userDAO.registerUser(existingUser);
             handleRegistrationResult(success, response, out);
 
         } catch (Exception e) {
@@ -161,13 +166,17 @@ public class RegisterServlet extends HttpServlet {
     }
 
     private String validateBusinessLogic(UserModel existingUser) {
-        if (existingUser == null) {
+
+        if (existingUser == null  || !existingUser.isActive()) {
             return ERROR_CONTACT_ADMIN;
         }
+
 
         if (existingUser.isRegister()) {
             return ERROR_ALREADY_REGISTERED;
         }
+
+
 
         return null;
     }
@@ -255,4 +264,3 @@ public class RegisterServlet extends HttpServlet {
         }
     }
 }
-

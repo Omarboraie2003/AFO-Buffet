@@ -6,26 +6,35 @@ public class UserModel {
     private String username;
     private String passwordHash;
     private String accessLevel;
-    private boolean register;        // whether the user is allowed to register
+    private boolean is_registered;
+    private boolean active;
 
     // --- Constructors ---
 
-    public UserModel() {
-    }
-
     // Use this when creating a new user (before DB insert)
-    public UserModel(String username, String passwordHash, String accessLevel, boolean register) {
+    public UserModel(int userId, String username, String passwordHash, String accessLevel, boolean is_registered,boolean active) {
+        this.userId = userId;
         this.username = username;
         this.passwordHash = passwordHash;
         this.accessLevel = accessLevel;
-        this.register = register;
+        this.is_registered = is_registered;
+        this.active = active;
+    }
+
+
+    // Use this when loading user from database (with userId)
+    public UserModel(String username, String passwordHash, String accessLevel, boolean is_registered, boolean isActive) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.accessLevel = accessLevel;
+        this.is_registered = is_registered;
+        this.active = isActive;
     }
 
     // --- Getters and Setters ---
     public int getUserId() {
         return userId;
     }
-
     public void setUserId(int userId) {
         this.userId = userId;
     }
@@ -33,7 +42,6 @@ public class UserModel {
     public String getUsername() {
         return username;
     }
-
     public void setUsername(String username) {
         this.username = username;
     }
@@ -41,7 +49,6 @@ public class UserModel {
     public String getPasswordHash() {
         return passwordHash;
     }
-
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }
@@ -49,18 +56,17 @@ public class UserModel {
     public String getAccessLevel() {
         return accessLevel;
     }
-
     public void setAccessLevel(String accessLevel) {
         this.accessLevel = accessLevel;
     }
 
-    public boolean isRegister() {
-        return register;
+    public boolean isRegister() {return this.is_registered;}
+    public void setRegister(boolean is_registered) {
+        this.is_registered = is_registered;
     }
 
-    public void setRegister(boolean register) {
-        this.register = register;
-    }
+    public boolean isActive() { return this.active; }
+    public void setActive(boolean active) { this.active = active; }
 
     @Override
     public String toString() {
@@ -68,7 +74,7 @@ public class UserModel {
                 "userId=" + userId +
                 ", username='" + username + '\'' +
                 ", accessLevel='" + accessLevel + '\'' +
-                ", register=" + register +
+                ", is_registered=" + is_registered +
                 '}';
     }
 }

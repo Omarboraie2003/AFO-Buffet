@@ -9,15 +9,6 @@
         <welcome-file>register.html</welcome-file>
     </welcome-file-list>
 
-    <!-- Map /login to login.html -->
-    <servlet>
-        <servlet-name>LoginPage</servlet-name>
-        <jsp-file>/login.html</jsp-file>
-    </servlet>
 
-    <servlet-mapping>
-        <servlet-name>LoginPage</servlet-name>
-        <url-pattern>/login</url-pattern>
-    </servlet-mapping>
 
 </web-app>

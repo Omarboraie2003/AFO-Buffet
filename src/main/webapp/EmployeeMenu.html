@@ -1038,6 +1038,21 @@
                             <label for="tortilla">tortilla</label>
                         </div>
                     </div>
+
+                </div>
+                <!-- Quantity Section -->
+                <div class="bread-section" id="popupQuantitySection" style="display:none;">
+                    <div class="bread-title">Quantity :</div>
+                    <div class="bread-options">
+                        <div class="bread-option">
+                            <input type="radio" id="half" name="quantity" value="half">
+                            <label for="half">half</label>
+                        </div>
+                        <div class="bread-option">
+                            <input type="radio" id="one" name="quantity" value="one" checked>
+                            <label for="one">one</label>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Order Notes -->
@@ -1155,8 +1170,10 @@
         document.getElementById("popupProductImage").alt = item.item_name;
         document.getElementById("popupProductDescription").textContent = item.item_description || "No description available.";
 
-        if (item.category && item.category.toLowerCase() === "sandwiches") {
+        if ( item.item_category === "Sandwiches") {
             document.getElementById("popupBreadSection").style.display = "block";
+            document.getElementById("popupQuantitySection").style.display = "block";
+
         } else {
             document.getElementById("popupBreadSection").style.display = "none";
         }
