@@ -22,14 +22,14 @@ public class UserModel {
     }
 
 
-        // Use this when loading user from database (with userId)
-   public UserModel(String username, String passwordHash, String accessLevel, boolean register, boolean isActive) {
-            this.username = username;
-            this.passwordHash = passwordHash;
-            this.accessLevel = accessLevel;
-            this.register = register;
-            this.active = isActive;
-        }
+    // Use this when loading user from database (with userId)
+    public UserModel(String username, String passwordHash, String accessLevel, boolean register, boolean isActive) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.accessLevel = accessLevel;
+        this.register = register;
+        this.active = isActive;
+    }
 
     // --- Getters and Setters ---
     public int getUserId() {

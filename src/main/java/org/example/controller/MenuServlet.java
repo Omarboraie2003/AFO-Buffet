@@ -5,10 +5,10 @@ import com.google.gson.JsonSyntaxException;
 import org.example.model.MenuItem.MenuDAO;
 import org.example.model.MenuItem.MenuItem;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
+
 
 @WebServlet({"/menu-items", "/menu-items/*"})
 @MultipartConfig(
@@ -62,10 +63,10 @@ public class MenuServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String category = request.getParameter("category");
-        String availableParam = request.getParameter("available");
+        String category = request.getParameter("item_category");
+        String availableParam = request.getParameter("is_available");
         String todaysSpecialParam = request.getParameter("todaysSpecial");
-        String type = request.getParameter("type");
+        String type = request.getParameter("item_type");
         String searchTerm = request.getParameter("search");
 
         if ("true".equalsIgnoreCase(todaysSpecialParam)) {
@@ -151,11 +152,11 @@ public class MenuServlet extends HttpServlet {
             String contentType = request.getContentType();
             if (contentType != null && contentType.toLowerCase().startsWith("multipart/")) {
                 // Handle multipart form data
-                String name = request.getParameter("name");
-                String description = request.getParameter("description");
-                String category = request.getParameter("category");
-                String type = request.getParameter("type");
-                String availableStr = request.getParameter("available");
+                String name = request.getParameter("item_name");
+                String description = request.getParameter("item_description");
+                String category = request.getParameter("item_category");
+                String type = request.getParameter("item_type");
+                String availableStr = request.getParameter("is_available");
 
                 boolean available = "true".equalsIgnoreCase(availableStr);
 
@@ -165,7 +166,7 @@ public class MenuServlet extends HttpServlet {
                     photoUrl = saveUploadedFile(photoPart, request);
                 }
 
-                newItem = new MenuItem(0, name, description, available, type, category, false, photoUrl);
+                newItem = new MenuItem(0, name, description, available, type, category, photoUrl, false);
             } else {
                 // Handle JSON data (for backward compatibility)
                 newItem = gson.fromJson(request.getReader(), MenuItem.class);
@@ -236,12 +237,12 @@ public class MenuServlet extends HttpServlet {
             String contentType = request.getContentType();
             if (contentType != null && contentType.toLowerCase().startsWith("multipart/")) {
                 // Handle multipart form data
-                String idStr = request.getParameter("id");
-                String name = request.getParameter("name");
-                String description = request.getParameter("description");
-                String category = request.getParameter("category");
-                String type = request.getParameter("type");
-                String availableStr = request.getParameter("available");
+                String idStr = request.getParameter("item_id");
+                String name = request.getParameter("item_name");
+                String description = request.getParameter("item_description");
+                String category = request.getParameter("item_category");
+                String type = request.getParameter("item_type");
+                String availableStr = request.getParameter("is_available");
                 String removePhotoStr = request.getParameter("removePhoto");
 
                 int id = Integer.parseInt(idStr);
@@ -262,7 +263,7 @@ public class MenuServlet extends HttpServlet {
                     }
                 }
 
-                updatedItem = new MenuItem(id, name, description, available, type, category, false, photoUrl);
+                updatedItem = new MenuItem(id, name, description, available, type, category, photoUrl, false);
             } else {
                 // Handle JSON data
                 updatedItem = gson.fromJson(request.getReader(), MenuItem.class);
@@ -311,7 +312,7 @@ public class MenuServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String idParam = request.getParameter("id");
+        String idParam = request.getParameter("item_id");
 
         if (idParam == null || idParam.trim().isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -382,7 +383,7 @@ public class MenuServlet extends HttpServlet {
     private void handleSetSpecial(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
-        String idParam = request.getParameter("id");
+        String idParam = request.getParameter("item_id");
 
         if (idParam == null || idParam.trim().isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
