@@ -282,7 +282,7 @@ public class UserDAO {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());
             stmt.setString(3, user.getAccessLevel());
-            stmt.setBoolean(4, user.isRegister());
+            stmt.setBoolean(4, user.isIs_registered());
             stmt.setBoolean(5, user.isActive());
             stmt.setInt(6, user.getUserId());
 

@@ -172,7 +172,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
 
-        if (existingUser.isRegister()) {
+        if (existingUser.isIs_registered()) {
             return ERROR_ALREADY_REGISTERED;
         }
 
