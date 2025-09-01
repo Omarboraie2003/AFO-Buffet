@@ -1,5 +1,3 @@
-package org.example.controller;
-
 import org.example.model.user.UserDAO;
 import org.example.model.user.UserModel;
 import com.google.gson.Gson;
@@ -12,6 +10,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.ArrayList;
+
 
 @WebServlet({"/account-management", "/account-management/*"})
 public class AccountManagementServlet extends HttpServlet {

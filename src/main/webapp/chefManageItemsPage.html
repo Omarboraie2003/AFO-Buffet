@@ -1,352 +1,289 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!--    Cache Control Headers-->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
+    <!--    Basic Meta Tags-->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buffet Menu</title>
+    <title>Buffet Menu Management</title>
+
     <style>
-        /* Your existing CSS remains unchanged */
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 50%,#1a1a1a 100%);min-height:100vh}
-        .container{max-width:1400px;margin:0 auto;padding:20px}
-        .header{margin-bottom:30px}
-        .nav-frame{background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-radius:15px;padding:15px 20px;box-shadow:0 8px 32px rgba(255,131,0,0.3);border:1px solid rgba(255,131,0,0.2);display:flex;align-items:center;justify-content:space-between;width:100%}
-        .home-icon{width:35px;height:35px;background:linear-gradient(135deg,#ff8300,#ffaa00);border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(255,131,0,0.3);overflow:hidden;cursor:pointer;transition:all 0.2s ease;text-decoration:none;border:1px solid rgba(255,131,0,0.3)}
-        .home-icon:hover{transform:scale(1.05);box-shadow:0 6px 16px rgba(255,131,0,0.4);background:linear-gradient(135deg,#ffaa00,#ff8300)}
-        .home-icon img{width:100%;height:100%;object-fit:cover}
-        .nav-buttons{display:flex;gap:15px}
-        .nav-btn{padding:12px 40px;border:2px solid #ccc;border-radius:25px;background-color:white;font-size:16px;cursor:pointer;transition:all 0.3s ease;text-decoration:none;display:inline-block}
-        .nav-btn.active{border-color:#ff8300;color:white;background:linear-gradient(135deg,#ff8300,#ffaa00);box-shadow:0 4px 12px rgba(255,131,0,0.3)}
-        .nav-btn:hover{border-color:#ff8300;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.15);color:#ff8300}
-        .main-content{display:grid;grid-template-columns:1fr 280px;gap:30px;margin-bottom:30px;max-width:1200px;margin-left:auto;margin-right:auto}
-        .featured-section{
-            background:linear-gradient(135deg,#1a1a1a 0%,#333333 100%);
-            border-radius:20px;
-            padding:40px;
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            min-height:280px;
-            max-height:320px;
-            color:white;
-            position:relative;
-            overflow:hidden;
-            border:1px solid rgba(255,131,0,0.2);
-            box-shadow:0 8px 32px rgba(255,131,0,0.15)
+        /* ========================================
+           GLOBAL STYLES & RESET
+        ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .featured-section::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,131,0,0.1) 0%,transparent 70%);animation:float 6s ease-in-out infinite}
-        @keyframes float{0%,100%{transform:translateY(0px) rotate(0deg)}50%{transform:translateY(-10px) rotate(180deg)}}
-        .featured-text{flex:1;position:relative;z-index:2;padding-right:30px}
-        .featured-text h2{font-size:28px;color:rgba(255,255,255,0.9);margin-bottom:15px;font-weight:400;text-shadow:0 2px 4px rgba(0,0,0,0.3)}
-        .featured-text h1{font-size:42px;color:#ff8300;font-weight:700;font-style:italic;text-shadow:0 2px 8px rgba(255,131,0,0.4);line-height:1.2}
-        .featured-image{
-            flex:0 0 auto;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            width:380px;
-            height:300px;
-            background:rgba(255,255,255,0.1);
-            border-radius:16px;
-            color:rgba(255,255,255,0.7);
-            font-style:italic;
-            font-size:18px;
-            backdrop-filter:blur(10px);
-            border:2px solid rgba(255,255,255,0.2);
-            position:relative;
-            z-index:2;
-            overflow:hidden;
-            transition:all 0.3s ease;
-            box-shadow:0 8px 24px rgba(0,0,0,0.2)
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            color: white;
         }
-        .featured-image:hover{
-            transform:scale(1.02);
-            box-shadow:0 12px 32px rgba(255,131,0,0.2)
+
+        /* ========================================
+           LAYOUT COMPONENTS
+        ======================================== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        .featured-image.no-image::after{content:"Featured Image";font-size:16px;font-weight:500}
-        .featured-image img{width:100%;height:100%;border-radius:14px;object-fit:cover;transition:all 0.3s ease}
-        .featured-image img:hover{transform:scale(1.05)}
-        .new-item-section{background:linear-gradient(135deg,#4a4a4a,#333);border-radius:20px;padding:25px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:white;cursor:pointer;transition:all 0.3s ease;height:315px}
-        .new-item-section:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.2)}
-        .plus-icon{width:50px;height:50px;border-radius:50%;background-color:#333;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:15px}
-        .new-item-section h3{font-size:18px;font-weight:500}
-        .category-filters{
-            display: flex;
-            gap: 20px;
+
+        /* ========================================
+           HEADER & NAVIGATION
+        ======================================== */
+        .header {
             margin-bottom: 30px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: center;
+        }
+
+        .nav-frame {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .category-btn{
-            padding: 12px 28px;
-            border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            background-color: white;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .category-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+            border-radius: 15px;
+            padding: 15px 20px;
+            box-shadow: 0 8px 32px rgba(255, 131, 0, 0.3);
+            border: 1px solid rgba(255, 131, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 131, 0, 0.1), transparent);
-            transition: left 0.5s;
         }
 
-        .category-btn:hover::before {
-            left: 100%;
-        }
-
-        .category-btn.active {
-            border-color: #ff8300;
-            color: white;
+        .home-icon {
+            width: 35px;
+            height: 35px;
             background: linear-gradient(135deg, #ff8300, #ffaa00);
-            box-shadow: 0 4px 15px rgba(255, 131, 0, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .category-btn:hover {
-            border-color: #ff8300;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-            color: #ff8300;
-        }
-        .availability-toggle{display:flex;align-items:center;gap:10px}
-        .toggle-switch{width:50px;height:25px;background-color:#ff9500;border-radius:15px;position:relative;cursor:pointer;transition:all 0.3s ease}
-        .toggle-switch.off{background-color:#ccc}
-        .toggle-switch::after{content:'';width:21px;height:21px;background-color:white;border-radius:50%;position:absolute;top:2px;right:2px;transition:all 0.3s ease}
-        .toggle-switch.off::after{right:calc(100% - 23px)}
-        .products-grid{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            padding: 0 10px;
-        }
-        .product-card{
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid rgba(255, 131, 0, 0.1);
-        }
-
-        .product-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(255, 131, 0, 0.15);
-            border-color: rgba(255, 131, 0, 0.3);
-        }
-        .product-image{
-            width: 100%;
-            height: 220px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #6c757d;
-            font-size: 16px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .product-image::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(255, 131, 0, 0.1) 50%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .product-card:hover .product-image::before {
-            opacity: 1;
-        }
-        .product-details{padding:15px;flex:1;display:flex;flex-direction:column;align-items:center;text-align:center}
-        .product-name{font-size:16px;font-weight:500;color:#333;margin-bottom:5px}
-        .product-desc{font-size:14px;color:#555;margin-bottom:5px}
-        .product-price{font-size:15px;font-weight:600;color:#ff8300;margin-bottom:5px}
-        .product-availability{font-size:13px;color:green;font-weight:500}
-        .product-availability.unavailable{color:red}
-
-        /* Added beautiful toast notification styles */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .toast {
-            background: white;
-            border-radius: 12px;
-            padding: 16px 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            border-left: 4px solid;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 320px;
-            transform: translateX(400px);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(10px);
-        }
-
-        .toast.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        .toast.success {
-            border-left-color: #4CAF50;
-            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(255, 255, 255, 0.95));
-        }
-
-        .toast.error {
-            border-left-color: #f44336;
-            background: linear-gradient(135deg, rgba(244, 67, 54, 0.1), rgba(255, 255, 255, 0.95));
-        }
-
-        .toast-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-            color: white;
-            flex-shrink: 0;
-        }
-
-        .toast.success .toast-icon {
-            background: #4CAF50;
-        }
-
-        .toast.error .toast-icon {
-            background: #f44336;
-        }
-
-        .toast-content {
-            flex: 1;
-        }
-
-        .toast-title {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 2px;
-            color: #333;
-        }
-
-        .toast-message {
-            font-size: 13px;
-            color: #666;
-            line-height: 1.4;
-        }
-
-        .toast-close {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.1);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #666;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-        }
-
-        .toast-close:hover {
-            background: rgba(0, 0, 0, 0.2);
-            transform: scale(1.1);
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
-
-        /* Added styles for special toggle button */
-        .special-toggle {
-            margin-top: 10px;
-            padding: 8px 16px;
-            border: 2px solid #ff8300;
-            border-radius: 20px;
-            background: white;
-            color: #ff8300;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .special-toggle:hover {
-            background: #ff8300;
-            color: white;
-            transform: translateY(-1px);
-        }
-
-        .special-toggle.active {
-            background: linear-gradient(135deg, #ff8300, #ffaa00);
-            color: white;
             box-shadow: 0 4px 12px rgba(255, 131, 0, 0.3);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: 1px solid rgba(255, 131, 0, 0.3);
         }
 
-        .special-toggle.active:hover {
+        .home-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(255, 131, 0, 0.4);
             background: linear-gradient(135deg, #ffaa00, #ff8300);
         }
 
-        /* Enhanced search bar styling */
+        .home-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 12px 40px;
+            border: 2px solid #ccc;
+            border-radius: 25px;
+            background-color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            color: #333;
+        }
+
+        .nav-btn.active {
+            border-color: #ff8300;
+            color: white;
+            background: linear-gradient(135deg, #ff8300, #ffaa00);
+            box-shadow: 0 4px 12px rgba(255, 131, 0, 0.3);
+        }
+
+        .nav-btn:hover {
+            border-color: #ff8300;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            color: #ff8300;
+        }
+
+        .nav-btn.secondary {
+            background-color: #6b7280;
+            color: white;
+            border-color: #6b7280;
+        }
+
+        /* ========================================
+           MAIN CONTENT LAYOUT
+        ======================================== */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 30px;
+            margin-bottom: 30px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Featured Section (Today's Special) */
+        .featured-section {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 280px;
+            max-height: 320px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 131, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(255, 131, 0, 0.15);
+        }
+
+        .featured-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 131, 0, 0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(180deg); }
+        }
+
+        .featured-text {
+            flex: 1;
+            position: relative;
+            z-index: 2;
+            padding-right: 30px;
+        }
+
+        .featured-text h2 {
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            font-weight: 400;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .featured-text h1 {
+            font-size: 42px;
+            color: #ff8300;
+            font-weight: 700;
+            font-style: italic;
+            text-shadow: 0 2px 8px rgba(255, 131, 0, 0.4);
+            line-height: 1.2;
+        }
+
+        .featured-image {
+            flex: 0 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 380px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+            font-size: 18px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .featured-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 32px rgba(255, 131, 0, 0.2);
+        }
+
+        .featured-image.no-image::after {
+            content: "Featured Image";
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .featured-image img {
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+
+        .featured-image img:hover {
+            transform: scale(1.05);
+        }
+
+        /* New Item Section */
+        .new-item-section {
+            background: linear-gradient(135deg, #4a4a4a, #333);
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 315px;
+        }
+
+        .new-item-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .plus-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .plus-icon:hover {
+            background-color: #ff8300;
+            transform: scale(1.1);
+        }
+
+        .new-item-section h3 {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* ========================================
+           CATEGORY FILTERS & SEARCH
+        ======================================== */
         .category-filters {
             display: flex;
             gap: 20px;
@@ -362,59 +299,45 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* Improved search container styling */
         .search-container {
+            position: relative;
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-right: 20px;
-            background: white;
-            padding: 8px;
+            gap: 10px;
+        }
+
+        .search-container input {
+            padding: 12px 20px;
+            border: 2px solid #ddd;
             border-radius: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border: 2px solid transparent;
+            font-size: 14px;
+            width: 250px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: #ff8300;
+            box-shadow: 0 0 0 3px rgba(255, 131, 0, 0.1);
+        }
+
+        .search-container button {
+            padding: 8px 16px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
             transition: all 0.3s ease;
         }
 
-        .search-container:focus-within {
-            border-color: #ff8300;
-            box-shadow: 0 4px 20px rgba(255, 131, 0, 0.2);
+        .search-container button:hover {
+            background: #d32f2f;
+            transform: scale(1.05);
         }
 
-        #searchInput {
-            padding: 12px 18px !important;
-            border: none !important;
-            border-radius: 20px !important;
-            font-size: 14px !important;
-            width: 280px !important;
-            transition: all 0.3s ease !important;
-            background: transparent !important;
-            outline: none !important;
-        }
-
-        #searchInput:focus {
-            outline: none !important;
-            box-shadow: none !important;
-        }
-
-        #clearSearchBtn {
-            padding: 8px 16px !important;
-            border: none !important;
-            border-radius: 15px !important;
-            background: linear-gradient(135deg, #ff8300, #ffaa00) !important;
-            color: white !important;
-            font-size: 12px !important;
-            cursor: pointer !important;
-            transition: all 0.3s ease !important;
-            font-weight: 500 !important;
-        }
-
-        #clearSearchBtn:hover {
-            transform: scale(1.05) !important;
-            box-shadow: 0 4px 12px rgba(255, 131, 0, 0.3) !important;
-        }
-
-        /* Enhanced category button styling */
         .category-btn {
             padding: 12px 28px;
             border: 2px solid #e0e0e0;
@@ -425,76 +348,108 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
-        }
-
-        .category-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 131, 0, 0.1), transparent);
-            transition: left 0.5s;
-        }
-
-        .category-btn:hover::before {
-            left: 100%;
-        }
-
-        .category-btn.active {
-            border-color: #ff8300;
-            color: white;
-            background: linear-gradient(135deg, #ff8300, #ffaa00);
-            box-shadow: 0 4px 15px rgba(255, 131, 0, 0.3);
-            transform: translateY(-2px);
+            color: #333;
         }
 
         .category-btn:hover {
             border-color: #ff8300;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
             color: #ff8300;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        /* Enhanced product grid and cards */
+        .category-btn.active {
+            border-color: #ff8300;
+            background: linear-gradient(135deg, #ff8300, #ffaa00);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 131, 0, 0.3);
+        }
+
+        .category-loader {
+            margin-left: 8px;
+            font-size: 12px;
+        }
+
+        /* Availability Toggle */
+        .availability-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .toggle-switch {
+            width: 50px;
+            height: 25px;
+            background: #ff9500;
+            border-radius: 25px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(25px);
+        }
+
+        /* ========================================
+           PRODUCTS GRID - ENHANCED
+        ======================================== */
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            padding: 0 10px;
+            gap: 30px;
+            margin-bottom: 40px;
         }
 
+        /* Enhanced product card with better placeholder and data display */
         .product-card {
-            background: white;
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            border: 1px solid rgba(255, 131, 0, 0.1);
             display: flex;
             flex-direction: column;
-            border: 1px solid rgba(255, 131, 0, 0.1);
+            height: 100%;
+            position: relative;
         }
 
         .product-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(255, 131, 0, 0.15);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 131, 0, 0.2);
             border-color: rgba(255, 131, 0, 0.3);
         }
 
         .product-image {
-            width: 100%;
             height: 220px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #6c757d;
+            font-style: italic;
             font-size: 16px;
-            position: relative;
+            font-weight: 500;
             overflow: hidden;
+            flex-shrink: 0;
+            position: relative;
+            border-bottom: 2px solid rgba(255, 131, 0, 0.1);
         }
 
         .product-image::before {
@@ -504,7 +459,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(255, 131, 0, 0.1) 50%, transparent 70%);
+            background: linear-gradient(45deg,
+            transparent 40%,
+            rgba(255, 131, 0, 0.05) 50%,
+            transparent 60%);
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -513,601 +471,128 @@
             opacity: 1;
         }
 
-        /* Enhanced responsive design */
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .category-filters {
-                flex-direction: column;
-                gap: 15px;
-                padding: 20px;
-            }
-
-            .search-container {
-                margin-right: 0;
-                width: 100%;
-                justify-content: center;
-            }
-
-            #searchInput {
-                width: 250px !important;
-            }
-
-            .featured-section {
-                flex-direction: column;
-                text-align: center;
-                padding: 30px 20px;
-            }
-
-            .featured-text {
-                padding-right: 0;
-                margin-bottom: 20px;
-            }
-
-            .featured-image {
-                width: 100%;
-                max-width: 300px;
-            }
-        }
-        /* Added logout button and modal styles */
-        .nav-btn.secondary{background:#ea580c;color:white;border-color:#ea580c}
-        .nav-btn.secondary:hover{background:#dc2626;border-color:#dc2626;color:white}
-        /* Updated modal styling to be more compact and responsive */
-        .modal{position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);backdrop-filter:blur(5px)}
-        .modal-content{background:linear-gradient(135deg,#1a1a1a 0%,#333333 100%);margin:5% auto;padding:0;border-radius:15px;width:95%;max-width:450px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(255,131,0,0.3);border:1px solid rgba(255,131,0,0.2);animation:modalSlideIn 0.3s ease}
-        .modal-header{padding:15px 20px 10px;border-bottom:1px solid rgba(255,131,0,0.2);display:flex;justify-content:space-between;align-items:center}
-        .modal-header h3{color:#ff8300;margin:0;font-size:1.1rem;font-weight:600}
-        .close{color:#ffffff;font-size:24px;font-weight:bold;cursor:pointer;transition:color 0.3s ease}
-        .close:hover{color:#ff8300}
-        .modal-body{padding:15px 20px;color:#ffffff;line-height:1.4}
-        .modal-footer{padding:10px 20px 15px;display:flex;gap:8px;justify-content:flex-end}
-        .modal-btn{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px;transition:all 0.3s ease}
-        .modal-btn.cancel{background:#6b7280;color:white}
-        .modal-btn.cancel:hover{background:#4b5563}
-        .modal-btn.confirm{background:linear-gradient(135deg,#dc2626,#b91c1c);color:white}
-        .modal-btn.confirm:hover{background:linear-gradient(135deg,#b91c1c,#dc2626);transform:translateY(-1px)}
-        @keyframes modalSlideIn{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
-
-        /* Enhanced skeleton loader styles for better loading experience */
-        .skeleton-loader {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 8px;
-        }
-
-        .skeleton-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .skeleton-image {
+        .product-image img {
             width: 100%;
-            height: 200px;
-            background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 10px;
-            margin-bottom: 15px;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
         }
 
-        .skeleton-text {
-            height: 20px;
-            background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-            margin-bottom: 10px;
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
         }
 
-        .skeleton-text.short {
-            width: 60%;
+        /* Enhanced placeholder styling */
+        .product-image.no-image {
+            background: linear-gradient(135deg, #f8f9fa 0%, #dee2e6 50%, #f8f9fa 100%);
+            position: relative;
         }
 
-        .skeleton-text.medium {
-            width: 80%;
-        }
-
-        @keyframes loading {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        /* Enhanced modal form styling with better spacing and visual hierarchy */
-        /* Compact form styling with better spacing */
-        .form-container {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 131, 0, 0.2);
-            max-width: 100%;
-            margin: 0;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            color: #ff8300;
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
+        .product-image.no-image::after {
+            content: "📷\ANo Image Available";
+            white-space: pre;
+            text-align: center;
             font-size: 14px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-sizing: border-box;
+            color: #6c757d;
+            line-height: 1.4;
         }
 
-        /* Added specific styling for dropdown options to fix visibility */
-        .form-group select option {
-            background: #2a2a2a;
-            color: white;
-            padding: 8px 12px;
-            border: none;
-        }
-
-        .form-group select option:hover,
-        .form-group select option:focus {
-            background: #ff8300;
-            color: white;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #ff8300;
-            box-shadow: 0 0 0 2px rgba(255, 131, 0, 0.1);
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .form-validation-error {
-            color: #ff4444;
-            font-size: 11px;
-            margin-top: 3px;
-            display: none;
-        }
-
-        .form-group.error input,
-        .form-group.error select,
-        .form-group.error textarea {
-            border-color: #ff4444;
-            box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.1);
-        }
-
-        .form-group.error .form-validation-error {
-            display: block;
-        }
-
-        /* Responsive design for smaller screens */
-        @media (max-width: 768px) {
-            .modal-content {
-                width: 98%;
-                margin: 2% auto;
-                max-height: 95vh;
-            }
-            .form-container {
-                padding: 15px;
-            }
-            .form-group {
-                margin-bottom: 12px;
-            }
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-        /* Added logout button and modal styles */
-        .nav-btn.secondary{background:#ea580c;color:white;border-color:#ea580c}
-        .nav-btn.secondary:hover{background:#dc2626;border-color:#dc2626;color:white}
-        .modal{position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);backdrop-filter:blur(5px)}
-        .modal-content{background:linear-gradient(135deg,#1a1a1a 0%,#333333 100%);margin:5% auto;padding:0;border-radius:15px;width:95%;max-width:450px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(255,131,0,0.3);border:1px solid rgba(255,131,0,0.2);animation:modalSlideIn 0.3s ease}
-        .modal-header{padding:15px 20px 10px;border-bottom:1px solid rgba(255,131,0,0.2);display:flex;justify-content:space-between;align-items:center}
-        .modal-header h3{color:#ff8300;margin:0;font-size:1.1rem;font-weight:600}
-        .close{color:#ffffff;font-size:24px;font-weight:bold;cursor:pointer;transition:color 0.3s ease}
-        .close:hover{color:#ff8300}
-        .modal-body{padding:15px 20px;color:#ffffff;line-height:1.4}
-        .modal-footer{padding:10px 20px 15px;display:flex;gap:8px;justify-content:flex-end}
-        .modal-btn{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px;transition:all 0.3s ease}
-        .modal-btn.cancel{background:#6b7280;color:white}
-        .modal-btn.cancel:hover{background:#4b5563}
-        .modal-btn.confirm{background:linear-gradient(135deg,#dc2626,#b91c1c);color:white}
-        .modal-btn.confirm:hover{background:linear-gradient(135deg,#b91c1c,#dc2626);transform:translateY(-1px)}
-        @keyframes modalSlideIn{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
-
-        /* Enhanced skeleton loader styles for better loading experience */
-        .skeleton-loader {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 8px;
-        }
-
-        .skeleton-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
+        .product-details {
             padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #333;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: white;
         }
 
-        .skeleton-image {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 10px;
-            margin-bottom: 15px;
+        .product-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            line-height: 1.3;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 46px;
         }
 
-        .skeleton-text {
-            height: 20px;
-            background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-
-        .skeleton-text.short {
-            width: 60%;
-        }
-
-        .skeleton-text.medium {
-            width: 80%;
-        }
-
-        @keyframes loading {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        /* Enhanced modal form styling with better spacing and visual hierarchy */
-        /* Compact form styling with better spacing */
-        .form-container {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 131, 0, 0.2);
-            max-width: 100%;
-            margin: 0;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            color: #ff8300;
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
+        .product-desc {
             font-size: 14px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-sizing: border-box;
+            color: #6c757d;
+            line-height: 1.5;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 16px;
+            min-height: 63px;
         }
 
-        /* Added duplicate option styling for consistency across both form sections */
-        .form-group select option {
-            background: #2a2a2a;
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .product-availability {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .product-availability.unavailable {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .product-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ff8300;
+            margin-left: auto;
+        }
+
+        .special-toggle {
+            background: linear-gradient(135deg, #ff8300, #ffaa00);
             color: white;
-            padding: 8px 12px;
             border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 10;
         }
 
-        .form-group select option:hover,
-        .form-group select option:focus {
-            background: #ff8300;
-            color: white;
+        .special-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 131, 0, 0.4);
         }
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #ff8300;
-            box-shadow: 0 0 0 2px rgba(255, 131, 0, 0.1);
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .form-validation-error {
-            color: #ff4444;
-            font-size: 11px;
-            margin-top: 3px;
-            display: none;
-        }
-
-        .form-group.error input,
-        .form-group.error select,
-        .form-group.error textarea {
-            border-color: #ff4444;
-            box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.1);
-        }
-
-        .form-group.error .form-validation-error {
-            display: block;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Special items category button styling - black background */
-        .category-btn[data-category="Special"] {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            color: white !important;
-            border-color: #000000 !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .category-btn[data-category="Special"]:hover {
-            background: linear-gradient(135deg, #333333, #000000) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .category-btn[data-category="Special"].active {
-            background: linear-gradient(135deg, #000000, #333333) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        /* Responsive design for smaller screens */
-        @media (max-width: 768px) {
-            .modal-content {
-                width: 98%;
-                margin: 2% auto;
-                max-height: 95vh;
-            }
-            .form-container {
-                padding: 15px;
-            }
-            .form-group {
-                margin-bottom: 12px;
-            }
-        }
-
-        /* Added CSS for main loading indicator */
+        /* ========================================
+           LOADING STATES
+        ======================================== */
         .main-loader {
             position: fixed;
             top: 0;
@@ -1116,10 +601,9 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             z-index: 9999;
-            backdrop-filter: blur(5px);
         }
 
         .loader-content {
@@ -1130,8 +614,8 @@
         .spinner {
             width: 50px;
             height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #ff6b35;
+            border: 4px solid rgba(255, 131, 0, 0.3);
+            border-top: 4px solid #ff8300;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
@@ -1147,35 +631,665 @@
             margin: 0;
             opacity: 0.9;
         }
+
+        /* Enhanced Skeleton Loading Cards */
+        .skeleton-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
+            overflow: hidden;
+            padding: 0;
+            animation: pulse 1.5s ease-in-out infinite alternate;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .skeleton-image {
+            height: 220px;
+            background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 0;
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+
+        .skeleton-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .skeleton-text {
+            height: 16px;
+            background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        .skeleton-text.title {
+            height: 20px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-text.short {
+            width: 60%;
+        }
+
+        .skeleton-text.medium {
+            width: 80%;
+        }
+
+        .skeleton-text.long {
+            width: 95%;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        /* ========================================
+           ENHANCED MODAL STYLES
+        ======================================== */
+        .modal {
+            position: fixed !important;
+            z-index: 10000 !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-color: rgba(0, 0, 0, 0.75) !important;
+            backdrop-filter: blur(8px) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px !important;
+            animation: modalFadeIn 0.3s ease-out !important;
+        }
+
+        /* Alternative centering method if flexbox fails */
+        .modal-content {
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            background: #2d2d2d !important;
+            border-radius: 16px !important;
+            padding: 0 !important;
+            max-width: 420px !important;
+            width: 90% !important;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(255, 131, 0, 0.3) !important;
+            animation: modalSlideIn 0.3s ease-out forwards !important;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+            to {
+                opacity: 1;
+                backdrop-filter: blur(8px);
+            }
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translate(-50%, -50%) scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 20px 24px !important;
+            background: #2d2d2d !important;
+            color: #ff8300 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .modal-header h3 {
+            font-size: 20px !important;
+            font-weight: 600 !important;
+            margin: 0 !important;
+            color: #ff8300 !important;
+        }
+
+        .close {
+            font-size: 24px !important;
+            font-weight: bold !important;
+            cursor: pointer !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+            transition: all 0.2s ease !important;
+            width: 32px !important;
+            height: 32px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 4px !important;
+            background: transparent !important;
+            border: none !important;
+        }
+
+        .close:hover {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .modal-body {
+            padding: 24px !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            line-height: 1.5 !important;
+            font-size: 15px !important;
+            text-align: left !important;
+            background: #2d2d2d !important;
+        }
+
+        .modal-body p {
+            margin: 0 !important;
+        }
+
+        .modal-footer {
+            display: flex !important;
+            gap: 12px !important;
+            justify-content: flex-end !important;
+            padding: 20px 24px 24px !important;
+            background: #2d2d2d !important;
+        }
+
+        .modal-btn {
+            padding: 10px 20px !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            min-width: 80px !important;
+        }
+
+        .modal-btn.cancel {
+            background: #6b7280 !important;
+            color: white !important;
+        }
+
+        .modal-btn.cancel:hover {
+            background: #5b6570 !important;
+        }
+
+        .modal-btn.confirm {
+            background: #dc3545 !important;
+            color: white !important;
+        }
+
+        .modal-btn.confirm:hover {
+            background: #c82333 !important;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.98) !important;
+        }
+
+        /* Force modal to always center - multiple fallback methods */
+        .modal.show {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .modal .modal-content {
+            margin: auto !important;
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            transform: none !important;
+        }
+
+        /* Fallback centering using margin */
+        .modal-centered {
+            display: table !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .modal-centered .modal-content {
+            display: table-cell !important;
+            vertical-align: middle !important;
+            text-align: center !important;
+        }
+
+        .modal-centered .modal-content > div {
+            display: inline-block ;
+            text-align: left ;
+            vertical-align: middle ;
+        }
+        /* ========================================
+           FORM STYLES
+        ======================================== */
+        .form-container {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 131, 0, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ff8300;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        /* Fixed dropdown options transparency and improved form styling */
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .form-group select option {
+            background: #2d2d2d;
+            color: white;
+            padding: 8px;
+        }
+
+        .form-group select option:hover {
+            background: #3d3d3d;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff8300;
+            box-shadow: 0 0 0 3px rgba(255, 131, 0, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border-color: #f44336;
+        }
+
+        .form-validation-error {
+            color: #f44336;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-group.error .form-validation-error {
+            display: block;
+        }
+
+        /* ========================================
+           TOAST NOTIFICATIONS
+        ======================================== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 400px;
+            transform: translateX(100%);
+            transition: all 0.4s ease;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .toast.error {
+            border-left-color: #f44336;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            background: #4CAF50;
+        }
+
+        .toast.error .toast-icon {
+            background: #f44336;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toast-close:hover {
+            color: #333;
+        }
+
+        /* ========================================
+           RESPONSIVE DESIGN
+        ======================================== */
+        @media (max-width: 1024px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 25px;
+            }
+
+            .modal-content {
+                max-width: 400px;
+                margin: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .category-filters {
+                flex-direction: column;
+                gap: 15px;
+                padding: 20px;
+            }
+
+            .search-container input {
+                width: 200px;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+
+            .nav-buttons {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .nav-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .modal-content {
+                max-width: 350px;
+                margin: 15px;
+            }
+
+            .modal-header {
+                padding: 20px 24px;
+            }
+
+            .modal-header h3 {
+                font-size: 20px;
+            }
+
+            .modal-body {
+                padding: 24px;
+            }
+
+            .modal-footer {
+                padding: 20px 24px 24px;
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+
+            .modal-btn:last-child {
+                margin-bottom: 0;
+            }
+
+            .featured-section {
+                flex-direction: column;
+                text-align: center;
+                padding: 30px 20px;
+                min-height: auto;
+            }
+
+            .featured-text {
+                padding-right: 0;
+                margin-bottom: 20px;
+            }
+
+            .featured-text h1 {
+                font-size: 32px;
+            }
+
+            .featured-image {
+                width: 100%;
+                max-width: 300px;
+                height: 200px;
+            }
+
+            .product-card:hover {
+                transform: translateY(-4px) scale(1.01);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .product-card {
+                min-height: auto;
+            }
+
+            .product-image {
+                height: 180px;
+            }
+
+            .modal-content {
+                max-width: 320px;
+                margin: 10px;
+            }
+
+            .modal-header h3 {
+                font-size: 18px;
+            }
+
+            .modal-body {
+                padding: 20px;
+                font-size: 15px;
+            }
+
+            .modal-body .logout-icon {
+                font-size: 48px;
+                margin-bottom: 15px;
+            }
+
+            .toast {
+                min-width: 280px;
+                max-width: 320px;
+            }
+        }
+
+        /* ========================================
+           ACCESSIBILITY IMPROVEMENTS
+        ======================================== */
+        .modal-btn:focus,
+        .nav-btn:focus,
+        .category-btn:focus,
+        .search-container input:focus,
+        .special-toggle:focus {
+            outline: 2px solid #ff8300;
+            outline-offset: 2px;
+        }
+
+        .product-card:focus {
+            outline: 2px solid #ff8300;
+            outline-offset: 4px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ========================================
+           PRINT STYLES
+        ======================================== */
+        @media print {
+            .modal,
+            .toast-container,
+            .main-loader {
+                display: none !important;
+            }
+
+            .product-card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+            }
+        }
     </style>
 </head>
+
 <body>
-<!-- Added main loading indicator for initial page load -->
+<!--========================================-->
+<!--MAIN LOADING INDICATOR-->
+<!--========================================-->
 <div id="mainLoader" class="main-loader" style="display: none;">
     <div class="loader-content">
         <div class="spinner"></div>
         <p>Loading menu items...</p>
     </div>
 </div>
+
 <div class="container">
-    <!-- Header -->
+    <!--    ========================================-->
+    <!--    HEADER & NAVIGATION-->
+    <!--    ========================================-->
     <header class="header">
         <div class="nav-frame">
-            <a href="chefWelcomePage.html" class="home-icon"><img src="images/home.jpg" alt="Home"></a>
+            <a href="chefWelcomePage.html" class="home-icon">
+                <img src="images/home.jpg" alt="Home">
+            </a>
+
+            <!--            Navigation Buttons-->
             <div class="nav-buttons">
                 <a href="chefManageItemsPage.html" class="nav-btn active">Menu</a>
-                <!-- Added Account Management navigation button -->
                 <a href="accountManagement.html" class="nav-btn">Accounts</a>
                 <a href="orders.html" class="nav-btn">Orders</a>
             </div>
-            <!-- Added logout button with confirmation modal -->
+
+            <!--            Logout Button-->
             <div>
                 <button class="nav-btn secondary" onclick="showLogoutModal()">Logout</button>
             </div>
         </div>
     </header>
 
-    <!-- Added logout confirmation modal -->
+    <!--    ========================================-->
+    <!--    LOGOUT CONFIRMATION MODAL-->
+    <!--    ========================================-->
     <div id="logoutModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -1192,8 +1306,11 @@
         </div>
     </div>
 
-    <!-- Main Content -->
+    <!--    ========================================-->
+    <!--    MAIN CONTENT SECTION-->
+    <!--    ========================================-->
     <div class="main-content">
+        <!--        Today's Special Featured Section-->
         <div class="featured-section">
             <div class="featured-text">
                 <h2>Today's special</h2>
@@ -1201,71 +1318,86 @@
             </div>
             <div class="featured-image"></div>
         </div>
+
+        <!--        Add New Item Section-->
         <div class="new-item-section">
             <div class="plus-icon" id="addNewItemBtn">+</div>
             <h3>New Item</h3>
         </div>
     </div>
 
-    <!-- Category Filters -->
+    <!--    ========================================-->
+    <!--    CATEGORY FILTERS & SEARCH-->
+    <!--    ========================================-->
     <div class="category-filters">
-        <!-- Enhanced search bar with better container -->
+        Search Bar
         <div class="search-container">
-            <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="🔍 Search menu items..."
-            >
-            <button
-                    id="clearSearchBtn"
-                    onclick="clearSearch()"
-                    style="display: none;"
-            >
-                Clear
-            </button>
+            <input type="text" id="searchInput" placeholder="🔍 Search menu items...">
+            <button id="clearSearchBtn" onclick="clearSearch()" style="display: none;">Clear</button>
         </div>
 
-        <button class="category-btn active" data-category="All">All <span class="category-loader" style="display: none;">⏳</span></button>
-        <!-- Updated special items button with black styling -->
-        <button class="category-btn" data-category="Special">⭐ Special Items <span class="category-loader" style="display: none;">⏳</span></button>
-        <button class="category-btn">Salads <span class="category-loader" style="display: none;">⏳</span></button>
-        <button class="category-btn">Breakfast <span class="category-loader" style="display: none;">⏳</span></button>
-        <button class="category-btn">Sandwiches <span class="category-loader" style="display: none;">⏳</span></button>
-        <button class="category-btn">Meal <span class="category-loader" style="display: none;">⏳</span></button>
-        <button class="category-btn">Extras <span class="category-loader" style="display: none;">⏳</span></button>
+        <!--        Category Buttons-->
+        <button class="category-btn active" data-category="All">
+            All <span class="category-loader" style="display: none;">⏳</span>
+        </button>
+        <button class="category-btn" data-category="Special">
+            ⭐ Special Items <span class="category-loader" style="display: none;">⏳</span>
+        </button>
+        <button class="category-btn">
+            Salads <span class="category-loader" style="display: none;">⏳</span>
+        </button>
+        <button class="category-btn">
+            Breakfast <span class="category-loader" style="display: none;">⏳</span>
+        </button>
+        <button class="category-btn">
+            Sandwiches <span class="category-loader" style="display: none;">⏳</span>
+        </button>
+        <button class="category-btn">
+            Meal <span class="category-loader" style="display: none;">⏳</span>
+        </button>
+        <button class="category-btn">
+            Extras <span class="category-loader" style="display: none;">⏳</span>
+        </button>
+
+        <!--        Availability Toggle-->
         <div class="availability-toggle">
             <span>Available</span>
             <div class="toggle-switch"></div>
         </div>
     </div>
 
-    <!-- Products Grid -->
+    <!--    ========================================-->
+    <!--    PRODUCTS GRID-->
+    <!--    ========================================-->
     <div class="products-grid" id="productsGrid"></div>
 </div>
 
-<!-- Added toast container for beautiful notifications -->
+<!--========================================-->
+<!--TOAST NOTIFICATION CONTAINER-->
+<!--========================================-->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Hidden form for adding new menu item -->
-<!-- Updated form containers to be more compact and scrollable -->
+<!--========================================-->
+<!--ADD NEW ITEM FORM MODAL-->
+<!--========================================-->
 <div id="newItemFormContainer" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%); padding:20px; border-radius:15px; box-shadow:0 15px 35px rgba(0,0,0,0.4); z-index:1000; width:95%; max-width:450px; max-height:90vh; overflow-y:auto; border:1px solid rgba(255,131,0,0.2);">
     <h3 style="margin-bottom:15px; color:#ff8300; text-align:center; font-size:1.2rem;">Add New Menu Item</h3>
     <form id="newItemForm" style="display:flex; flex-direction:column; gap:12px;" class="form-container">
         <div class="form-group">
             <label for="itemName">Name:</label>
-            <input type="text" id="itemName" name="name" required>
+            <input type="text" id="itemName" name="item_name" required>
             <div class="form-validation-error"></div>
         </div>
 
         <div class="form-group">
             <label for="itemDescription">Description:</label>
-            <textarea id="itemDescription" name="description" required></textarea>
+            <textarea id="itemDescription" name="item_description" required></textarea>
             <div class="form-validation-error"></div>
         </div>
 
         <div class="form-group">
             <label for="itemCategory">Category:</label>
-            <select id="itemCategory" name="category" required>
+            <select id="itemCategory" name="item_category" required>
                 <option value="">Select Category</option>
                 <option value="Salads">Salads</option>
                 <option value="Breakfast">Breakfast</option>
@@ -1278,7 +1410,7 @@
 
         <div class="form-group">
             <label for="itemAvailable">Available:</label>
-            <select id="itemAvailable" name="available">
+            <select id="itemAvailable" name="is_available">
                 <option value="true">Yes</option>
                 <option value="false">No</option>
             </select>
@@ -1286,7 +1418,7 @@
 
         <div class="form-group">
             <label for="itemType">Type:</label>
-            <select id="itemType" name="type" required>
+            <select id="itemType" name="item_type" required>
                 <option value="normal">Normal</option>
                 <option value="special">Special Item</option>
             </select>
@@ -1312,28 +1444,26 @@
     </form>
 </div>
 
-<!-- Added edit form modal for editing existing items -->
-<!-- Updated edit form container to be more compact -->
 <div id="editItemFormContainer" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%); padding:20px; border-radius:15px; box-shadow:0 15px 35px rgba(0,0,0,0.4); z-index:1000; width:95%; max-width:450px; max-height:90vh; overflow-y:auto; border:1px solid rgba(255,131,0,0.2);">
     <h3 style="margin-bottom:15px; color:#ff8300; text-align:center; font-size:1.2rem;">Edit Menu Item</h3>
     <form id="editItemForm" style="display:flex; flex-direction:column; gap:12px;" class="form-container">
-        <input type="hidden" id="editItemId" name="id">
+        <input type="hidden" id="editItemId" name="item_id">
 
         <div class="form-group">
             <label for="editItemName">Name:</label>
-            <input type="text" id="editItemName" name="name" required>
+            <input type="text" id="editItemName" name="item_name" required>
             <div class="form-validation-error"></div>
         </div>
 
         <div class="form-group">
             <label for="editItemDescription">Description:</label>
-            <textarea id="editItemDescription" name="description" required></textarea>
+            <textarea id="editItemDescription" name="item_description" required></textarea>
             <div class="form-validation-error"></div>
         </div>
 
         <div class="form-group">
             <label for="editItemCategory">Category:</label>
-            <select id="editItemCategory" name="category" required>
+            <select id="editItemCategory" name="item_category" required>
                 <option value="">Select Category</option>
                 <option value="Salads">Salads</option>
                 <option value="Breakfast">Breakfast</option>
@@ -1346,7 +1476,7 @@
 
         <div class="form-group">
             <label for="editItemAvailable">Available:</label>
-            <select id="editItemAvailable" name="available">
+            <select id="editItemAvailable" name="is_available">
                 <option value="true">Yes</option>
                 <option value="false">No</option>
             </select>
@@ -1354,7 +1484,7 @@
 
         <div class="form-group">
             <label for="editItemType">Type:</label>
-            <select id="editItemType" name="type" required>
+            <select id="editItemType" name="item_type" required>
                 <option value="normal">Normal</option>
                 <option value="special">Special Item</option>
             </select>
@@ -1390,7 +1520,9 @@
     </form>
 </div>
 
-<!-- Added confirmation dialog for delete action -->
+<!--========================================-->
+<!--DELETE CONFIRMATION DIALOG-->
+<!--========================================-->
 <div id="deleteConfirmDialog" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:15px; box-shadow:0 8px 32px rgba(0,0,0,0.3); z-index:1001; width:90%; max-width:400px; text-align:center;">
     <div style="width:60px; height:60px; background:linear-gradient(135deg,#f44336,#d32f2f); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; color:white; font-size:24px; font-weight:bold;">!</div>
     <h3 style="margin-bottom:15px; color:#333; font-size:20px;">Confirm Deletion</h3>
@@ -1402,14 +1534,28 @@
     </div>
 </div>
 
-<!-- Added overlay background for modal -->
+<!--========================================-->
+<!--MODAL OVERLAY BACKGROUND-->
+<!--========================================-->
 <div id="modalOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999;"></div>
 
+<!--========================================-->
+<!--JAVASCRIPT APPLICATION LOGIC-->
+<!--========================================-->
 <script>
+    // ========================================
+    // GLOBAL CONFIGURATION & VARIABLES
+    // ========================================
     const contextPath = '/AllForOneBuffetAPP';
-
     let photoToRemove = false;
 
+    // ========================================
+    // API FUNCTIONS - Server Communication
+    // ========================================
+
+    /**
+     * Load today's special item and update the featured section
+     */
     function loadTodaysSpecial() {
         fetch(contextPath + '/menu-items?todaysSpecial=true')
             .then(response => response.json())
@@ -1419,14 +1565,15 @@
 
                 if (data && data.length > 0) {
                     const specialItem = data[0];
-                    specialNameElement.textContent = specialItem.name;
+                    specialNameElement.textContent = specialItem.item_name;
 
-                    if (specialItem.photoUrl) {
+                    // Handle special item image
+                    if (specialItem.photo_url) {
                         let fullImageUrl;
-                        if (specialItem.photoUrl.startsWith(contextPath)) {
-                            fullImageUrl = specialItem.photoUrl;
+                        if (specialItem.photo_url.startsWith(contextPath)) {
+                            fullImageUrl = specialItem.photo_url;
                         } else {
-                            fullImageUrl = contextPath + specialItem.photoUrl;
+                            fullImageUrl = contextPath + specialItem.photo_url;
                         }
 
                         featuredImageElement.classList.remove('no-image');
@@ -1434,7 +1581,7 @@
 
                         const img = document.createElement('img');
                         img.src = fullImageUrl;
-                        img.alt = specialItem.name;
+                        img.alt = specialItem.item_name;
                         img.loading = 'lazy';
                         img.style.opacity = '0';
 
@@ -1467,6 +1614,324 @@
             });
     }
 
+    /**
+     * Load menu items with optional filtering
+     * @param {string|null} item_category - Category to filter by
+     * @param {boolean|null} available - Availability filter
+     * @param {string} searchTerm - Search term for filtering
+     */
+    function loadMenu(item_category = null, available = null, searchTerm = '') {
+        const activeBtn = document.querySelector('.category-btn.active');
+        const loader = activeBtn ? activeBtn.querySelector('.category-loader') : null;
+
+        // Show main loader for initial load
+        if (!searchTerm && (!item_category || item_category === 'All')) {
+            showMainLoader();
+        }
+
+        if (loader) {
+            loader.style.display = 'inline';
+        }
+
+        // Build API URL with parameters
+        let url = contextPath + '/menu-items';
+        const params = [];
+
+        if (item_category === 'Special') {
+            params.push('item_type=special');
+        } else if (item_category && item_category !== 'All') {
+            params.push('item_category=' + encodeURIComponent(item_category));
+        }
+
+        if (available !== null) {
+            params.push('is_available=' + (available ? 'true' : 'false'));
+        }
+
+        if (params.length > 0) {
+            url += '?' + params.join('&');
+        }
+
+        // Make parallel API calls for better performance
+        const specialPromise = fetch(contextPath + '/menu-items?todaysSpecial=true').then(res => res.json());
+        const menuPromise = fetch(url).then(res => res.json());
+
+        Promise.all([specialPromise, menuPromise])
+            .then(([specialData, data]) => {
+                console.log('[DEBUG] Received data:', data);
+
+                hideMainLoader();
+
+                if (loader) {
+                    loader.style.display = 'none';
+                }
+
+                // Get current special item ID
+                let currentSpecialId = null;
+                if (specialData && specialData.length > 0) {
+                    currentSpecialId = specialData[0].item_id;
+                }
+
+                // Apply search filter if provided
+                let filteredData = data;
+                if (searchTerm && searchTerm.length > 0) {
+                    const searchLower = searchTerm.toLowerCase();
+                    filteredData = data.filter(item =>
+                        item.item_name.toLowerCase().includes(searchLower) ||
+                        item.item_description.toLowerCase().includes(searchLower) ||
+                        item.item_category.toLowerCase().includes(searchLower)
+                    );
+                }
+
+                // Handle empty results
+                const grid = document.querySelector('.products-grid');
+                grid.innerHTML = '';
+                if (filteredData.length === 0) {
+                    const noResultsMsg = searchTerm ?
+                        `No items found matching "${searchTerm}"` :
+                        'No items found';
+                    grid.innerHTML = `<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">${noResultsMsg}</p>`;
+                    return;
+                }
+
+                // Render menu items efficiently using DocumentFragment
+                const fragment = document.createDocumentFragment();
+
+                filteredData.forEach((item, index) => {
+                    /* Improved card creation with better layout and spacing */
+                    const card = createMenuItemCard(item, currentSpecialId);
+                    fragment.appendChild(card);
+                });
+
+                grid.appendChild(fragment);
+            })
+            .catch(error => {
+                hideMainLoader();
+
+                if (loader) {
+                    loader.style.display = 'none';
+                }
+                console.error('Error loading menu:', error);
+                const grid = document.querySelector('.products-grid');
+                grid.innerHTML = '<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">Failed to load menu items. Please refresh the page.</p>';
+            });
+    }
+
+    /* Improved card creation with better layout and spacing */
+    function createMenuItemCard(item, currentSpecialId) {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('special-toggle')) {
+                openEditForm(item);
+            }
+        });
+
+        const imageDiv = document.createElement('div');
+        imageDiv.className = 'product-image';
+        if (item.photo_url) {
+            const img = document.createElement('img');
+            img.src = item.photo_url;
+            img.loading = 'lazy';
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.objectFit = "cover";
+            img.style.opacity = "0";
+            img.style.transition = "opacity 0.3s ease";
+
+            img.onload = function() {
+                this.style.opacity = "1";
+            };
+
+            img.onerror = function() {
+                this.style.opacity = "1";
+                this.parentElement.textContent = 'No Image';
+            };
+
+            imageDiv.appendChild(img);
+        } else {
+            imageDiv.textContent = 'No Image';
+        }
+
+        const details = document.createElement('div');
+        details.className = 'product-details';
+
+        const name = document.createElement('div');
+        name.className = 'product-name';
+        name.textContent = item.item_name;
+
+        const desc = document.createElement('div');
+        desc.className = 'product-desc';
+        desc.textContent = item.item_description;
+
+        const avail = document.createElement('div');
+        avail.className = 'product-availability';
+        avail.textContent = item.is_available ? 'Available' : 'Unavailable';
+        if (!item.is_available) avail.classList.add('unavailable');
+
+        details.appendChild(name);
+        details.appendChild(desc);
+        details.appendChild(avail);
+
+        if (item.item_type === 'special') {
+            const specialToggle = document.createElement('button');
+            specialToggle.className = 'special-toggle';
+            specialToggle.textContent = currentSpecialId === item.item_id ? '⭐ Today\'s Special' : 'Make Special';
+            if (currentSpecialId === item.item_id) {
+                specialToggle.classList.add('active');
+            }
+
+            specialToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (currentSpecialId === item.item_id) {
+                    clearTodaysSpecial();
+                } else {
+                    setTodaysSpecial(item.item_id, item.item_name);
+                }
+            });
+
+            details.appendChild(specialToggle);
+        }
+
+        card.appendChild(imageDiv);
+        card.appendChild(details);
+        return card;
+    }
+
+    /**
+     * Set an item as today's special
+     * @param {number} itemId - Item ID to set as special
+     * @param {string} itemName - Item name for notification
+     */
+    function setTodaysSpecial(itemId, itemName) {
+        fetch(contextPath + '/menu-items/set-special?item_id=' + itemId, {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Today\'s Special Set!', `"${itemName}" is now today\'s special.`);
+                    loadTodaysSpecial();
+                    refreshCurrentView();
+                } else {
+                    showToast('error', 'Failed to Set Special', data.message || 'An unexpected error occurred. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
+            });
+    }
+
+    /**
+     * Clear today's special
+     */
+    function clearTodaysSpecial() {
+        fetch(contextPath + '/menu-items/clear-special', {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Special Cleared!', 'Today\'s special has been removed.');
+                    loadTodaysSpecial();
+                    refreshCurrentView();
+                } else {
+                    showToast('error', 'Failed to Clear Special', data.message || 'An unexpected error occurred.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
+            });
+    }
+
+    // ========================================
+    // UI HELPER FUNCTIONS
+    // ========================================
+
+    /**
+     * Show main loading indicator
+     */
+    function showMainLoader() {
+        document.getElementById('mainLoader').style.display = 'flex';
+    }
+
+    /**
+     * Hide main loading indicator
+     */
+    function hideMainLoader() {
+        document.getElementById('mainLoader').style.display = 'none';
+    }
+
+    /**
+     * Get current availability filter state
+     * @returns {boolean|null} Availability state
+     */
+    function getAvailabilityState() {
+        const toggle = document.querySelector('.toggle-switch');
+        if (toggle.classList.contains('active')) {
+            return true; // Available only
+        } else if (toggle.classList.contains('off')) {
+            return false; // Unavailable only
+        } else {
+            return null; // Show all
+        }
+    }
+
+    /**
+     * Refresh current view with existing filters
+     */
+    function refreshCurrentView() {
+        const activeCategoryBtn = document.querySelector('.category-btn.active');
+        let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
+        if (activeCategory === 'All') activeCategory = null;
+        const available = getAvailabilityState();
+        const searchTerm = document.getElementById('searchInput').value.trim();
+        loadMenu(activeCategory, available, searchTerm);
+    }
+
+    /**
+     * Show toast notification
+     * @param {string} type - Toast type ('success' or 'error')
+     * @param {string} title - Toast title
+     * @param {string} message - Toast message
+     */
+    function showToast(type, title, message) {
+        const container = document.getElementById('toastContainer');
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+
+        const icon = type === 'success' ? '✓' : '✕';
+
+        toast.innerHTML = `
+                <div class="toast-icon">${icon}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+
+        container.appendChild(toast);
+
+        // Trigger animation
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            toast.style.animation = 'slideOutRight 0.4s ease-in-out forwards';
+            setTimeout(() => toast.remove(), 400);
+        }, 4000);
+    }
+
+    // ========================================
+    // SEARCH FUNCTIONALITY
+    // ========================================
+
+    /**
+     * Handle search input changes
+     */
     function handleSearch() {
         const searchTerm = document.getElementById('searchInput').value.trim();
         const clearBtn = document.getElementById('clearSearchBtn');
@@ -1493,6 +1958,9 @@
         loadMenu(activeCategory, available, searchTerm);
     }
 
+    /**
+     * Clear search input and refresh results
+     */
     function clearSearch() {
         document.getElementById('searchInput').value = '';
         document.getElementById('clearSearchBtn').style.display = 'none';
@@ -1510,211 +1978,243 @@
         loadMenu(activeCategory, available);
     }
 
-    function showMainLoader() {
-        document.getElementById('mainLoader').style.display = 'flex';
+    // ========================================
+    // FORM HANDLING FUNCTIONS
+    // ========================================
+
+    /**
+     * Open edit form for a menu item
+     * @param {Object} item - Menu item data
+     */
+    function openEditForm(item) {
+        photoToRemove = false;
+
+        // Populate form fields
+        document.getElementById('editItemId').value = item.item_id;
+        document.getElementById('editItemName').value = item.item_name;
+        document.getElementById('editItemDescription').value = item.item_description;
+        document.getElementById('editItemCategory').value = item.item_category;
+        document.getElementById('editItemAvailable').value = item.is_available.toString();
+        document.getElementById('editItemType').value = item.item_type;
+
+        // Reset photo fields
+        document.getElementById('editItemPhoto').value = '';
+        document.getElementById('editPhotoPreview').style.display = 'none';
+        document.getElementById('removeEditPhoto').style.display = 'none';
+
+        // Show current photo if exists
+        const currentPhotoPreview = document.getElementById('currentPhotoPreview');
+        const currentPhotoImg = document.getElementById('currentPhotoImg');
+        if (item.photo_url) {
+            currentPhotoImg.src = item.photo_url;
+            currentPhotoPreview.style.display = 'block';
+        } else {
+            currentPhotoPreview.style.display = 'none';
+        }
+
+        // Show modal
+        const editFormContainer = document.getElementById('editItemFormContainer');
+        const modalOverlay = document.getElementById('modalOverlay');
+        editFormContainer.style.display = 'block';
+        modalOverlay.style.display = 'block';
+
+        // Show/hide special button based on item type
+        const setSpecialBtn = document.getElementById('setSpecialBtn');
+        if (item.item_type === 'special') {
+            setSpecialBtn.style.display = 'block';
+        } else {
+            setSpecialBtn.style.display = 'none';
+        }
     }
 
-    function hideMainLoader() {
-        document.getElementById('mainLoader').style.display = 'none';
+    /**
+     * Hide edit form modal
+     */
+    function hideEditForm() {
+        const editFormContainer = document.getElementById('editItemFormContainer');
+        const modalOverlay = document.getElementById('modalOverlay');
+        editFormContainer.style.display = 'none';
+        modalOverlay.style.display = 'none';
     }
 
-    function loadMenu(category = null, available = null, searchTerm = '') {
-        const activeBtn = document.querySelector('.category-btn.active');
-        const loader = activeBtn ? activeBtn.querySelector('.category-loader') : null;
-
-        // Show main loader if this is initial load (no search term and default category)
-        if (!searchTerm && (!category || category === 'All')) {
-            showMainLoader();
-        }
-
-        if (loader) {
-            loader.style.display = 'inline';
-        }
-
-        let url = contextPath + '/menu-items';
-        const params = [];
-
-        if (category === 'Special') {
-            params.push('type=special');
-        } else if (category && category !== 'All') {
-            params.push('category=' + encodeURIComponent(category));
-        }
-
-        if (available !== null) {
-            params.push('available=' + (available ? 'true' : 'false'));
-        }
-
-        if (params.length > 0) {
-            url += '?' + params.join('&');
-        }
-
-        let currentSpecialId = null;
-        fetch(contextPath + '/menu-items?todaysSpecial=true')
-            .then(res => res.json())
-            .then(specialData => {
-                if (specialData && specialData.length > 0) {
-                    currentSpecialId = specialData[0].id;
-                }
-                return fetch(url);
-            })
-            .then(res => res.json())
-            .then(data => {
-                hideMainLoader();
-
-                if (loader) {
-                    loader.style.display = 'none';
-                }
-
-                let filteredData = data;
-                if (searchTerm && searchTerm.length > 0) {
-                    const searchLower = searchTerm.toLowerCase();
-                    filteredData = data.filter(item =>
-                        item.name.toLowerCase().includes(searchLower) ||
-                        item.description.toLowerCase().includes(searchLower) ||
-                        item.category.toLowerCase().includes(searchLower)
-                    );
-                }
-
-                const grid = document.querySelector('.products-grid');
-                grid.innerHTML = '';
-                if (filteredData.length === 0) {
-                    const noResultsMsg = searchTerm ?
-                        `No items found matching "${searchTerm}"` :
-                        'No items found';
-                    grid.innerHTML = `<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">${noResultsMsg}</p>`;
-                    return;
-                }
-
-                const fragment = document.createDocumentFragment();
-                const imageQueue = [];
-
-                filteredData.forEach((item, index) => {
-                    const card = document.createElement('div');
-                    card.className = 'product-card';
-                    card.addEventListener('click', (e) => {
-                        if (!e.target.classList.contains('special-toggle')) {
-                            openEditForm(item);
-                        }
-                    });
-
-                    const imageDiv = document.createElement('div');
-                    imageDiv.className = 'product-image';
-                    if (item.photoUrl) {
-                        const img = document.createElement('img');
-                        img.dataset.src = item.photoUrl; // Use data-src for lazy loading
-                        img.loading = 'lazy';
-                        img.style.width = "100%";
-                        img.style.height = "100%";
-                        img.style.objectFit = "cover";
-                        img.style.backgroundColor = "#f0f0f0"; // Placeholder background
-                        img.style.opacity = "0";
-
-                        // Add to image queue for staggered loading
-                        imageQueue.push({img, delay: index * 50}); // 50ms delay between images
-
-                        imageDiv.appendChild(img);
-                    } else {
-                        imageDiv.textContent = 'No Image';
-                    }
-
-                    const details = document.createElement('div');
-                    details.className = 'product-details';
-
-                    const name = document.createElement('div');
-                    name.className = 'product-name';
-                    name.textContent = item.name;
-
-                    const desc = document.createElement('div');
-                    desc.className = 'product-desc';
-                    desc.textContent = item.description;
-
-                    const avail = document.createElement('div');
-                    avail.className = 'product-availability';
-                    avail.textContent = item.available ? 'Available' : 'Unavailable';
-                    if (!item.available) avail.classList.add('unavailable');
-
-                    if (item.type === 'special') {
-                        const specialToggle = document.createElement('button');
-                        specialToggle.className = 'special-toggle';
-                        specialToggle.textContent = currentSpecialId === item.id ? '⭐ Today\'s Special' : 'Make Special';
-                        if (currentSpecialId === item.id) {
-                            specialToggle.classList.add('active');
-                        }
-
-                        specialToggle.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            if (currentSpecialId === item.id) {
-                                clearTodaysSpecial();
-                            } else {
-                                setTodaysSpecial(item.id, item.name);
-                            }
-                        });
-
-                        details.appendChild(specialToggle);
-                    }
-
-                    details.appendChild(name);
-                    details.appendChild(desc);
-                    details.appendChild(avail);
-
-                    card.appendChild(imageDiv);
-                    card.appendChild(details);
-                    fragment.appendChild(card);
-                });
-
-                grid.appendChild(fragment);
-
-                imageQueue.forEach(({img, delay}) => {
-                    setTimeout(() => {
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.onload = function() {
-                                this.style.transition = "opacity 0.2s ease";
-                                this.style.opacity = "1";
-                            };
-                            img.onerror = function() {
-                                this.style.opacity = "1";
-                                this.parentElement.textContent = 'Image Error';
-                            };
-                        }
-                    }, delay);
-                });
-            })
-            .catch(error => {
-                hideMainLoader();
-
-                if (loader) {
-                    loader.style.display = 'none';
-                }
-                console.error('Error loading menu:', error);
-                const grid = document.querySelector('.products-grid');
-                grid.innerHTML = '<p style="color:white;text-align:center;grid-column:1/-1;padding:40px;font-size:18px;">Failed to load menu items. Please refresh the page.</p>';
-            });
+    /**
+     * Show delete confirmation dialog
+     * @param {string} itemName - Name of item to delete
+     */
+    function showDeleteConfirmation(itemName) {
+        document.getElementById('deleteItemName').textContent = itemName;
+        document.getElementById('deleteConfirmDialog').style.display = 'block';
+        document.getElementById('modalOverlay').style.display = 'block';
     }
 
-    document.querySelectorAll('.category-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            console.log('[v0] Category button clicked:', button.textContent.trim());
+    /**
+     * Hide delete confirmation dialog
+     */
+    function hideDeleteConfirmation() {
+        document.getElementById('deleteConfirmDialog').style.display = 'none';
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
 
-            document.querySelectorAll('.category-loader').forEach(loader => {
-                loader.style.display = 'none';
-            });
+    /**
+     * Validate form inputs
+     * @param {string} formId - Form element ID
+     * @returns {boolean} Validation result
+     */
+    function validateForm(formId) {
+        const form = document.getElementById(formId);
+        const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+        let isValid = true;
 
-            // Update active category button
-            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
+        inputs.forEach(input => {
+            const formGroup = input.closest('.form-group');
+            const errorElement = formGroup.querySelector('.form-validation-error');
 
-            // Get current filters
-            let category = button.getAttribute('data-category') || button.textContent.trim();
-            if (category === 'All') category = null;
-            const available = getAvailabilityState();
-            const searchTerm = document.getElementById('searchInput').value.trim(); // Preserve search
-
-            console.log('[v0] Loading with category:', category, 'available:', available, 'search:', searchTerm);
-            loadMenu(category, available, searchTerm);
+            if (!input.value.trim()) {
+                formGroup.classList.add('error');
+                if (errorElement) {
+                    errorElement.textContent = `${input.previousElementSibling.textContent} is required`;
+                }
+                isValid = false;
+            } else {
+                formGroup.classList.remove('error');
+            }
         });
-    });
 
+        return isValid;
+    }
+
+    // ========================================
+    // PHOTO HANDLING FUNCTIONS
+    // ========================================
+
+    /**
+     * Remove new item photo preview
+     */
+    function removeNewItemPhoto() {
+        console.log('[v0] Removing new item photo');
+        document.getElementById('itemPhoto').value = '';
+        document.getElementById('newPhotoPreview').style.display = 'none';
+        document.getElementById('removeNewPhoto').style.display = 'none';
+        showToast('success', 'Photo Removed', 'The selected photo has been removed.');
+    }
+
+    /**
+     * Remove edit item photo preview
+     */
+    function removeEditItemPhoto() {
+        console.log('[v0] Removing edit item photo');
+        document.getElementById('editItemPhoto').value = '';
+        document.getElementById('editPhotoPreview').style.display = 'none';
+        document.getElementById('removeEditPhoto').style.display = 'none';
+        showToast('success', 'Photo Removed', 'The selected photo has been removed.');
+    }
+
+    /**
+     * Mark current photo for removal
+     */
+    function removeCurrentPhoto() {
+        console.log('[v0] Marking current photo for removal');
+        photoToRemove = true;
+        document.getElementById('currentPhotoPreview').style.display = 'none';
+        showToast('success', 'Photo Marked for Removal', 'The current photo will be removed when you save the item.');
+    }
+
+    // ========================================
+    // AUTHENTICATION FUNCTIONS
+    // ========================================
+
+    /**
+     * Show logout confirmation modal
+     */
+    function showLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'block';
+    }
+
+    /**
+     * Hide logout confirmation modal
+     */
+    function hideLogoutModal() {
+        try {
+            document.getElementById('logoutModal').style.display = 'none';
+        } catch (error) {
+            console.error('Error hiding modal:', error);
+        }
+    }
+
+    /**
+     * Confirm logout and redirect to login
+     */
+    async function confirmLogout() {
+        console.log("[DEBUG] Starting logout process...");
+
+        try {
+            // Call logout servlet
+            const response = await fetch('/AllForOneBuffetAPP/logout', {
+                method: 'POST',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                console.log("[DEBUG] Server logout successful");
+            }
+        } catch (error) {
+            console.error('[DEBUG] Logout error:', error);
+        }
+
+        // Always clear client-side data and redirect
+        clearClientSideData();
+
+        // Clear browser history to prevent back button
+        window.history.pushState(null, null, window.location.href);
+
+        // Force redirect with cache busting
+        const timestamp = new Date().getTime();
+        window.location.replace(`login.html?t=${timestamp}`);
+    }
+
+    /**
+     * Clear client-side data
+     */
+    function clearClientSideData() {
+        // Clear browser storage
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+        } catch (e) {
+            console.log("Storage clearing failed:", e);
+        }
+
+        // Clear any cached data
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+            });
+        }
+
+        console.log("[DEBUG] Client-side data cleared");
+    }
+
+    /**
+     * Initialize availability toggle state
+     */
+    function initializeToggleState() {
+        const toggle = document.querySelector('.toggle-switch');
+        toggle.classList.add('active'); // Initially show only available items
+        toggle.style.backgroundColor = '#4CAF50'; // Green for available
+    }
+
+    // ========================================
+    // EVENT LISTENERS SETUP
+    // ========================================
+
+    // Search input event listener
+    document.getElementById('searchInput').addEventListener('input', handleSearch);
+
+    // Availability toggle event listener
     document.querySelector('.toggle-switch').addEventListener('click', function () {
         console.log('[v0] Toggle clicked, current classes:', this.className);
 
@@ -1733,167 +2233,13 @@
             this.style.backgroundColor = '#ff9500'; // Orange for all
         }
 
-        // Get current filters and preserve them
-        const activeCategoryBtn = document.querySelector('.category-btn.active');
-        let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
-        if (activeCategory === 'All') activeCategory = null;
-        const available = getAvailabilityState();
-        const searchTerm = document.getElementById('searchInput').value.trim(); // Preserve search
-
-        console.log('[v0] Toggle changed, loading with category:', activeCategory, 'available:', available, 'search:', searchTerm);
-        loadMenu(activeCategory, available, searchTerm);
+        // Refresh menu with new filter
+        refreshCurrentView();
     });
 
-    function getAvailabilityState() {
-        const toggle = document.querySelector('.toggle-switch');
-        if (toggle.classList.contains('active')) {
-            return true; // Available only
-        } else if (toggle.classList.contains('off')) {
-            return false; // Unavailable only
-        } else {
-            return null; // Show all
-        }
-    }
-
-    function openEditForm(item) {
-        photoToRemove = false;
-
-        document.getElementById('editItemId').value = item.id;
-        document.getElementById('editItemName').value = item.name;
-        document.getElementById('editItemDescription').value = item.description;
-        document.getElementById('editItemCategory').value = item.category;
-        document.getElementById('editItemAvailable').value = item.available.toString();
-        document.getElementById('editItemType').value = item.type;
-
-        document.getElementById('editItemPhoto').value = '';
-        document.getElementById('editPhotoPreview').style.display = 'none';
-        document.getElementById('removeEditPhoto').style.display = 'none';
-
-        const currentPhotoPreview = document.getElementById('currentPhotoPreview');
-        const currentPhotoImg = document.getElementById('currentPhotoImg');
-        if (item.photoUrl) {
-            currentPhotoImg.src = item.photoUrl;
-            currentPhotoPreview.style.display = 'block';
-        } else {
-            currentPhotoPreview.style.display = 'none';
-        }
-
-        const editFormContainer = document.getElementById('editItemFormContainer');
-        const modalOverlay = document.getElementById('modalOverlay');
-        editFormContainer.style.display = 'block';
-        modalOverlay.style.display = 'block';
-
-        // Show/hide "Set as Today's Special" button based on item type
-        const setSpecialBtn = document.getElementById('setSpecialBtn');
-        if (item.type === 'special') {
-            setSpecialBtn.style.display = 'block';
-        } else {
-            setSpecialBtn.style.display = 'none';
-        }
-    }
-
-    function hideEditForm() {
-        const editFormContainer = document.getElementById('editItemFormContainer');
-        const modalOverlay = document.getElementById('modalOverlay');
-        editFormContainer.style.display = 'none';
-        modalOverlay.style.display = 'none';
-    }
-
-    function showDeleteConfirmation(itemName) {
-        document.getElementById('deleteItemName').textContent = itemName;
-        document.getElementById('deleteConfirmDialog').style.display = 'block';
-        document.getElementById('modalOverlay').style.display = 'block';
-    }
-
-    function hideDeleteConfirmation() {
-        document.getElementById('deleteConfirmDialog').style.display = 'none';
-        document.getElementById('modalOverlay').style.display = 'none';
-    }
-
-    function setTodaysSpecial(itemId, itemName) {
-        fetch(contextPath + '/menu-items/set-special?id=' + itemId, {
-            method: 'POST'
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Today\'s Special Set!', `"${itemName}" is now today\'s special.`);
-                    loadTodaysSpecial(); // Refresh the banner
-                    const activeCategoryBtn = document.querySelector('.category-btn.active');
-                    let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
-                    if (activeCategory === 'All') activeCategory = null;
-                    const available = getAvailabilityState();
-                    const searchTerm = document.getElementById('searchInput').value.trim();
-                    loadMenu(activeCategory, available, searchTerm);
-                } else {
-                    showToast('error', 'Failed to Set Special', data.message || 'An unexpected error occurred. Please try again.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
-            });
-    }
-
-    function clearTodaysSpecial() {
-        fetch(contextPath + '/menu-items/clear-special', {
-            method: 'POST'
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Special Cleared!', 'Today\'s special has been removed.');
-                    loadTodaysSpecial(); // Refresh the banner
-                    const activeCategoryBtn = document.querySelector('.category-btn.active');
-                    let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
-                    if (activeCategory === 'All') activeCategory = null;
-                    const available = getAvailabilityState();
-                    const searchTerm = document.getElementById('searchInput').value.trim();
-                    loadMenu(activeCategory, available, searchTerm);
-                } else {
-                    showToast('error', 'Failed to Clear Special', data.message || 'An unexpected error occurred.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'Connection Error', 'Unable to connect to server. Please check your connection and try again.');
-            });
-    }
-
-    function showToast(type, title, message) {
-        const container = document.getElementById('toastContainer');
-
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-
-        const icon = type === 'success' ? '✓' : '✕';
-
-        toast.innerHTML = `
-            <div class="toast-icon">${icon}</div>
-            <div class="toast-content">
-                <div class="toast-title">${title}</div>
-                <div class="toast-message">${message}</div>
-            </div>
-            <button class="toast-close" onclick="this.parentElement.remove()">×</button>
-        `;
-
-        container.appendChild(toast);
-
-        // Trigger animation
-        setTimeout(() => toast.classList.add('show'), 100);
-
-        // Auto remove after 4 seconds
-        setTimeout(() => {
-            toast.style.animation = 'slideOutRight 0.4s ease-in-out forwards';
-            setTimeout(() => toast.remove(), 400);
-        }, 4000);
-    }
-
+    // Add new item button event listener
     document.getElementById('addNewItemBtn').addEventListener('click', function() {
         console.log('[v0] New Item button clicked!');
-        console.log('[v0] Form container element:', document.getElementById('newItemFormContainer'));
-        console.log('[v0] Modal overlay element:', document.getElementById('modalOverlay'));
-
         const formContainer = document.getElementById('newItemFormContainer');
         const modalOverlay = document.getElementById('modalOverlay');
 
@@ -1906,6 +2252,7 @@
         }
     });
 
+    // Cancel new item button event listener
     document.getElementById('cancelNewItem').addEventListener('click', function() {
         console.log('[v0] Cancel new item clicked');
         document.getElementById('newItemFormContainer').style.display = 'none';
@@ -1915,6 +2262,7 @@
         document.getElementById('removeNewPhoto').style.display = 'none';
     });
 
+    // New item form submission event listener
     document.getElementById('newItemForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -1943,7 +2291,7 @@
 
         fetch(contextPath + '/menu-items', {
             method: 'POST',
-            body: formData // Send FormData directly instead of JSON for file upload support
+            body: formData
         })
             .then(response => response.json())
             .then(data => {
@@ -1951,19 +2299,12 @@
                 submitBtn.disabled = false;
 
                 if (data.success) {
-                    const itemName = formData.get('name');
+                    const itemName = formData.get('item_name');
                     showToast('success', 'Item Added!', `"${itemName}" has been added to the menu.`);
                     document.getElementById('newItemFormContainer').style.display = 'none';
                     document.getElementById('modalOverlay').style.display = 'none';
                     document.getElementById('newItemForm').reset();
-
-                    // Refresh the menu
-                    const activeCategoryBtn = document.querySelector('.category-btn.active');
-                    let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
-                    if (activeCategory === 'All') activeCategory = null;
-                    const available = getAvailabilityState();
-                    const searchTerm = document.getElementById('searchInput').value.trim();
-                    loadMenu(activeCategory, available, searchTerm);
+                    refreshCurrentView();
                 } else {
                     if (data.message && data.message.includes('already exists')) {
                         showToast('error', 'Duplicate Name Error', data.message);
@@ -1980,6 +2321,7 @@
             });
     });
 
+    // New item photo input event listener
     document.getElementById('itemPhoto').addEventListener('change', function(e) {
         const file = e.target.files[0];
         const preview = document.getElementById('newPhotoPreview');
@@ -1987,7 +2329,6 @@
         const removeBtn = document.getElementById('removeNewPhoto');
 
         console.log('[v0] New item photo selected:', file);
-        console.log('[v0] Remove button element:', removeBtn);
 
         if (file) {
             // Validate file type
@@ -2008,25 +2349,16 @@
                 previewImg.src = e.target.result;
                 preview.style.display = 'block';
                 removeBtn.style.display = 'block';
-                console.log('[v0] X button should now be visible for new photo');
                 showToast('success', 'Photo Selected', 'Photo uploaded successfully! Click the X button to remove it.');
             };
             reader.readAsDataURL(file);
         } else {
             preview.style.display = 'none';
             removeBtn.style.display = 'none';
-            console.log('[v0] No file selected, X button hidden');
         }
     });
 
-    function removeNewItemPhoto() {
-        console.log('[v0] Removing new item photo');
-        document.getElementById('itemPhoto').value = '';
-        document.getElementById('newPhotoPreview').style.display = 'none';
-        document.getElementById('removeNewPhoto').style.display = 'none';
-        showToast('success', 'Photo Removed', 'The selected photo has been removed.');
-    }
-
+    // Edit item photo input event listener
     document.getElementById('editItemPhoto').addEventListener('change', function(e) {
         const file = e.target.files[0];
         const preview = document.getElementById('editPhotoPreview');
@@ -2060,21 +2392,7 @@
         }
     });
 
-    function removeEditItemPhoto() {
-        console.log('[v0] Removing edit item photo');
-        document.getElementById('editItemPhoto').value = '';
-        document.getElementById('editPhotoPreview').style.display = 'none';
-        document.getElementById('removeEditPhoto').style.display = 'none';
-        showToast('success', 'Photo Removed', 'The selected photo has been removed.');
-    }
-
-    function removeCurrentPhoto() {
-        console.log('[v0] Marking current photo for removal');
-        photoToRemove = true;
-        document.getElementById('currentPhotoPreview').style.display = 'none';
-        showToast('success', 'Photo Marked for Removal', 'The current photo will be removed when you save the item.');
-    }
-
+    // Edit form event listeners
     document.getElementById('cancelEditItem').addEventListener('click', hideEditForm);
 
     document.getElementById('editItemForm').addEventListener('submit', function(e) {
@@ -2085,8 +2403,23 @@
             return;
         }
 
-        const formData = new FormData(this);
-        const hasPhoto = formData.get('photo') && formData.get('photo').size > 0;
+        const formData = new FormData();
+
+        // Add form fields with correct database column names
+        formData.append('item_id', document.getElementById('editItemId').value);
+        formData.append('item_name', document.getElementById('editItemName').value);
+        formData.append('item_description', document.getElementById('editItemDescription').value);
+        formData.append('item_category', document.getElementById('editItemCategory').value);
+        formData.append('is_available', document.getElementById('editItemAvailable').value);
+        formData.append('item_type', document.getElementById('editItemType').value);
+
+        // Handle photo upload
+        const photoInput = document.getElementById('editItemPhoto');
+        if (photoInput.files && photoInput.files[0]) {
+            formData.append('photo', photoInput.files[0]);
+        }
+
+        const hasPhoto = photoInput.files && photoInput.files[0];
         const submitBtn = document.getElementById('updateItemBtn');
 
         if (hasPhoto) {
@@ -2109,7 +2442,7 @@
 
         fetch(contextPath + '/menu-items', {
             method: 'PUT',
-            body: formData // Send FormData directly instead of JSON for file upload support
+            body: formData
         })
             .then(response => response.json())
             .then(data => {
@@ -2117,17 +2450,10 @@
                 submitBtn.disabled = false;
 
                 if (data.success) {
-                    const itemName = formData.get('name');
+                    const itemName = formData.get('item_name');
                     showToast('success', 'Item Updated!', `"${itemName}" has been updated.`);
                     hideEditForm();
-
-                    // Refresh the menu
-                    const activeCategoryBtn = document.querySelector('.category-btn.active');
-                    let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
-                    if (activeCategory === 'All') activeCategory = null;
-                    const available = getAvailabilityState();
-                    const searchTerm = document.getElementById('searchInput').value.trim();
-                    loadMenu(activeCategory, available, searchTerm);
+                    refreshCurrentView();
                 } else {
                     showToast('error', 'Failed to Update Item', data.message || 'An unexpected error occurred.');
                 }
@@ -2140,6 +2466,7 @@
             });
     });
 
+    // Delete and special button event listeners
     document.getElementById('deleteItemBtn').addEventListener('click', function() {
         const itemName = document.getElementById('editItemName').value;
         hideEditForm();
@@ -2153,6 +2480,7 @@
         hideEditForm();
     });
 
+    // Delete confirmation event listeners
     document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
         const itemId = document.getElementById('editItemId').value;
 
@@ -2164,14 +2492,7 @@
                 if (data.success) {
                     showToast('success', 'Item Deleted!', 'The item has been removed from the menu.');
                     hideDeleteConfirmation();
-
-                    // Refresh the menu
-                    const activeCategoryBtn = document.querySelector('.category-btn.active');
-                    let activeCategory = activeCategoryBtn ? (activeCategoryBtn.getAttribute('data-category') || activeCategoryBtn.textContent.trim()) : null;
-                    if (activeCategory === 'All') activeCategory = null;
-                    const available = getAvailabilityState();
-                    const searchTerm = document.getElementById('searchInput').value.trim();
-                    loadMenu(activeCategory, available, searchTerm);
+                    refreshCurrentView();
                 } else {
                     showToast('error', 'Failed to Delete Item', data.message || 'An unexpected error occurred.');
                 }
@@ -2184,6 +2505,7 @@
 
     document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteConfirmation);
 
+    // Modal overlay click event listener
     document.getElementById('modalOverlay').addEventListener('click', function() {
         document.getElementById('newItemFormContainer').style.display = 'none';
         document.getElementById('editItemFormContainer').style.display = 'none';
@@ -2191,105 +2513,41 @@
         this.style.display = 'none';
     });
 
-    function showSkeletonLoaders() {
-        const productsGrid = document.getElementById('productsGrid');
-        productsGrid.innerHTML = '';
+    // Category button event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        console.log('[v0] Found category buttons:', categoryButtons.length);
 
-        // Create 6 skeleton cards
-        for (let i = 0; i < 6; i++) {
-            const skeletonCard = document.createElement('div');
-            skeletonCard.className = 'skeleton-card';
-            skeletonCard.innerHTML = `
-                <div class="skeleton-image"></div>
-                <div class="skeleton-text"></div>
-                <div class="skeleton-text short"></div>
-                <div class="skeleton-text medium"></div>
-            `;
-            productsGrid.appendChild(skeletonCard);
-        }
-    }
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                console.log('[v0] Category button clicked:', this.textContent.trim());
 
-    function hideSkeletonLoaders() {
-        const skeletonCards = document.querySelectorAll('.skeleton-card');
-        skeletonCards.forEach(card => card.remove());
-    }
+                // Remove active class from all buttons
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
 
-    function validateForm(formId) {
-        const form = document.getElementById(formId);
-        const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
-        let isValid = true;
+                // Add active class to clicked button
+                this.classList.add('active');
 
-        inputs.forEach(input => {
-            const formGroup = input.closest('.form-group');
-            const errorElement = formGroup.querySelector('.form-validation-error');
-
-            if (!input.value.trim()) {
-                formGroup.classList.add('error');
-                if (errorElement) {
-                    errorElement.textContent = `${input.previousElementSibling.textContent} is required`;
+                // Get category from button
+                let category = this.getAttribute('data-category') || this.textContent.trim();
+                if (category === 'All') category = null;
+                if (category && category.includes('⭐')) {
+                    category = 'Special';
                 }
-                isValid = false;
-            } else {
-                formGroup.classList.remove('error');
-            }
-        });
 
-        return isValid;
-    }
+                // Get current availability state and search term
+                const available = getAvailabilityState();
+                const searchTerm = document.getElementById('searchInput').value.trim();
 
-    function initializeToggleState() {
-        const toggle = document.querySelector('.toggle-switch');
-        toggle.classList.add('active'); // Initially show only available items
-        toggle.style.backgroundColor = '#4CAF50'; // Green for available
-    }
+                console.log('[v0] Loading menu with category:', category, 'available:', available, 'search:', searchTerm);
 
-    console.log('[v0] Page loaded, initializing...');
-    showMainLoader();
-
-    console.log('[v0] Add new item button element:', document.getElementById('addNewItemBtn'));
-
-    function showLogoutModal() {
-        document.getElementById('logoutModal').style.display = 'block';
-    }
-
-    function hideLogoutModal() {
-        document.getElementById('logoutModal').style.display = 'none';
-    }
-
-    // confirm logout and erase cookies
-    async function confirmLogout() {
-        console.log("[DEBUG] Starting logout process...");
-
-        try {
-            // Call logout servlet
-            const response = await fetch('/AllForOneBuffetAPP/logout', {
-                method: 'POST',
-                headers: {
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                // Load menu with selected category
+                loadMenu(category, available, searchTerm);
             });
+        });
+    });
 
-            if (response.ok) {
-                console.log("[DEBUG] Server logout successful");
-            }
-        } catch (error) {
-            console.error('[DEBUG] Logout error:', error);
-        }
-
-        // Always clear client-side data and redirect
-        clearClientSideData();
-
-        // Clear browser history to prevent back button
-        window.history.pushState(null, null, window.location.href);
-
-        // Force redirect with cache busting
-        const timestamp = new Date().getTime();
-        window.location.replace(`login.html?t=${timestamp}`);
-    }
-
-    // Close modal when clicking outside of it
+    // Logout modal click outside event listener
     window.onclick = function(event) {
         const modal = document.getElementById('logoutModal');
         if (event.target === modal) {
@@ -2297,14 +2555,9 @@
         }
     }
 
-    initializeToggleState();
-    loadTodaysSpecial();
-    const defaultCategoryBtn = document.querySelector('.category-btn.active');
-    let defaultCategory = defaultCategoryBtn ? (defaultCategoryBtn.getAttribute('data-category') || defaultCategoryBtn.textContent.trim()) : 'All';
-    if (defaultCategory === 'All') defaultCategory = null;
-    const initialAvailable = getAvailabilityState(); // This will now return true (available only)
-    console.log('[v0] Initial load with category:', defaultCategory, 'available:', initialAvailable); // Debug log
-    loadMenu(defaultCategory, initialAvailable);
+    // ========================================
+    // CACHE PREVENTION & PAGE LIFECYCLE
+    // ========================================
 
     // Prevent caching with JavaScript
     window.addEventListener('beforeunload', function() {
@@ -2318,21 +2571,6 @@
         }
     });
 
-    // Add cache-busting timestamp to any AJAX requests
-    function fetchWithoutCache(url, options = {}) {
-        const timestamp = new Date().getTime();
-        const separator = url.includes('?') ? '&' : '?';
-        const cacheBustUrl = `${url}${separator}nocache=${timestamp}`;
-
-        return fetch(cacheBustUrl, {
-            ...options,
-            headers: {
-                'Cache-Control': 'no-cache',
-                ...options.headers
-            }
-        });
-    }
-
     // Force reload when coming back to this page
     window.addEventListener('pageshow', function(event) {
         if (event.persisted) {
@@ -2340,25 +2578,25 @@
         }
     });
 
-    function clearClientSideData() {
-        // Clear browser storage
-        try {
-            localStorage.clear();
-            sessionStorage.clear();
-        } catch (e) {
-            console.log("Storage clearing failed:", e);
-        }
+    // ========================================
+    // APPLICATION INITIALIZATION
+    // ========================================
 
-        // Clear any cached data
-        if ('caches' in window) {
-            caches.keys().then(names => {
-                names.forEach(name => caches.delete(name));
-            });
-        }
+    console.log('[v0] Page loaded, initializing...');
+    showMainLoader();
 
-        console.log("[DEBUG] Client-side data cleared");
-    }
+    // Initialize application state
+    initializeToggleState();
+    loadTodaysSpecial();
 
+    // Load initial menu with default filters
+    const defaultCategoryBtn = document.querySelector('.category-btn.active');
+    let defaultCategory = defaultCategoryBtn ? (defaultCategoryBtn.getAttribute('data-category') || defaultCategoryBtn.textContent.trim()) : 'All';
+    if (defaultCategory === 'All') defaultCategory = null;
+    const initialAvailable = getAvailabilityState(); // This will return true (available only)
+
+    console.log('[v0] Initial load with category:', defaultCategory, 'available:', initialAvailable);
+    loadMenu(defaultCategory, initialAvailable);
 </script>
 </body>
 </html>
