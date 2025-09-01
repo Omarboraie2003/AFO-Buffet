@@ -1,22 +1,19 @@
 package org.example;
 
-import org.example.model.MenuItem.MenuDAO;
-import org.example.model.MenuItem.MenuItem;
+import org.example.model.user.UserDAO;
 import org.example.util.DBConnection;
 
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
 
 public class Main {
-    public static void main(String[] args) throws SQLException {
-        testDatabaseConnection();
+    public static void main(String[] args) {
+//        testDatabaseConnection();
 
-        MenuDAO menuDAO = new MenuDAO();
-        List<MenuItem> menuItems=menuDAO.getAllMenuItems();
-        System.out.println(menuItems.toString());
+        UserDAO userDao = new UserDAO();
+        userDao.addNewUser("abcd@abc.com", "employee");
 
     }
+
 
     public static void testDatabaseConnection() {
         try (Connection conn = DBConnection.getConnection()) {
@@ -32,7 +29,5 @@ public class Main {
     }
 
 }
-
-
 
 

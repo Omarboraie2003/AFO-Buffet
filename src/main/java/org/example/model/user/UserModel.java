@@ -8,28 +8,31 @@ public class UserModel {
     private String accessLevel;
     private boolean is_registered;
     private boolean is_active;
+    private int cart_id;
 
     // --- Constructors ---
 
     // Use this when creating a new user (before DB insert)
-    public UserModel(int userId, String username, String passwordHash, String accessLevel, boolean is_registered, boolean is_active) {
+    public UserModel(int userId, String username, String passwordHash, String accessLevel, boolean is_registered, boolean is_active, int cart_id) {
         this.userId = userId;
         this.username = username;
         this.passwordHash = passwordHash;
         this.accessLevel = accessLevel;
         this.is_registered = is_registered;
         this.is_active = is_active;
+        this.cart_id = cart_id;
     }
 
 
-    // Use this when loading user from database (with userId)
-    public UserModel(String username, String passwordHash, String accessLevel, boolean is_registered, boolean isActive) {
-        this.username = username;
-        this.passwordHash = passwordHash;
-        this.accessLevel = accessLevel;
-        this.is_registered = is_registered;
-        this.is_active = isActive;
-    }
+        // Use this when loading user from database (with userId)
+   public UserModel(String username, String passwordHash, String accessLevel, boolean is_registered, boolean is_active, int cart_id) {
+            this.username = username;
+            this.passwordHash = passwordHash;
+            this.accessLevel = accessLevel;
+            this.is_registered = is_registered;
+            this.is_active = is_active;
+            this.cart_id = cart_id;
+        }
 
     // --- Getters and Setters ---
     public int getUserId() {
@@ -60,7 +63,7 @@ public class UserModel {
         this.accessLevel = accessLevel;
     }
 
-    public boolean isRegister() {return this.is_registered;}
+    public boolean isIs_registered() {return this.is_registered;}
     public void setRegister(boolean is_registered) {
         this.is_registered = is_registered;
     }
@@ -68,13 +71,20 @@ public class UserModel {
     public boolean isActive() { return this.is_active; }
     public void setActive(boolean is_active) { this.is_active = is_active; }
 
+    public int getCartId() {return cart_id;}
+    public void setCartId(int cart_id) {this.cart_id = cart_id;}
+
+    // --- toString() for easy printing ---
     @Override
     public String toString() {
         return "UserModel{" +
                 "userId=" + userId +
                 ", username='" + username + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
                 ", accessLevel='" + accessLevel + '\'' +
-                ", register=" + is_registered +
+                ", is_registered=" + is_registered +
+                ", is_active=" + is_active +
+                ", cart_id=" + cart_id +
                 '}';
     }
 }

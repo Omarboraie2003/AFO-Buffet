@@ -1,4 +1,6 @@
 package org.example.model.user;
+import org.example.model.Order.OrderDAO;
+import org.example.model.Order.OrderModel;
 import org.example.util.DBConnection;
 import java.sql.*;
 import org.example.util.PasswordUtils;
@@ -25,6 +27,31 @@ public class UserDAO {
             e.printStackTrace();
         }
         return null; // Return null if user not found or error
+    }
+
+    public UserModel getUserById(int user_id) {
+        String sqp = "select * from Users where user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sqp)) {
+            stmt.setInt(1, user_id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new UserModel(
+                        rs.getInt("user_id"),
+                        rs.getString("username"),
+                        rs.getString("password_hash"),
+                        rs.getString("access_level"),
+                        rs.getBoolean("is_registered"),
+                        rs.getBoolean("is_active"),
+                        rs.getInt("cart_id")
+                );
+            } else {
+                return null; // User not found
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     // --- Find user by email ---
@@ -55,6 +82,7 @@ public class UserDAO {
                     String accessLevel = rs.getString("access_level");
                     boolean register = rs.getBoolean("is_registered");
                     boolean isActive = rs.getBoolean("is_active");
+                    int cart_id = rs.getInt("cart_id");
 
                     System.out.println("User ID: " + userId);
                     System.out.println("Username: " + username);
@@ -63,8 +91,7 @@ public class UserDAO {
                     System.out.println("Register Status: " + register);
                     System.out.println("Active Status: " + isActive);
 
-                    UserModel user = new UserModel(userId, username, passwordHash, accessLevel, register, isActive);
-
+                    UserModel user = new UserModel(userId, username, passwordHash, accessLevel, register, isActive, cart_id);
                     user.setActive(isActive);
                     System.out.println("UserModel created successfully");
                     return user;
@@ -113,7 +140,7 @@ public class UserDAO {
     // --- Get all users (admin only) ---
     public List<UserModel> getAllUsers() {
         List<UserModel> users = new ArrayList<>();
-        String sql = "SELECT user_id, username, password_hash, access_level,is_registered, is_active FROM Users ORDER BY username";
+        String sql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id FROM Users ORDER BY username";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -126,11 +153,9 @@ public class UserDAO {
                         rs.getString("password_hash"),
                         rs.getString("access_level"),
                         rs.getBoolean("is_registered"),
-                        rs.getBoolean("is_active")
+                        rs.getBoolean("is_active"),
+                        rs.getInt("cart_id")
                 );
-
-                user.setActive(rs.getBoolean("is_active"));
-                ;
                 user.setActive(rs.getBoolean("is_active"));
                 users.add(user);
             }
@@ -142,18 +167,17 @@ public class UserDAO {
 
     // --- Add new user with default password (admin only) ---
     public boolean addNewUser(String email, String role) {
-        String defaultPassword = "temppass123";
-        String hashedPassword = PasswordUtils.hashPassword(defaultPassword);
-        String sql = "INSERT INTO Users (username, password_hash, access_level, is_registered, is_active) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (username, password_hash, access_level, is_registered, is_active, cart_id) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, email);
-            stmt.setString(2, hashedPassword);
+            stmt.setString(2, null);
             stmt.setString(3, role);
             stmt.setInt(4, 0); // register = 0 initially
             stmt.setInt(5, 1); // is_active = 1 by default
+            stmt.setNull(6, Types.INTEGER); // cart_id = NULL initially
 
             return stmt.executeUpdate() > 0;
 
@@ -260,11 +284,12 @@ public class UserDAO {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());
             stmt.setString(3, user.getAccessLevel());
-            stmt.setBoolean(4, user.isRegister());
+            stmt.setBoolean(4, user.isIs_registered());
             stmt.setBoolean(5, user.isActive());
             stmt.setInt(6, user.getUserId());
 
             return stmt.executeUpdate() > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -287,7 +312,8 @@ public class UserDAO {
                         rs.getString("password_hash"),
                         rs.getString("access_level"),
                         rs.getBoolean("is_registered"),
-                        rs.getBoolean("is_active")
+                        rs.getBoolean("is_active"),
+                        rs.getInt("cart_id")
                 );
 
             }
@@ -336,7 +362,7 @@ public class UserDAO {
     // --- Get only active users ---
     public List<UserModel> getActiveUsers() {
         List<UserModel> users = new ArrayList<>();
-        String sql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active FROM Users WHERE is_active = 1 ORDER BY username";
+        String sql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id FROM Users WHERE is_active = 1 ORDER BY username";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -349,7 +375,8 @@ public class UserDAO {
                         rs.getString("password_hash"),
                         rs.getString("access_level"),
                         rs.getBoolean("is_registered"),
-                        rs.getBoolean("is_active")
+                        rs.getBoolean("is_active"),
+                        rs.getInt("cart_id")
                 );
                 user.setActive(rs.getBoolean("is_active"));
                 users.add(user);
@@ -362,7 +389,7 @@ public class UserDAO {
 
     public List<UserModel> getInactiveUsers() {
         List<UserModel> users = new ArrayList<>();
-        String sql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active FROM Users WHERE is_active = 0 ORDER BY username";
+        String sql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id FROM Users WHERE is_active = 0 ORDER BY username";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -375,7 +402,8 @@ public class UserDAO {
                         rs.getString("password_hash"),
                         rs.getString("access_level"),
                         rs.getBoolean("is_registered"),
-                        rs.getBoolean("is_active")
+                        rs.getBoolean("is_active"),
+                        rs.getInt("cart_id")
                 );
                 user.setActive(rs.getBoolean("is_active"));
                 users.add(user);
@@ -386,4 +414,15 @@ public class UserDAO {
         return users;
     }
 
+    public void updateUserCartId(int userId, int cartId) {
+        String sql = "UPDATE Users SET cart_id = ? WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, cartId);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -1,5 +1,4 @@
 package org.example.util;
-
 import org.mindrot.jbcrypt.BCrypt;
 import java.util.Scanner;
 
@@ -22,7 +21,6 @@ public class PasswordUtils {
 
         // Hash the password
         String hashedPassword = hashPassword(password);
-        System.out.println("Stored hashed password: " + hashedPassword);
 
         System.out.print("Enter password for " + username + ": ");
         String inputPassword = scanner.nextLine();
@@ -33,7 +31,5 @@ public class PasswordUtils {
         } else {
             System.out.println("Invalid username or password.");
         }
-
-        scanner.close();
     }
 }

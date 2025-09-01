@@ -79,7 +79,7 @@ public class LoginServlet extends HttpServlet {
                 if ("chef".equalsIgnoreCase(user.getAccessLevel())) {
                     response.sendRedirect("chefWelcomePage.html");
                 } else {
-                    response.sendRedirect("employeeHomePage.html");
+                    response.sendRedirect("EmployeeMenu.html");
                 }
             } else {
                 System.out.println("[DEBUG][LoginServlet] Invalid password for username: " + username);
