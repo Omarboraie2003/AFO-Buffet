@@ -5,30 +5,32 @@ import java.util.ArrayList;
 
 public class OrderModel {
     private int orderId;
-    private int employeeId;
+    private int user_id;
     private LocalDateTime orderDate;
-    private String status;
+    private String order_status;
     private ArrayList<Integer> item_ids;
     private ArrayList<Integer> item_options;
     private ArrayList<Integer> item_notes_ids;
 
 
+
+
     public OrderModel() {}
 
-    public OrderModel(int orderId, int employeeId, LocalDateTime orderDate, String status) {
+    public OrderModel(int orderId, int user_id, LocalDateTime orderDate, String order_status) {
         this.orderId = orderId;
-        this.employeeId = employeeId;
+        this.user_id = user_id;
         this.orderDate = orderDate;
-        this.status = status;
+        this.order_status = order_status;
         this.item_ids = new ArrayList<>();
         this.item_options = new ArrayList<>();
         this.item_notes_ids = new ArrayList<>();
     }
 
-    public OrderModel(int employeeId, LocalDateTime orderDate, String status) {
-        this.employeeId = employeeId;
+    public OrderModel(int user_id, LocalDateTime orderDate, String status) {
+        this.user_id = user_id;
         this.orderDate = orderDate;
-        this.status = status;
+        this.order_status = order_status;
         this.item_ids = new ArrayList<>();
         this.item_options = new ArrayList<>();
         this.item_notes_ids = new ArrayList<>();
@@ -37,14 +39,14 @@ public class OrderModel {
     public int getOrderId() { return orderId; }
     public void setOrderId(int orderId) { this.orderId = orderId; }
 
-    public int getEmployeeId() { return employeeId; }
-    public void setEmployeeId(int employeeId) { this.employeeId = employeeId; }
+    public int getUser_id() { return user_id; }
+    public void setUser_id(int user_id) { this.user_id = user_id; }
 
     public LocalDateTime getOrderDate() { return orderDate; }
     public void setOrderDate(LocalDateTime orderDate) { this.orderDate = orderDate; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getStatus() { return order_status; }
+    public void setStatus(String order_status) { this.order_status = order_status; }
 
     public ArrayList<Integer> getOrderItemIds() { return item_ids; }
     public void setOrderItemIds(ArrayList<Integer> menuItemIds) { this.item_ids = menuItemIds; }
@@ -57,11 +59,13 @@ public class OrderModel {
     public ArrayList<Integer> getItemNotesIds() { return item_notes_ids; }
     public void setItemNotesIds(ArrayList<Integer> item_notes_ids) { this.item_notes_ids = item_notes_ids; }
 
+
+
     public void showOrderDetails() {
         System.out.println("Order ID: " + orderId);
-        System.out.println("Employee ID: " + employeeId);
+        System.out.println("Employee ID: " + user_id);
         System.out.println("Order Date: " + orderDate);
-        System.out.println("Status: " + status);
+        System.out.println("Status: " + order_status);
         System.out.println("Menu Item IDs: " + item_ids);
     }
 }

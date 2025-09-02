@@ -286,8 +286,7 @@ public class UserDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             OrderDAO orderDAO = new OrderDAO();
-            OrderModel cart = new OrderModel(user.getUserId(), null, "cart");
-            orderDAO.addOrder(cart);
+            orderDAO.createCartForUser(user.getUserId());
 
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());

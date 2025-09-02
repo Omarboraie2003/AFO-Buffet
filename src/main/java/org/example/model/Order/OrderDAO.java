@@ -30,13 +30,27 @@ public class OrderDAO {
     }
 
     public boolean addOrder(OrderModel order) throws SQLException {
-        String sql = "INSERT INTO Orders (user_id, order_date, status, item_ids) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Orders (user_id, order_date, order_status, item_ids) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, order.getEmployeeId());
+            ps.setInt(1, order.getUser_id());
             ps.setTimestamp(2, order.getOrderDate() == null ? null : Timestamp.valueOf(LocalDateTime.now()));
             ps.setString(3, order.getStatus());
             ps.setString(4, parseArrayListToString(order.getOrderItemIds()));
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean createCartForUser(int user_id) {
+        String sql = "INSERT INTO Orders (user_id, order_status, item_ids) VALUES (?, ?, ?)";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, user_id);
+            ps.setString(2, "cart");
+            ps.setString(3, "");
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -53,7 +67,7 @@ public class OrderDAO {
             OrderModel order = new OrderModel();
             if (rs.next()) {
                 order.setOrderId(rs.getInt("order_id"));
-                order.setEmployeeId(rs.getInt("user_id"));
+                order.setUser_id(rs.getInt("user_id"));
                 Timestamp ts = rs.getTimestamp("order_date");
                 if (ts != null) {
                     LocalDateTime ldt = ts.toLocalDateTime();
@@ -81,7 +95,7 @@ public class OrderDAO {
         while (rs.next()) {
             OrderModel order = new OrderModel();
             order.setOrderId(rs.getInt("order_id"));
-            order.setEmployeeId(rs.getInt("user_id"));
+            order.setUser_id(rs.getInt("user_id"));
             order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
             order.setStatus(rs.getString("order_status"));
             order.setOrderItemIds(parseStringToArrayList(rs.getString("item_ids")));
@@ -91,17 +105,17 @@ public class OrderDAO {
         return orders;
     }
 
-    public ArrayList<OrderModel> getOrdersByEmployee(int employeeId) throws SQLException {
+    public ArrayList<OrderModel> getOrdersByEmployee(int user_id) throws SQLException {
         ArrayList<OrderModel> orders = new ArrayList<>();
-        String sql = "SELECT * FROM Orders WHERE employeeId = ?";
+        String sql = "SELECT * FROM Orders WHERE user_id = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setInt(1, employeeId);
+        ps.setInt(1, user_id);
         ResultSet rs = ps.executeQuery();
 
         while (rs.next()) {
             OrderModel order = new OrderModel();
             order.setOrderId(rs.getInt("order_id"));
-            order.setEmployeeId(rs.getInt("user_id"));
+            order.setUser_id(rs.getInt("user_id"));
             order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
             order.setStatus(rs.getString("order_status"));
             orders.add(order);
@@ -148,9 +162,9 @@ public class OrderDAO {
     }
 
     public void updateCart(int orderId, OrderModel updatedOrder) throws SQLException {
-        String sql = "UPDATE Orders SET user_id = ?, status = ?, item_ids = ? WHERE order_id = ?";
+        String sql = "UPDATE Orders SET user_id = ?, order_status = ?, item_ids = ? WHERE order_id = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setInt(1, updatedOrder.getEmployeeId());
+        ps.setInt(1, updatedOrder.getUser_id());
         ps.setString(2, updatedOrder.getStatus());
         ArrayList<Integer> ls = updatedOrder.getOrderItemIds();
         ps.setString(3, ls != null ? parseArrayListToString(ls) : "");
@@ -166,18 +180,27 @@ public class OrderDAO {
     }
 
     public int checkIfCartExists(int user_id) {
-        String sql = "SELECT * FROM Orders WHERE user_id = ? AND status = 'cart'";
+        String sql = "SELECT order_id FROM Orders WHERE user_id = ? AND order_status = 'cart'";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, user_id);
             ResultSet rs = stmt.executeQuery();
-            rs.next(); // If there's a result, the cart exists
-            return rs.getInt("order_id");
+
+            if (rs.next()) {
+                // cart exists, return ID
+                return rs.getInt("order_id");
+            } else {
+                // no cart found
+                return -1;
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
-            return -1;
+            return -1; // signal error
         }
     }
+
 
     public void confirmCart(int user_id) throws SQLException {
         OrderModel order = getOrderById(checkIfCartExists(user_id));
@@ -194,6 +217,28 @@ public class OrderDAO {
 //        userDAO.updateUser(user);
         userDAO.updateUserCartId(user_id, user.getCartId());
     }
+    public boolean removeItemFromCart(int orderId, int itemId) {
+        try {
+            // Fetch the current cart
+            OrderModel cart = getOrderById(orderId);
+            if (cart == null) return false;
+
+            // Remove the item if it exists
+            ArrayList<Integer> items = cart.getOrderItemIds();
+            boolean removed = items.removeIf(id -> id == itemId);
+
+            if (!removed) return false; // Item was not in cart
+
+            // Update the cart in DB
+            cart.setOrderItemIds(items);
+            updateCart(orderId, cart);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     public static void main(String[] args) {
         OrderDAO dao = new OrderDAO();
