@@ -30,7 +30,7 @@ public class OrderDAO {
     }
 
     public boolean addOrder(OrderModel order) throws SQLException {
-        String sql = "INSERT INTO Orders (user_id, order_date, status, item_ids) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Orders (user_id, order_date, order_status, item_ids) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, order.getEmployeeId());
@@ -148,7 +148,7 @@ public class OrderDAO {
     }
 
     public void updateCart(int orderId, OrderModel updatedOrder) throws SQLException {
-        String sql = "UPDATE Orders SET user_id = ?, status = ?, item_ids = ? WHERE order_id = ?";
+        String sql = "UPDATE Orders SET user_id = ?, order_status = ?, item_ids = ? WHERE order_id = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setInt(1, updatedOrder.getEmployeeId());
         ps.setString(2, updatedOrder.getStatus());
@@ -166,7 +166,7 @@ public class OrderDAO {
     }
 
     public int checkIfCartExists(int user_id) {
-        String sql = "SELECT * FROM Orders WHERE user_id = ? AND status = 'cart'";
+        String sql = "SELECT * FROM Orders WHERE user_id = ? AND order_status = 'cart'";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, user_id);
