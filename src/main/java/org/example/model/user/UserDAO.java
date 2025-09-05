@@ -278,16 +278,13 @@ public class UserDAO {
     // --- Set the new password that the user entered while registering ---
     public boolean registerUser(UserModel user) {
 
-
-
         String sql = "UPDATE Users SET username = ?, password_hash = ?, access_level = ?, is_registered = ?, is_active = ?, cart_id = ? WHERE user_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             OrderDAO orderDAO = new OrderDAO();
-            OrderModel cart = new OrderModel(user.getUserId(), null, "cart");
-            orderDAO.addOrder(cart);
+            orderDAO.createCartForUser(user.getUserId());
 
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());

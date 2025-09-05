@@ -30,13 +30,13 @@ public class OrderDAO {
     }
 
     public boolean addOrder(OrderModel order) throws SQLException {
-        String sql = "INSERT INTO Orders (user_id, order_date, status, item_ids) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Orders (user_id, order_date, order_status, order_note) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, order.getEmployeeId());
+            ps.setInt(1, order.getUser_id());
             ps.setTimestamp(2, order.getOrderDate() == null ? null : Timestamp.valueOf(LocalDateTime.now()));
             ps.setString(3, order.getStatus());
-            ps.setString(4, parseArrayListToString(order.getOrderItemIds()));
+            ps.setString(4, order.getOrderNote());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -44,7 +44,20 @@ public class OrderDAO {
         }
     }
 
-    public OrderModel getOrderById(int order_id) throws SQLException {
+    public boolean createCartForUser(int user_id) throws SQLException {
+        String sql = "INSERT INTO Orders (user_id, order_status) VALUES (?, ?)";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, user_id);
+            ps.setString(2, "cart");
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public OrderModel getOrderById(int order_id) {
         String sql = "SELECT * FROM Orders WHERE order_id = ?";
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -53,7 +66,7 @@ public class OrderDAO {
             OrderModel order = new OrderModel();
             if (rs.next()) {
                 order.setOrderId(rs.getInt("order_id"));
-                order.setEmployeeId(rs.getInt("user_id"));
+                order.setUser_id(rs.getInt("user_id"));
                 Timestamp ts = rs.getTimestamp("order_date");
                 if (ts != null) {
                     LocalDateTime ldt = ts.toLocalDateTime();
@@ -62,7 +75,6 @@ public class OrderDAO {
                     System.out.println("order_date is NULL in DB");
                 }
                 order.setStatus(rs.getString("order_status"));
-                order.setOrderItemIds(parseStringToArrayList(rs.getString("item_ids")));
             }
             return order;
         } catch (SQLException e) {
@@ -72,7 +84,6 @@ public class OrderDAO {
     }
 
     public ArrayList<OrderModel> getAllOrders() throws SQLException {
-
         ArrayList<OrderModel> orders = new ArrayList<>();
         String sql = "SELECT * FROM Orders";
         PreparedStatement ps = conn.prepareStatement(sql);
@@ -81,10 +92,9 @@ public class OrderDAO {
         while (rs.next()) {
             OrderModel order = new OrderModel();
             order.setOrderId(rs.getInt("order_id"));
-            order.setEmployeeId(rs.getInt("user_id"));
+            order.setUser_id(rs.getInt("user_id"));
             order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
             order.setStatus(rs.getString("order_status"));
-            order.setOrderItemIds(parseStringToArrayList(rs.getString("item_ids")));
             orders.add(order);
         }
 
@@ -101,12 +111,11 @@ public class OrderDAO {
         while (rs.next()) {
             OrderModel order = new OrderModel();
             order.setOrderId(rs.getInt("order_id"));
-            order.setEmployeeId(rs.getInt("user_id"));
+            order.setUser_id(rs.getInt("user_id"));
             order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
             order.setStatus(rs.getString("order_status"));
             orders.add(order);
         }
-
         return orders;
     }
 
@@ -148,12 +157,10 @@ public class OrderDAO {
     }
 
     public void updateCart(int orderId, OrderModel updatedOrder) throws SQLException {
-        String sql = "UPDATE Orders SET user_id = ?, status = ?, item_ids = ? WHERE order_id = ?";
+        String sql = "UPDATE Orders SET user_id = ?, order_status = ?, item_ids = ? WHERE order_id = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setInt(1, updatedOrder.getEmployeeId());
+        ps.setInt(1, updatedOrder.getUser_id());
         ps.setString(2, updatedOrder.getStatus());
-        ArrayList<Integer> ls = updatedOrder.getOrderItemIds();
-        ps.setString(3, ls != null ? parseArrayListToString(ls) : "");
         ps.setInt(4, orderId);
         ps.executeUpdate();
     }
@@ -166,7 +173,7 @@ public class OrderDAO {
     }
 
     public int checkIfCartExists(int user_id) {
-        String sql = "SELECT * FROM Orders WHERE user_id = ? AND status = 'cart'";
+        String sql = "SELECT * FROM Orders WHERE user_id = ? AND order_status = 'cart'";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, user_id);
@@ -186,7 +193,7 @@ public class OrderDAO {
         updateCart(order.getOrderId(), order);
         // Create a new cart for the user
         OrderModel newCart = new OrderModel(user_id, null, "cart");
-        addOrder(newCart);
+            addOrder(newCart);
         // Update user's cart_id
         UserDAO userDAO = new UserDAO();
         UserModel user = userDAO.getUserById(user_id);
@@ -202,9 +209,5 @@ public class OrderDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-//        UserDAO userDAO = new UserDAO();
-//        UserModel user = userDAO.getUserById(2);
-//        user.setCartId(dao.checkIfCartExists(user.getUserId()));
-//        userDAO.updateUser(user);
     }
 }
