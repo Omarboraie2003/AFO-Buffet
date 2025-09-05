@@ -30,13 +30,13 @@ public class OrderDAO {
     }
 
     public boolean addOrder(OrderModel order) throws SQLException {
-        String sql = "INSERT INTO Orders (user_id, order_date, status, item_ids) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Orders (user_id, order_date, status, order_note) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, order.getEmployeeId());
             ps.setTimestamp(2, order.getOrderDate() == null ? null : Timestamp.valueOf(LocalDateTime.now()));
             ps.setString(3, order.getStatus());
-            ps.setString(4, parseArrayListToString(order.getOrderItemIds()));
+            ps.setString(4, order.getOrderNote());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -62,7 +62,6 @@ public class OrderDAO {
                     System.out.println("order_date is NULL in DB");
                 }
                 order.setStatus(rs.getString("order_status"));
-                order.setOrderItemIds(parseStringToArrayList(rs.getString("item_ids")));
             }
             return order;
         } catch (SQLException e) {
@@ -84,7 +83,6 @@ public class OrderDAO {
             order.setEmployeeId(rs.getInt("user_id"));
             order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
             order.setStatus(rs.getString("order_status"));
-            order.setOrderItemIds(parseStringToArrayList(rs.getString("item_ids")));
             orders.add(order);
         }
 
@@ -148,13 +146,11 @@ public class OrderDAO {
     }
 
     public void updateCart(int orderId, OrderModel updatedOrder) throws SQLException {
-        String sql = "UPDATE Orders SET user_id = ?, status = ?, item_ids = ? WHERE order_id = ?";
+        String sql = "UPDATE Orders SET user_id = ?, status = ? WHERE order_id = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setInt(1, updatedOrder.getEmployeeId());
         ps.setString(2, updatedOrder.getStatus());
-        ArrayList<Integer> ls = updatedOrder.getOrderItemIds();
-        ps.setString(3, ls != null ? parseArrayListToString(ls) : "");
-        ps.setInt(4, orderId);
+        ps.setInt(3, orderId);
         ps.executeUpdate();
     }
 
