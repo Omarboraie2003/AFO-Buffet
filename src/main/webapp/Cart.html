@@ -191,7 +191,35 @@
             font-weight: 600;
             color: #4a5568;
         }
-
+        /* Notes */
+        .order-notes-title {
+            font-weight: 600;
+            margin: 15px 0 5px;
+        }
+        .notes-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        /* Order button */
+        .order-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 30px;
+            background: #ff6b35;
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .order-btn:hover {
+            background: #e85a2c;
+        }
 
         .item-image {
             width: 130px;
@@ -242,6 +270,119 @@
 
         .confirm-order-btn:active {
             transform: translateY(-1px);
+        }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .popup-overlay.active {
+            display: flex;
+        }
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+        }
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        /* Overlay */
+        .popup-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none; /* stays hidden until JS shows it */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* Popup container */
+        .popup-content {
+            background: #fff;
+            border-radius: 12px;
+            max-width: 900px;
+            width: 90%;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Close button */
+        .popup-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #eee;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .product-image img {
+            max-width: 280px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        /* Details */
+        .product-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        /* Bread options */
+        .bread-section {
+            margin: 20px 0;
+        }
+        .bread-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .bread-options {
+            display: flex;
+            gap: 15px;
+        }
+        .bread-option label {
+            margin-left: 5px;
+        }
+
+        /* Description */
+        .product-description {
+            margin: 15px 0;
+            color: #444;
+        }
+
+        /* Notes */
+        .order-notes-title {
+            font-weight: 600;
+            margin: 15px 0 5px;
+        }
+        .notes-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
         }
         @media (max-width: 768px) {
             .header {
@@ -323,8 +464,8 @@
             <button class="notification-btn"><i class="fi fi-rr-bell"></i></button>
 
             <nav class="nav-menu">
-                <a href="#" class="nav-item">Home</a>
-                <a href="#" class="menu-dropdown">
+                <a href="EmployeeMenu.html" class="nav-item">Home</a>
+                <a href="EmployeeMenu.html" class="menu-dropdown">
                     Menu
                     <i class="fi fi-rr-angle-down dropdown-arrow"></i>
                 </a>
@@ -334,40 +475,115 @@
         </div>
     </header>
 
+    <div class="popup-overlay" id="itemPopup">
+        <div class="popup-content">
+            <!-- Close button -->
+            <button class="popup-close" onclick="closeItemPopup()">×</button>
+
+            <main class="main-content">
+                <!-- Product Image -->
+                <div class="product-image">
+                    <img id="popupProductImage" src="" alt="Product Image">
+                </div>
+
+                <!-- Product Details -->
+                <div class="product-details">
+                    <!-- Title -->
+                    <h1 class="product-title" id="popupProductTitle"></h1>
+
+
+
+                    <!-- Description -->
+                    <p class="description-label">Description of the item:</p>
+                    <p class="product-description" id="popupProductDescription">
+                        <!-- JS will fill this -->
+                    </p>
+
+                    <!-- Bread Section (only for sandwiches) -->
+                    <div class="bread-section" id="popupBreadSection" style="display:none;">
+                        <div class="bread-title">Bread :</div>
+                        <div class="bread-options">
+                            <div class="bread-option">
+                                <input type="radio" id="eish" name="bread" value="eish">
+                                <label for="eish">eish baladi</label>
+                            </div>
+                            <div class="bread-option">
+                                <input type="radio" id="toast" name="bread" value="toast" checked>
+                                <label for="toast">toast</label>
+                            </div>
+                            <div class="bread-option">
+                                <input type="radio" id="tortilla" name="bread" value="tortilla">
+                                <label for="tortilla">tortilla</label>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- Quantity Section -->
+                    <div class="bread-section" id="popupQuantitySection" style="display:none;">
+                        <div class="bread-title">Quantity :</div>
+                        <div class="bread-options">
+                            <div class="bread-option">
+                                <input type="radio" id="half" name="quantity" value="half">
+                                <label for="half">half</label>
+                            </div>
+                            <div class="bread-option">
+                                <input type="radio" id="one" name="quantity" value="one" checked>
+                                <label for="one">one</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Notes -->
+                    <div class="order-notes">
+                        <div class="order-notes-title">Order Notes:</div>
+                        <textarea id="popupNotes" class="notes-input" placeholder="Type here"></textarea>
+                    </div>
+
+                    <!-- Order Button -->
+                    <button class="order-btn" id="popupUpdateBtn">Update </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
     <main class="main-content">
         <h1 class="page-title">Cart list</h1>
-
-        <div class="cart-items">
-            <div class="cart-item">
-                <img src="Sandwich.png"Tuna Sandwich" class="item-image">
-                <div class="item-details">
-                    <h3 class="item-name">Tuna Sandwich</h3>
-
-                    <div class="order-notes">
-                        <span class="order-notes-label">Order notes:</span> no pickles, add more mayo
-                    </div>
-                </div>
-                <div class="item-price-section">
-
-                    <button class="delete-btn" onclick="removeItem(this)"><i class="fi fi-br-trash"></i></button>
-                </div>
-
-            </div>
-
-            <div class="cart-item">
-                <img src="nuggets.png" alt="Nuggets plate" class="item-image">
-                <div class="item-details">
-                    <h3 class="item-name">Nuggets plate</h3>
-                    <div class="order-notes">
-                        <span class="order-notes-label">Order notes:</span> add bbq sauce
-                    </div>
-                </div>
-                <div class="item-price-section">
-
-                    <button class="delete-btn" onclick="removeItem(this)"><i class="fi fi-br-trash"></i></button>
-                </div>
-            </div>
+        <div class="cart-items" id="cartContainer">
+            <!-- Items will be injected here -->
         </div>
+
+<!--        <div class="cart-items">-->
+<!--            -->
+<!--            <div class="cart-item">-->
+<!--                <img src="Sandwich.png"Tuna Sandwich" class="item-image">-->
+<!--                <div class="item-details">-->
+<!--                    <h3 class="item-name">Tuna Sandwich</h3>-->
+
+<!--                    <div class="order-notes">-->
+<!--                        <span class="order-notes-label">Order notes:</span> no pickles, add more mayo-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="item-price-section">-->
+
+<!--                    <button class="delete-btn" onclick="removeItem(this)"><i class="fi fi-br-trash"></i></button>-->
+<!--                </div>-->
+
+<!--            </div>-->
+
+<!--            <div class="cart-item">-->
+<!--                <img src="nuggets.png" alt="Nuggets plate" class="item-image">-->
+<!--                <div class="item-details">-->
+<!--                    <h3 class="item-name">Nuggets plate</h3>-->
+<!--                    <div class="order-notes">-->
+<!--                        <span class="order-notes-label">Order notes:</span> add bbq sauce-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="item-price-section">-->
+
+<!--                    <button class="delete-btn" onclick="removeItem(this)"><i class="fi fi-br-trash"></i></button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
         <button class="confirm-order-btn" onclick="confirmOrder()">Confirm order</button>
     </main>
@@ -378,24 +594,174 @@
         console.log('[v0] Going back to previous page');
         // Add navigation logic here
     }
+    document.addEventListener("DOMContentLoaded", loadCart);
 
-    function removeItem(button) {
-        const cartItem = button.closest('.cart-item');
-        cartItem.style.opacity = '0';
-        cartItem.style.transform = 'translateX(100px)';
-        cartItem.style.transition = 'all 0.3s ease';
+    function loadCart() {
+        fetch(`/AllForOneBuffetAPP/addToCart`) // no userId
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("cartContainer");
+                container.innerHTML = "";
 
-        setTimeout(() => {
-            cartItem.remove();
-            console.log('[v0] Item removed from cart');
-        }, 300);
+                if (data.success && data.items.length > 0) {
+                    data.items.forEach(item => {
+                        const div = document.createElement("div");
+                        div.classList.add("cart-item");
+
+                        // Determine image source for each item
+                        let imageSrc = "";
+                        if (item.photoUrl && item.photoUrl !== null) {
+                            imageSrc = `Images/${item.photoUrl}`;
+                        }
+
+                        div.innerHTML = `
+                        <img src="${imageSrc}" alt="${item.item_name}" class="item-image">
+                        <div class="item-details">
+                            <h3 class="item-name">${item.item_name}</h3>
+                            <div class="order-notes">
+                                <span class="order-notes-label">Order notes:</span> ${item.notes || ""}
+                            </div>
+                        </div>
+                        <div class="item-price-section">
+
+                            <button class="delete-btn" onclick="removeItem(this, ${item.item_id})">
+                                <i class="fi fi-br-trash"></i>
+                            </button>
+                        </div>
+                    `;
+
+                        // Replace card.addEventListener with div.addEventListener
+                        div.addEventListener("click", (e) => {
+                            // Prevent click from triggering when clicking edit/delete buttons
+                            if (!e.target.closest(".edit-btn") && !e.target.closest(".delete-btn")) {
+                                openItemPopup(item);
+                            }
+                        });
+
+                        container.appendChild(div);                    });
+                } else {
+                    container.innerHTML = "<p>Your cart is empty.</p>";
+                }
+            })
+            .catch(err => {
+                console.error("Failed to load cart", err);
+                const container = document.getElementById("cartContainer");
+                container.innerHTML = "<p>Failed to load cart.</p>";
+            });
     }
+    function openItemPopup(item, onConfirm) {
+        // Set title and image
+        document.getElementById("popupProductTitle").textContent = item.item_name;
+
+        const imgEl = document.getElementById("popupProductImage");
+        imgEl.src = item.photoUrl ? `Images/${item.photoUrl}` : "Images/falafel.png";
+        imgEl.alt = item.item_name;
+
+        // Set description
+        document.getElementById("popupProductDescription").textContent = item.item_description || "No description available.";
+
+        // Show/hide bread & quantity section
+        const category = (item.item_category || "").toLowerCase();
+        if (category.includes("sandwich")) {
+            document.getElementById("popupBreadSection").style.display = "block";
+            document.getElementById("popupQuantitySection").style.display = "block";
+        } else {
+            document.getElementById("popupBreadSection").style.display = "none";
+            document.getElementById("popupQuantitySection").style.display = "none";
+        }
+
+        // Prefill notes
+        document.getElementById("popupNotes").value = item.notes || "";
+
+        // Prefill quantity
+        if (item.quantity) {
+            const quantityInput = document.querySelector(`#popupQuantitySection input[value="${item.quantity}"]`);
+            if (quantityInput) quantityInput.checked = true;
+        }
+
+        // Prefill bread
+        if (item.bread) {
+            const breadInput = document.querySelector(`#popupBreadSection input[value="${item.bread}"]`);
+            if (breadInput) breadInput.checked = true;
+        }
+
+        // Show popup
+        document.getElementById("itemPopup").classList.add("active");
+        document.body.style.overflow = "hidden";
+        const orderBtn = document.getElementById("popupUpdateBtn");
+        orderBtn.onclick = () => updateCartItem(item);
+
+        // Set order/update button
+
+    }
+
+    function closeItemPopup() {
+        document.getElementById("itemPopup").classList.remove("active");
+        document.body.style.overflow = "auto";
+    }
+
+
+    function removeItem(button, itemId) {
+        const cartItem = button.closest(".cart-item");
+            cartItem.style.opacity = '0';
+            cartItem.style.transform = 'translateX(100px)';
+            cartItem.style.transition = 'all 0.3s ease';
+
+            setTimeout(() => {
+                cartItem.remove();
+                console.log('[v0] Item removed from cart');
+            }, 300);
+        fetch(`/AllForOneBuffetAPP/removeFromCart?itemId=${itemId}`, {
+            method: "POST"
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    // Remove from UI only if backend confirms
+                    cartItem.remove();
+                } else {
+                    console.error("Failed to remove item:", data.message);
+                    alert("Failed to remove item: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error("Error removing item from cart:", err);
+                alert("Error removing item from cart");
+            });
+    }
+
+    function updateCartItem(itemId) {
+        const notes = document.getElementById("popupNotes").value || "";
+
+        fetch(`/AllForOneBuffetAPP/updateCartItem`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ itemId, notes })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    closeItemPopup();
+                    loadCart(); // reload cart UI
+                } else {
+                    alert("Failed to update item: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error("Error updating item in cart:", err);
+                alert("Error updating item in cart");
+            });
+    }
+
 
     function confirmOrder() {
-        console.log('[v0] Confirming order');
-        alert('Order confirmed! Redirecting to payment...');
-        // Add order confirmation logic here
+        alert("Order confirmed! Redirecting to payment...");
+        //     alert('Order confirmed! Redirecting to payment...');
+
+        // TODO: call servlet to mark cart as confirmed
     }
+
+
 </script>
 </body>
 </html>

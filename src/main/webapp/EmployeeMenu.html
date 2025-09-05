@@ -466,33 +466,7 @@
             align-items: center;
         }
 
-        .price {
-            font-family: 'Inter', sans-serif;
-            font-weight: 600; /* Semi Bold */
-            transform: translateX(-10px);
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #333;
-        }
-        .price::after {
-            content: " EGP";   /* adds EGP after the number */
-            font-size: 14px;   /* adjust size */
-            font-weight: 500;  /* make it match */
-            color: #666;       /* slightly faded if needed */
-        }
 
-
-        .rating {
-            font-family: 'Inter', sans-serif;
-            font-weight: 600; /* Semi Bold */
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: #333;
-            font-size: 0.9rem;
-            transform: translateX(20px);
-
-        }
 
         .add-btn {
             position: absolute;
@@ -519,10 +493,7 @@
             width: 100%;
         }
 
-        .menu-card {
-            flex: 0 0 calc(33.333% - 20px);  /* exactly 3 visible cards */
-            box-sizing: border-box;
-        }
+
         html {
             scroll-behavior: smooth;
         }
@@ -785,6 +756,23 @@
                 max-width: 100%;
             }
         }
+        #cart-link {
+            position: relative; /* make it the reference for the badge */
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -20px;       /* move above the icon */
+            right: 35px;    /* move slightly to the right */
+            color: #ff6b35;
+            font-size: 18px;
+            font-weight: bold;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            border-radius: 50%;
+        }
 
     </style>
 </head>
@@ -799,7 +787,12 @@
                 <li><a href="#" class="active">Home</a></li>
                 <li><a href="#categories">Menu</a></li>
                 <li><a href="#">History</a></li>
-                <li><a href="#">Cart</a></li>
+                <li>
+                    <a href="Cart.html" id="cart-link">
+                        🛒 Cart <span id="cart-count" class="cart-count">0</span>
+                    </a>
+                </li>
+
             </ul>
         </nav>
     </div>
@@ -827,11 +820,12 @@
     <div class="container">
         <div class="nuggets-content">
             <div class="nuggets-text">
-                <h2 id="special-dish-title">NUGGETS</h2>
-                <button class="order-btn">Order now</button>
+                <h2 id="special-dish-title">Loading...</h2>
+                <button class="order-btn" id="order-btn">Order now</button>
+
             </div>
             <div class="nuggets-image">
-                <img id="special-dish-image" src="Images/nuggets.png" alt="Chicken Nuggets">
+                <img id="special-dish-image" src="Images/falafel.png" alt="Special Dish">
                 <p class="special-text">Today's special</p>
             </div>
             <div class="nuggets-arrow1">
@@ -843,7 +837,6 @@
         </div>
     </div>
 </section>
-
 
 <!-- Categories Section -->
 <section id="categories" class="categories">
@@ -1062,7 +1055,7 @@
                 </div>
 
                 <!-- Order Button -->
-                <button class="order-btn">Order now</button>
+                <button class="order-btn" id="popupOrderBtn">Order now</button>
             </div>
         </main>
     </div>
@@ -1073,23 +1066,25 @@
 <script>
 
     function setupNavigation() {
-        // Setup navigation for menu cards
-        const menuGrid = document.querySelector('.menu-grid');
-        const prevBtn = document.querySelector('.nav-arrows .nav-arrow:first-child');
-        const nextBtn = document.querySelector('.nav-arrows .nav-arrow:last-child');
-        if (menuGrid && prevBtn && nextBtn) {
-            // ✅ check if there’s at least one menu-card
-            const firstCard = menuGrid.querySelector('.menu-card');
-            const cardWidth = firstCard ? firstCard.offsetWidth + 20 : 250; // fallback width
+        // Find all sections
+        document.querySelectorAll(".menu-section").forEach(section => {
+            const menuGrid = section.querySelector(".menu-grid");
+            const prevBtn = section.querySelector(".nav-arrow.nav-arrow-left");
+            const nextBtn = section.querySelector(".nav-arrow.nav-arrow-right");
 
-            prevBtn.addEventListener('click', () => {
-                menuGrid.scrollBy({ left: -cardWidth, behavior: 'smooth' });
-            });
+            if (menuGrid && prevBtn && nextBtn) {
+                const firstCard = menuGrid.querySelector(".menu-card");
+                const cardWidth = firstCard ? firstCard.offsetWidth + 20 : 250;
 
-            nextBtn.addEventListener('click', () => {
-                menuGrid.scrollBy({ left: cardWidth, behavior: 'smooth' });
-            });
-        }
+                prevBtn.addEventListener("click", () => {
+                    menuGrid.scrollBy({ left: -cardWidth, behavior: "smooth" });
+                });
+
+                nextBtn.addEventListener("click", () => {
+                    menuGrid.scrollBy({ left: cardWidth, behavior: "smooth" });
+                });
+            }
+        });
 
 
         // Smooth scroll to nuggets section when clicking Explore
@@ -1135,9 +1130,10 @@
                 const card = document.createElement("div");
                 card.className = "menu-card";
 
-                let imageSrc = "Images/falafel.png";
-                if (item.photoUrl && item.photoUrl !== null) {
-                    imageSrc = `Images/${item.photoUrl}`;
+                let imageSrc = "";
+
+                if (item.photo_url && item.photo_url !== null) {
+                    imageSrc = `Images/${item.photo_url}`;
                 }
 
                 card.innerHTML = `
@@ -1166,7 +1162,9 @@
     function openItemPopup(item) {
         document.getElementById("popupProductTitle").textContent = item.item_name;
 
-        document.getElementById("popupProductImage").src = `Images/${item.photoUrl || "falafel.png"}`;
+        document.getElementById("popupProductImage").src =`Images/${item.photo_url}`;
+
+
         document.getElementById("popupProductImage").alt = item.item_name;
         document.getElementById("popupProductDescription").textContent = item.item_description || "No description available.";
 
@@ -1180,6 +1178,9 @@
 
         document.getElementById("itemPopup").classList.add("active");
         document.body.style.overflow = "hidden";
+        const orderBtn = document.getElementById("popupOrderBtn");
+        orderBtn.onclick = () => addToCart(item);
+
     }
 
 
@@ -1191,12 +1192,10 @@
 
     async function loadSpecialDish() {
         try {
-            // Call backend for today's special
             const res = await fetch("/AllForOneBuffetAPP/menu?is_special=true");
-            if (!res.ok) {
-                throw new Error("Servlet response error: " + res.status);
-            }
-            const special = await res.json();
+            if (!res.ok) throw new Error("Servlet response error: " + res.status);
+
+            const special = await res.json(); // single dish
             console.log("Raw special response:", special);
 
             if (!special) {
@@ -1204,23 +1203,82 @@
                 return;
             }
 
-            // Update DOM
             const titleEl = document.getElementById("special-dish-title");
             const imgEl = document.getElementById("special-dish-image");
+            const orderBtn = document.getElementById("order-btn");
+
 
             if (titleEl) titleEl.textContent = special.item_name;
             if (imgEl) {
-                imgEl.src = `Images/${special.photoUrl || "falafel.png"}`;
+                imgEl.src = `Images/${special.photo_url || "falafel.png"}`;
                 imgEl.alt = special.item_name;
             }
+            // 🔹 Attach addToCart for the special dish
+            if (orderBtn) {
+                orderBtn.onclick = () => addToCart(special);
+            }
 
+            console.log("Today's special loaded:", special.item_name);
             console.log("Today's special loaded:", special.item_name);
 
         } catch (err) {
             console.error("Error loading today's special:", err);
         }
     }
+    window.addEventListener("DOMContentLoaded", loadSpecialDish);
 
+
+    document.addEventListener("DOMContentLoaded", loadSpecialDish);
+
+    async function addToCart(item) {
+        try {
+            const payload = new URLSearchParams();
+            payload.append("itemId", item.item_id);
+
+            const res = await fetch("/AllForOneBuffetAPP/addToCart", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: payload.toString()
+            });
+
+            const data = await res.json();
+            console.log("🔎 Response from server:", data);
+
+            if (data.order_status === "success") {  // 🔑 notice order_status
+                console.log("Item added to cart:", data);
+                const countEl = document.getElementById("cart-count");
+                countEl.textContent = parseInt(countEl.textContent) + 1;
+                closeItemPopup();
+            } else {
+                alert("Failed to add item: " + data.message);
+            }
+        } catch (err) {
+            console.error("Error adding to cart:", err);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        updateCartCount();
+    });
+
+    // Function to fetch cart items and update the count
+    function updateCartCount() {
+        fetch('/AllForOneBuffetAPP/addToCart') // or your endpoint that returns cart items
+            .then(res => res.json())
+            .then(data => {
+                const countEl = document.getElementById("cart-count");
+                if (data.success && data.items) {
+                    // Set cart count to number of items in the array
+                    countEl.textContent = data.items.length;
+                } else {
+                    countEl.textContent = 0;
+                }
+            })
+            .catch(err => {
+                console.error("Failed to fetch cart items:", err);
+                document.getElementById("cart-count").textContent = 0;
+            });
+    }
     function initializeMenu() {
         console.log("Initializing dynamic menu...");
 
