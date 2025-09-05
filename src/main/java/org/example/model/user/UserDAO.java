@@ -191,6 +191,9 @@ public class UserDAO {
     public boolean deleteUser(int userId) {
         String sql = "DELETE FROM Users WHERE user_id = ?";
 
+        OrderDAO orderDAO = new OrderDAO();
+        orderDAO.deleteAllOrdersForUser(userId); // Delete all orders associated with the user
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -286,15 +289,14 @@ public class UserDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             OrderDAO orderDAO = new OrderDAO();
-            OrderModel cart = new OrderModel(user.getUserId(), null, "cart");
-            orderDAO.addOrder(cart);
+            int cart_id = orderDAO.createCart(user.getUserId());
 
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());
             stmt.setString(3, user.getAccessLevel());
             stmt.setBoolean(4, user.isIs_registered());
             stmt.setBoolean(5, user.isActive());
-            stmt.setInt(6, orderDAO.checkIfCartExists(user.getUserId()));
+            stmt.setInt(6, cart_id);
             stmt.setInt(7, user.getUserId());
 
             return stmt.executeUpdate() > 0;
@@ -433,5 +435,11 @@ public class UserDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void confirmUserCart(int userId) {
+        OrderDAO.confirmCart(userId);
+        int new_cart_id = OrderDAO.createCart(userId);
+        updateUserCartId(userId, new_cart_id);
     }
 }

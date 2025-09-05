@@ -9,6 +9,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.model.user.UserDAO;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -45,21 +46,21 @@ public class RemoveFromCartServlet extends HttpServlet {
             int removeItemId = Integer.parseInt(removeItemParam);
 
             // ✅ Get user's cart
-            int cartId = orderDAO.checkIfCartExists(userId);
+            int cartId = new UserDAO().getUserById(userId).getCartId();
             if (cartId == -1) {
                 out.write(gson.toJson(new Response("error", "Cart not found")));
                 return;
             }
 
             OrderModel cart = orderDAO.getOrderById(cartId);
-            if (cart.getOrderItemIds() != null && cart.getOrderItemIds().removeIf(id -> id == removeItemId)) {
-                orderDAO.updateCart(cartId, cart);
+            if (cart.getItemInOrderIds() != null && cart.getItemInOrderIds().removeIf(id -> id == removeItemId)) {
+                orderDAO.updateCart(cart);
                 out.write(gson.toJson(new Response("success", "Item removed from cart")));
             } else {
                 out.write(gson.toJson(new Response("error", "Item not found in cart")));
             }
 
-        } catch (SQLException | NumberFormatException e) {
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             out.write(gson.toJson(new Response("error", e.getMessage())));

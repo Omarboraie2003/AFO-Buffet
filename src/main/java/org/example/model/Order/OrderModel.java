@@ -21,6 +21,15 @@ public class OrderModel {
         this.numberOfItems = 0;
         this.item_in_order_ids = new ArrayList<>();
     }
+    public OrderModel(int orderId, int user_id, LocalDateTime orderDate, String status, String order_note) {
+        this.orderId = orderId;
+        this.user_id = user_id;
+        this.orderDate = orderDate;
+        this.order_status = status;
+        this.order_note = order_note;
+        this.item_in_order_ids = item_in_order_ids;
+        this.numberOfItems = item_in_order_ids.size();
+    }
 
     public int getOrderId() { return orderId; }
     public void setOrderId(int orderId) { this.orderId = orderId; }
@@ -31,17 +40,23 @@ public class OrderModel {
     public LocalDateTime getOrderDate() { return orderDate; }
     public void setOrderDate(LocalDateTime orderDate) { this.orderDate = orderDate; }
 
-    public String getStatus() { return order_status; }
-    public void setStatus(String status) { this.order_status = status; }
+    public String getOrderStatus() { return order_status; }
+    public void setOrderStatus(String status) { this.order_status = status; }
 
-    public void addItemToOrder(int ItemInOrderId) {
-        this.item_in_order_ids.add(numberOfItems, ItemInOrderId);
+    public ArrayList<Integer> getItemInOrderIds() { return item_in_order_ids; }
+    public void setItemInOrderIds(ArrayList<Integer> item_in_order_ids) {
+        this.item_in_order_ids = item_in_order_ids;
         this.numberOfItems = this.item_in_order_ids.size();
     }
-//    public void removeItemFromOrder(int menuItemId) {
-//        this.item_ids.remove(Integer.valueOf(menuItemId));
-//        this.numberOfItems = this.item_ids.size();
-//    }
+
+    public void addItem(int item_in_order_id) {
+        this.item_in_order_ids.add(numberOfItems, item_in_order_id);
+        this.numberOfItems = this.item_in_order_ids.size();
+    }
+    public void removeItem(int item_in_order_id) {
+        this.item_in_order_ids.remove(Integer.valueOf(item_in_order_id));
+        this.numberOfItems = this.item_in_order_ids.size();
+    }
 
     public int getNumberOfItems() { return numberOfItems; }
     public void setNumberOfItems(int numberOfItems) { this.numberOfItems = numberOfItems; }

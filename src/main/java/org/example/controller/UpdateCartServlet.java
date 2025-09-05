@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.model.Order.OrderDAO;
 import org.example.model.Order.OrderModel;
+import org.example.model.user.UserDAO;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -41,7 +42,7 @@ public class UpdateCartServlet extends HttpServlet {
         try {
             UpdateCartItemRequest requestData = gson.fromJson(req.getReader(), UpdateCartItemRequest.class);
 
-            int cartId = orderDAO.checkIfCartExists(userId);
+            int cartId = new UserDAO().getUserById(userId).getCartId();
             if (cartId == -1) {
                 out.write(gson.toJson(Map.of("status", "error", "message", "Cart not found")));
                 return;
@@ -69,7 +70,7 @@ public class UpdateCartServlet extends HttpServlet {
             }
 
             // Save updated cart
-            orderDAO.updateCart(cartId, cart);
+            orderDAO.updateCart(cart);
 
             out.write(gson.toJson(Map.of("status", "success")));
 

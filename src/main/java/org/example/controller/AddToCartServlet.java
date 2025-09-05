@@ -7,13 +7,13 @@ import org.example.model.MenuItem.MenuDAO;
 
 
 import org.example.model.Order.OrderModel;
-import com.google.gson.Gson;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.model.user.UserDAO;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -49,40 +49,42 @@ public class AddToCartServlet extends HttpServlet {
                 return;
             }
 
+            //todo: change itemId to item in order id
             int itemId = Integer.parseInt(req.getParameter("itemId"));
 
             // Check if a cart already exists
-            int cartId = orderDAO.checkIfCartExists(userId);
+            int cartId = new UserDAO().getUserById(userId).getCartId();
 
             if (cartId != -1) {
                 OrderModel existingCart = orderDAO.getOrderById(cartId);
-                if (existingCart.getOrderItemIds() == null) {
-                    existingCart.setOrderItemIds(new ArrayList<>());
-                }
-                existingCart.addOrderItemId(itemId);
-                orderDAO.updateCart(cartId, existingCart);
+//                if (existingCart.getItemInOrderIds() == null) {
+//                    existingCart.setItemInOrderIds(new ArrayList<>());
+//                }
+                existingCart.addItem(itemId);
+                orderDAO.updateCart(existingCart);
 
                 out.write(gson.toJson(new Response("success", "Item added to existing cart", cartId)));
-            } else {
-                OrderModel newCart = new OrderModel();
-                newCart.setUser_id(userId);
-                newCart.setOrderDate(LocalDateTime.now());
-                newCart.setStatus("cart");
-                newCart.setOrderItemIds(new ArrayList<>());
-                newCart.addOrderItemId(itemId);
-
-                boolean inserted = orderDAO.addOrder(newCart);
-
-                if (inserted) {
-                    int newCartId = orderDAO.checkIfCartExists(userId);
-                    out.write(gson.toJson(new Response("success", "New cart created and item added", newCartId)));
-                } else {
-                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    out.write(gson.toJson(new Response("error", "Failed to create cart", -1)));
-                }
             }
+//            else {
+//                OrderModel newCart = new OrderModel();
+//                newCart.setEmployeeId(userId);
+//                newCart.setOrderDate(LocalDateTime.now());
+//                newCart.setOrderStatus("cart");
+//                newCart.setItemInOrderIds(new ArrayList<>());
+//                newCart.addItem(itemId);
+//
+//                boolean inserted = orderDAO.addOrder(newCart);
+//
+//                if (inserted) {
+//                    int newCartId = orderDAO.checkIfCartExists(userId);
+//                    out.write(gson.toJson(new Response("success", "New cart created and item added", newCartId)));
+//                } else {
+//                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+//                    out.write(gson.toJson(new Response("error", "Failed to create cart", -1)));
+//                }
+//            }
 
-        } catch (SQLException | NumberFormatException e) {
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
@@ -110,45 +112,36 @@ public class AddToCartServlet extends HttpServlet {
             return;
         }
 
-        try {
-            int cartId = orderDAO.checkIfCartExists(userId);
-            if (cartId == -1) {
-                out.write(gson.toJson(Map.of("success", true, "items", new ArrayList<>())));
-                return;
-            }
+        int cartId = new UserDAO().getUserById(userId).getCartId();
+        if (cartId == -1) {
+            out.write(gson.toJson(Map.of("success", true, "items", new ArrayList<>())));
+            return;
+        }
 
-            OrderModel cart = orderDAO.getOrderById(cartId);
-            List<Map<String, Object>> items = new ArrayList<>();
+        OrderModel cart = orderDAO.getOrderById(cartId);
+        List<Map<String, Object>> items = new ArrayList<>();
 
-            if (cart.getOrderItemIds() != null) {
-                for (Integer itemId : cart.getOrderItemIds()) {
-                    MenuItem item = menuDAO.getMenuItemById(itemId); // 🔹 get full item from DB
-                    if (item != null) {
-                        Map<String, Object> itemData = new HashMap<>();
-                        itemData.put("item_id", item.getId());
-                        itemData.put("item_name", item.getName());
-                        itemData.put("photoUrl", item.getPhotoUrl());
-                        itemData.put("item_description", item.getDescription()); // optional
-                        itemData.put("notes", ""); // optional
-                        items.add(itemData);
-                    }
+        if (cart.getItemInOrderIds() != null) {
+            for (Integer itemId : cart.getItemInOrderIds()) {
+                MenuItem item = menuDAO.getMenuItemById(itemId); // 🔹 get full item from DB
+                if (item != null) {
+                    Map<String, Object> itemData = new HashMap<>();
+                    itemData.put("item_id", item.getId());
+                    itemData.put("item_name", item.getName());
+                    itemData.put("photoUrl", item.getPhotoUrl());
+                    itemData.put("item_description", item.getDescription()); // optional
+                    itemData.put("notes", ""); // optional
+                    items.add(itemData);
                 }
             }
-
-            out.write(gson.toJson(Map.of(
-                    "success", true,
-                    "cartId", cartId,
-                    "items", items
-            )));
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            out.write(gson.toJson(Map.of(
-                    "success", false,
-                    "message", e.getMessage()
-            )));
         }
+
+        out.write(gson.toJson(Map.of(
+                "success", true,
+                "cartId", cartId,
+                "items", items
+        )));
+
     }
 
     // ✅ Helper class for JSON responses

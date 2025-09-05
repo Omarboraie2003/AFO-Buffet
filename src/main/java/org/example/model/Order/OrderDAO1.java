@@ -11,37 +11,37 @@ import java.util.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-public class OrderDAO {
-    private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=BuffetDB;encrypt=true;trustServerCertificate=true";
-    private static final String USER = "sa";
-    private static final String PASSWORD = "MySecurePass123";
-    private Connection conn;
+public class OrderDAO1 {
 
-
-    // Constructor opens the connection
-    public OrderDAO() {
-        try {
-            conn = DriverManager.getConnection(URL, USER, PASSWORD);
-            System.out.println("✅ Database connected successfully!");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("❌ Failed to connect to database!");
-        }
-    }
-
-    public boolean addOrder(OrderModel order) throws SQLException {
+    public static boolean addOrder(OrderModel order) throws SQLException {
         String sql = "INSERT INTO Orders (user_id, order_date, status, order_note) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, order.getEmployeeId());
             ps.setTimestamp(2, order.getOrderDate() == null ? null : Timestamp.valueOf(LocalDateTime.now()));
-            ps.setString(3, order.getStatus());
+            ps.setString(3, order.getOrderStatus());
             ps.setString(4, order.getOrderNote());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static int createCartForUser(int user_id) {
+        String sql = "INSERT INTO Orders (user_id) VALUES (?)";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, user_id);
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1); // Return the generated cart ID
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // Indicate failure
     }
 
     public OrderModel getOrderById(int order_id) throws SQLException {
@@ -61,7 +61,7 @@ public class OrderDAO {
                 } else {
                     System.out.println("order_date is NULL in DB");
                 }
-                order.setStatus(rs.getString("order_status"));
+                order.setOrderStatus(rs.getString("order_status"));
             }
             return order;
         } catch (SQLException e) {
@@ -74,6 +74,7 @@ public class OrderDAO {
 
         ArrayList<OrderModel> orders = new ArrayList<>();
         String sql = "SELECT * FROM Orders";
+        Connection conn = DBConnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
 
@@ -82,7 +83,7 @@ public class OrderDAO {
             order.setOrderId(rs.getInt("order_id"));
             order.setEmployeeId(rs.getInt("user_id"));
             order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
-            order.setStatus(rs.getString("order_status"));
+            order.setOrderStatus(rs.getString("order_status"));
             orders.add(order);
         }
 
@@ -92,6 +93,7 @@ public class OrderDAO {
     public ArrayList<OrderModel> getOrdersByEmployee(int employeeId) throws SQLException {
         ArrayList<OrderModel> orders = new ArrayList<>();
         String sql = "SELECT * FROM Orders WHERE employeeId = ?";
+        Connection conn = DBConnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setInt(1, employeeId);
         ResultSet rs = ps.executeQuery();
@@ -101,7 +103,7 @@ public class OrderDAO {
             order.setOrderId(rs.getInt("order_id"));
             order.setEmployeeId(rs.getInt("user_id"));
             order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
-            order.setStatus(rs.getString("order_status"));
+            order.setOrderStatus(rs.getString("order_status"));
             orders.add(order);
         }
 
@@ -135,6 +137,7 @@ public class OrderDAO {
     public ArrayList<Integer> getOrderItemIds(int orderId) throws SQLException {
         ArrayList<Integer> items = new ArrayList<>();
         String sql = "SELECT * FROM Orders WHERE orderId = ?";
+        Connection conn = DBConnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setInt(1, orderId);
         ResultSet rs = ps.executeQuery();
@@ -147,15 +150,17 @@ public class OrderDAO {
 
     public void updateCart(int orderId, OrderModel updatedOrder) throws SQLException {
         String sql = "UPDATE Orders SET user_id = ?, status = ? WHERE order_id = ?";
+        Connection conn = DBConnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setInt(1, updatedOrder.getEmployeeId());
-        ps.setString(2, updatedOrder.getStatus());
+        ps.setString(2, updatedOrder.getOrderStatus());
         ps.setInt(3, orderId);
         ps.executeUpdate();
     }
 
     public void deleteOrder(int orderId) throws SQLException {
         String sql = "DELETE FROM Orders WHERE order_id = ?";
+        Connection conn = DBConnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setInt(1, orderId);
         ps.executeUpdate();
@@ -177,7 +182,7 @@ public class OrderDAO {
 
     public void confirmCart(int user_id) throws SQLException {
         OrderModel order = getOrderById(checkIfCartExists(user_id));
-        order.setStatus("pending");
+        order.setOrderStatus("pending");
         order.setOrderDate(LocalDateTime.now());
         updateCart(order.getOrderId(), order);
         // Create a new cart for the user
@@ -193,14 +198,21 @@ public class OrderDAO {
 
     public static void main(String[] args) {
         OrderDAO dao = new OrderDAO();
-        try {
-            dao.confirmCart(2);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-//        UserDAO userDAO = new UserDAO();
+        dao.confirmCart(2);
+        //        UserDAO userDAO = new UserDAO();
 //        UserModel user = userDAO.getUserById(2);
 //        user.setCartId(dao.checkIfCartExists(user.getUserId()));
 //        userDAO.updateUser(user);
+    }
+
+    public void deleteAllOrdersForUser(int userId) {
+        String sql = "DELETE FROM Orders WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
