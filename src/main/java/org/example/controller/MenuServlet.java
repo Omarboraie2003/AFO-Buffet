@@ -450,7 +450,7 @@ public class MenuServlet extends HttpServlet {
         }
 
         String contentType = filePart.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
+        if (contentType == null || !contentType.startsWith("Images/")) {
             throw new IOException("Only image files are allowed");
         }
 
@@ -469,7 +469,7 @@ public class MenuServlet extends HttpServlet {
         String uniqueFileName = System.currentTimeMillis() + "_" + sanitizedFileName;
 
         // Get the real path to the webapp directory
-        String uploadPath = request.getServletContext().getRealPath("/") + "images" + File.separator + "menu-items";
+        String uploadPath = request.getServletContext().getRealPath("/") + "Images";
 
         // Create directory if it doesn't exist
         File uploadDir = new File(uploadPath);
@@ -484,7 +484,7 @@ public class MenuServlet extends HttpServlet {
         Files.write(filePath, compressedImageData);
 
         // Return the URL path that can be used by the frontend
-        return request.getContextPath() + "/images/menu-items/" + uniqueFileName;
+        return request.getContextPath() + "/Images/" + uniqueFileName;
     }
 
     private byte[] compressImageTo700KB(InputStream inputStream) throws IOException {
