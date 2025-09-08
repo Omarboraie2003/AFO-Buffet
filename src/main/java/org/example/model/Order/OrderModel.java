@@ -13,14 +13,6 @@ public class OrderModel {
     private ArrayList<Integer> item_in_order_ids; // key: index, value: item_in_order_id
 
     public OrderModel() {}
-    public OrderModel(int user_id, LocalDateTime orderDate, String status) {
-        this.user_id = user_id;
-        this.orderDate = orderDate;
-        this.order_status = status;
-        this.order_note = null;
-        this.numberOfItems = 0;
-        this.item_in_order_ids = new ArrayList<>();
-    }
     public OrderModel(int orderId, int user_id, LocalDateTime orderDate, String status, String order_note) {
         this.orderId = orderId;
         this.user_id = user_id;

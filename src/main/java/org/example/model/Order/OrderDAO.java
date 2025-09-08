@@ -1,5 +1,6 @@
 package org.example.model.Order;
 
+import org.example.model.ItemInOrder.ItemInOrderDAO;
 import org.example.util.DBConnection;
 
 import java.sql.*;
@@ -20,7 +21,8 @@ public class OrderDAO {
                 Timestamp ts = rs.getTimestamp("order_date");
                 String order_note = rs.getString("order_note");
                 String order_status = rs.getString("order_status");
-                return new OrderModel(order_id, user_id, ts != null ? ts.toLocalDateTime() : null, order_note, order_status);
+                OrderModel order = new OrderModel(order_id, user_id, ts != null ? ts.toLocalDateTime() : null, order_note, order_status);
+                order.setItemInOrderIds(ItemInOrderDAO.getItemsInOrder(order_id));
             }
         } catch (SQLException e) {e.printStackTrace();}
         return null;
@@ -68,7 +70,7 @@ public class OrderDAO {
     }
 
     public static boolean deleteOrder(int order_id) {
-        //todo: delete items in order as well
+        ItemInOrderDAO.deleteAllItemsInOrder(order_id); // delete items in order as well
         String sql = "DELETE FROM Orders WHERE order_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -87,9 +89,5 @@ public class OrderDAO {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {e.printStackTrace();}
             return false;
-    }
-
-    public static void main(String[] args) {
-
     }
 }

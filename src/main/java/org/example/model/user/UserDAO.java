@@ -442,4 +442,20 @@ public class UserDAO {
         int new_cart_id = OrderDAO.createCart(userId);
         updateUserCartId(userId, new_cart_id);
     }
+
+    public int getUserCartId(int userId) {
+        String sql = "SELECT cart_id FROM Users WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int cart_id = rs.getInt(1);
+                return cart_id;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
 }
