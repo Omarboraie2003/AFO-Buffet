@@ -1348,7 +1348,7 @@
         <div class="form-group">
             <label for="itemPhoto">Photo:</label>
             <div style="display:flex; align-items:center; gap:8px;">
-                <input type="file" id="itemPhoto" name="photo" accept="image/*" style="flex:1; padding:8px; border:1px solid rgba(255,255,255,0.2); border-radius:6px; font-size:13px; background:rgba(255,255,255,0.08); color:white;">
+                <input type="file" id="itemPhoto" name="photo" accept="Images/*" style="flex:1; padding:8px; border:1px solid rgba(255,255,255,0.2); border-radius:6px; font-size:13px; background:rgba(255,255,255,0.08); color:white;">
                 <button type="button" id="removeNewPhoto" onclick="removeNewItemPhoto()" style="display:none; width:30px; height:30px; background:#f44336; color:white; border:none; border-radius:50%; cursor:pointer; font-size:14px; font-weight:bold;">×</button>
             </div>
             <small style="color:#ccc; font-size:11px; margin-top:3px; display:block;">Optional: Upload a photo (JPG, PNG, GIF)</small>
@@ -1414,7 +1414,7 @@
         <div class="form-group">
             <label for="editItemPhoto">Photo:</label>
             <div style="display:flex; align-items:center; gap:8px;">
-                <input type="file" id="editItemPhoto" name="photo" accept="image/*" style="flex:1; padding:8px; border:1px solid rgba(255,255,255,0.2); border-radius:6px; font-size:13px; background:rgba(255,255,255,0.08); color:white;">
+                <input type="file" id="editItemPhoto" name="photo" accept="Images/*" style="flex:1; padding:8px; border:1px solid rgba(255,255,255,0.2); border-radius:6px; font-size:13px; background:rgba(255,255,255,0.08); color:white;">
                 <button type="button" id="removeEditPhoto" onclick="removeEditItemPhoto()" style="display:none; width:30px; height:30px; background:#f44336; color:white; border:none; border-radius:50%; cursor:pointer; font-size:14px; font-weight:bold;">×</button>
             </div>
             <small style="color:#ccc; font-size:11px; margin-top:3px; display:block;">Optional: Upload new photo to replace current</small>
@@ -1650,7 +1650,7 @@
         imageDiv.className = 'product-image';
         if (item.photo_url) {
             const img = document.createElement('img');
-            img.src = item.photo_url;
+            img.src = 'Images/' + item.photo_url;
             img.loading = 'lazy';
             img.style.width = "100%";
             img.style.height = "100%";
@@ -2291,7 +2291,7 @@
 
         if (file) {
             // Validate file type
-            if (!file.type.startsWith('Image/')) {
+            if (!file.type.startsWith('Images/')) {
                 showToast('error', 'Invalid File Type', 'Please select an image file (JPG, PNG, GIF).');
                 e.target.value = '';
                 return;
@@ -2331,7 +2331,6 @@
                 e.target.value = '';
                 return;
             }
-
             if (file.size > 50 * 1024 * 1024) {
                 showToast('error', 'File Too Large', 'Please select an image smaller than 50MB.');
                 e.target.value = '';
