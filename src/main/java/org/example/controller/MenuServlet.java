@@ -365,9 +365,6 @@ public class MenuServlet extends HttpServlet {
             return "Item name is required";
         }
 
-        if (item.getDescription() == null || item.getDescription().trim().isEmpty()) {
-            return "Item description is required";
-        }
 
         if (item.getCategory() == null || item.getCategory().trim().isEmpty()) {
             return "Item category is required";
