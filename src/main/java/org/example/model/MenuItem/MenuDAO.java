@@ -86,54 +86,55 @@ public class MenuDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             ResultSet rs = stmt.executeQuery();
+            System.out.println("🔍 DEBUG: Starting getAllMenuItems() - Total items found: ");
+            int itemCount = 0;
+
             while (rs.next()) {
-                items.add(mapRowToMenuItem(rs));
+                itemCount++;
+                System.out.println("=== DEBUG: Processing item #" + itemCount + " ===");
+                System.out.println("Item ID: " + rs.getInt("item_id"));
+                System.out.println("Item Name: " + rs.getString("item_name"));
+                System.out.println("Raw is_available value: " + rs.getObject("is_available"));
+                System.out.println("Raw is_available type: " + rs.getObject("is_available").getClass().getName());
+                System.out.println("getBoolean result: " + rs.getBoolean("is_available"));
+                System.out.println("getInt result: " + rs.getInt("is_available"));
+                System.out.println("getString result: " + rs.getString("is_available"));
+
+                MenuItem item = mapRowToMenuItem(rs);
+                System.out.println("Final MenuItem isAvailable: " + item.isAvailable());
+                System.out.println("================================");
+
+                items.add(item);
             }
+            System.out.println("🔍 DEBUG: getAllMenuItems() completed - Total items processed: " + itemCount);
         } catch (SQLException e) {
+            System.err.println("❌ ERROR in getAllMenuItems(): " + e.getMessage());
             e.printStackTrace();
         }
         return items;
     }
-
-
-
-    //update omar menu
-    public boolean updateMenuItem(MenuItem item) {
-        String sql = "UPDATE MenuItems SET item_name = ?, item_description = ?, is_available = ?, item_type = ?, item_category = ?, is_special = ?, photo_url = ? WHERE item_id = ?";
-
+    // Get all available items (for employees)
+    public List<MenuItem> getAllMenuItemsE() throws SQLException {
+        List<MenuItem> items = new ArrayList<>();
+        String sql = "SELECT * FROM MenuItems";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, item.getName());
-            stmt.setString(2, item.getDescription());
-            stmt.setBoolean(3, item.isAvailable());
-            stmt.setString(4, item.getType());
-            stmt.setString(5, item.getCategory());
-            stmt.setBoolean(6, item.isSpecial());
-            stmt.setString(7, item.getPhotoUrl());
-            stmt.setInt(8, item.getId());
-
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                items.add(new MenuItem(
+                        rs.getInt("item_id"),
+                        rs.getString("item_name"),
+                        rs.getString("item_description"),
+                        rs.getBoolean("is_available"),
+                        rs.getString("item_type"),
+                        rs.getString("item_category"),
+                        rs.getString("photo_url"),
+                        rs.getBoolean("is_special")
+                ));
+            }
         }
+        return items;
     }
-    // delete
-    public boolean deleteMenuItem(int id) {
-        String sql = "DELETE FROM MenuItems WHERE item_id = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, id);
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     // Get menu items by category
     public List<MenuItem> getMenuItemsByCategoryE(String item_category) throws SQLException {
         List<MenuItem> items = new ArrayList<>();
@@ -440,16 +441,72 @@ public class MenuDAO {
         return items;
     }
 
+    // update omar menu
+    public boolean updateMenuItem(MenuItem item) {
+        String sql = "UPDATE MenuItems SET item_name = ?, item_description = ?, is_available = ?, item_type = ?, item_category = ?, is_special = ?, photo_url = ? WHERE item_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            System.out.println("🔍 DEBUG updateMenuItem - Item ID: " + item.getId());
+            System.out.println("🔍 DEBUG updateMenuItem - Item Name: " + item.getName());
+            System.out.println("🔍 DEBUG updateMenuItem - Setting is_available to: " + item.isAvailable());
+
+            stmt.setString(1, item.getName());
+            stmt.setString(2, item.getDescription());
+            stmt.setBoolean(3, item.isAvailable());
+            stmt.setString(4, item.getType());
+            stmt.setString(5, item.getCategory());
+            stmt.setBoolean(6, item.isSpecial());
+            stmt.setString(7, item.getPhotoUrl());
+            stmt.setInt(8, item.getId());
+
+            int rowsUpdated = stmt.executeUpdate();
+            System.out.println("🔍 DEBUG updateMenuItem - Rows updated: " + rowsUpdated);
+
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ ERROR in updateMenuItem(): " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // delete
+    public boolean deleteMenuItem(int id) {
+        String sql = "DELETE FROM MenuItems WHERE item_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private MenuItem mapRowToMenuItem(ResultSet rs) throws SQLException {
         MenuItem item = new MenuItem();
         item.setId(rs.getInt("item_id"));
         item.setName(rs.getString("item_name"));
         item.setDescription(rs.getString("item_description"));
-        item.setAvailable(rs.getBoolean("is_available"));
+
+        Object rawAvailability = rs.getObject("is_available");
+        boolean availabilityValue = rs.getBoolean("is_available");
+        System.out.println("🔍 DEBUG mapRowToMenuItem - Raw DB value: " + rawAvailability + " (type: " + rawAvailability.getClass().getName() + ")");
+        System.out.println("🔍 DEBUG mapRowToMenuItem - Converted to boolean: " + availabilityValue);
+
+        item.setAvailable(availabilityValue);
+
         item.setType(rs.getString("item_type"));
         item.setCategory(rs.getString("item_category"));
         item.setSpecial(rs.getBoolean("is_special"));
         item.setPhotoUrl(rs.getString("photo_url"));
+
+        System.out.println("🔍 DEBUG mapRowToMenuItem - Final item.isAvailable(): " + item.isAvailable());
+
         return item;
     }
 }

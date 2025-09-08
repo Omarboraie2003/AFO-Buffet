@@ -4,6 +4,7 @@ import org.example.model.user.UserDAO;
 import org.example.model.user.UserModel;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,12 +13,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serial;
 
-
 public class LoginServlet extends HttpServlet {
 
     @Serial
     private static final long serialVersionUID = 1L;
     private final UserDAO userDAO = new UserDAO();
+
+    // 10 months in seconds
+    private static final int TEN_MONTHS_IN_SECONDS = 10 * 30 * 24 * 60 * 60;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -66,15 +69,22 @@ public class LoginServlet extends HttpServlet {
                 // 🔹 Regenerate session ID for security
                 request.changeSessionId();
 
+                // Set session attributes
                 session.setAttribute("userId", user.getUserId());
                 session.setAttribute("username", user.getUsername());
                 session.setAttribute("accessLevel", user.getAccessLevel());
                 session.setAttribute("isLoggedIn", true);
-                session.setMaxInactiveInterval(1800);
+
+                // Set session timeout to 10 months (in seconds)
+                session.setMaxInactiveInterval(TEN_MONTHS_IN_SECONDS);
+
+                // 🍪 Create persistent cookies for 10 months
+                createUserCookies(response, user.getUserId(), user.getUsername(), user.getAccessLevel());
 
                 System.out.println("[DEBUG][LoginServlet] Session created for user: " + username +
                         ", Role: " + user.getAccessLevel() +
-                        ", SessionId: " + session.getId());
+                        ", SessionId: " + session.getId() +
+                        ", Cookies created for 10 months");
 
                 if ("chef".equalsIgnoreCase(user.getAccessLevel())) {
                     response.sendRedirect("chefWelcomePage.html");
@@ -96,6 +106,37 @@ public class LoginServlet extends HttpServlet {
             PrintWriter out = response.getWriter();
             out.print("Error: " + e.getMessage());
             out.close();
+        }
+    }
+
+    /**
+     * Create persistent cookies when user logs in successfully
+     * These cookies will last for 10 months and allow session restoration
+     */
+    private void createUserCookies(HttpServletResponse response, int userId, String username, String accessLevel) {
+        try {
+            // Create cookies for user data
+            Cookie userIdCookie = new Cookie("userId", String.valueOf(userId));
+            Cookie usernameCookie = new Cookie("username", username);
+            Cookie accessLevelCookie = new Cookie("accessLevel", accessLevel);
+            Cookie loginStatusCookie = new Cookie("isLoggedIn", "true");
+
+            // Set cookie properties - must match SessionInfoServlet settings
+            Cookie[] cookies = {userIdCookie, usernameCookie, accessLevelCookie, loginStatusCookie};
+
+            for (Cookie cookie : cookies) {
+                cookie.setMaxAge(TEN_MONTHS_IN_SECONDS); // 10 months persistence
+                cookie.setPath("/"); // Available for entire application
+                cookie.setHttpOnly(true); // Security: prevent XSS attacks
+                cookie.setSecure(false); // Set to true in production with HTTPS
+                response.addCookie(cookie);
+            }
+
+            System.out.println("[DEBUG][LoginServlet] Created persistent cookies for user: " + username + " (10 months)");
+
+        } catch (Exception e) {
+            System.err.println("[ERROR][LoginServlet] Failed to create cookies: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

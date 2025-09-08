@@ -9,6 +9,20 @@ import java.io.IOException;
 
 public class AuthorizationFilter implements Filter {
 
+    /**
+     * Get the appropriate redirect URL based on user role
+     */
+    private String getRedirectUrlForRole(String userRole, String contextPath) {
+        if ("chef".equalsIgnoreCase(userRole)) {
+            return contextPath + "/chefWelcomePage.html";
+        } else if ("employee".equalsIgnoreCase(userRole)) {
+            return contextPath + "/EmployeeMenu.html";
+        } else {
+            // Default redirect for unknown roles
+            return contextPath + "/login.html";
+        }
+    }
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         System.out.println("[DEBUG] AuthorizationFilter: Filter initialized");
@@ -63,8 +77,10 @@ public class AuthorizationFilter implements Filter {
             System.out.println("[DEBUG] AuthorizationFilter: Access DENIED for user: " + username +
                     " (role: " + userRole + ") to path: " + path);
 
-            // Silently block access - do nothing, just return without calling chain.doFilter()
-            System.out.println("[DEBUG] AuthorizationFilter: Silently blocking access - no response sent");
+            // Redirect to appropriate page based on user role
+            String redirectUrl = getRedirectUrlForRole(userRole, contextPath);
+            System.out.println("[DEBUG] AuthorizationFilter: Redirecting to: " + redirectUrl);
+            httpResponse.sendRedirect(redirectUrl);
             return;
         }
 
@@ -96,8 +112,12 @@ public class AuthorizationFilter implements Filter {
             return isChef;
         }
 
-        // Employee-only pages (to be defined later)
-        // TODO: Add employee-specific pages here later
+        // Employee-only pages
+        if (path.equals("/EmployeeMenu.html")) {
+            boolean isEmployee = "employee".equalsIgnoreCase(userRole);
+            System.out.println("[DEBUG] AuthorizationFilter: Employee-only page detected. User is employee: " + isEmployee);
+            return isEmployee;
+        }
 
         // Pages accessible to both roles (add more as needed)
         if (path.startsWith("/common") ||

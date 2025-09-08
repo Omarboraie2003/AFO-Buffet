@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef Orders - All For One Buffet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ========================================
+           HEADER & NAVIGATION
+        ======================================== */
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .nav-frame {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 15px 20px;
+            box-shadow: 0 8px 32px rgba(255, 131, 0, 0.3);
+            border: 1px solid rgba(255, 131, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .home-icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #ff8300, #ffaa00);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(255, 131, 0, 0.3);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: 1px solid rgba(255, 131, 0, 0.3);
+        }
+
+        .home-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(255, 131, 0, 0.4);
+            background: linear-gradient(135deg, #ffaa00, #ff8300);
+        }
+
+        .home-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 12px 40px;
+            border: 2px solid #ccc;
+            border-radius: 25px;
+            background-color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            color: #333;
+        }
+
+        .nav-btn.active {
+            border-color: #ff8300;
+            color: white;
+            background: linear-gradient(135deg, #ff8300, #ffaa00);
+            box-shadow: 0 4px 12px rgba(255, 131, 0, 0.3);
+        }
+
+        .nav-btn:hover {
+            border-color: #ff8300;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            color: #ff8300;
+        }
+
+        .nav-btn.secondary {
+            background-color: #ea580c;
+            color: white;
+            border-color: #ea580c;
+        }
+
+        .nav-btn.secondary:hover {
+            background-color: #c82333;
+            border-color: #c82333;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(220, 53, 69, 0.3);
+        }
+
+        /* ========================================
+           TIME FILTERS
+        ======================================== */
+        .time-filters {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            padding: 12px 30px;
+            border-radius: 50px;
+            width: fit-content;
+            min-width: 800px;
+        }
+
+        .time-btn {
+            padding: 10px 30px;
+            border: 2px solid #000;
+            border-radius: 25px;
+            background-color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #000;
+        }
+
+        .time-btn:hover {
+            border-color: #ff8300;
+            color: #ff8300;
+        }
+
+        .time-btn.active {
+            border-color: #ff8300;
+            background-color: #ff8300;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* ========================================
+           ORDER CARDS
+        ======================================== */
+        .orders-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .order-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .order-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .order-time {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff8300;
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .customer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ff8300;
+        }
+
+        .customer-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .order-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .order-items {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 10px;
+            border-left: 4px solid #ff8300;
+        }
+
+        .order-items-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ff8300;
+            margin-bottom: 8px;
+        }
+
+        .order-items-list {
+            font-size: 14px;
+            color: #fff;
+            line-height: 1.4;
+        }
+
+        .order-notes {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #666;
+        }
+
+        .order-notes-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+
+        .order-notes-text {
+            font-size: 12px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .order-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 100px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-accepted {
+            background-color: #ffc107;
+            color: #856404;
+        }
+
+        .status-accepted:hover {
+            background-color: #e0a800;
+        }
+
+        .status-not-started {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .status-not-started:hover {
+            background-color: #c82333;
+        }
+
+        .status-ready {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-ready:hover {
+            background-color: #218838;
+        }
+
+        .status-pending {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .status-pending:hover {
+            background-color: #5a6268;
+        }
+
+        /* ========================================
+           MODAL STYLES
+        ======================================== */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            margin: 15% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(255, 131, 0, 0.3);
+            border: 1px solid rgba(255, 131, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .modal-header {
+            padding: 20px 25px 15px;
+            border-bottom: 1px solid rgba(255, 131, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: #ff8300;
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .close {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ff8300;
+        }
+
+        .modal-body {
+            padding: 20px 25px;
+            color: #ffffff;
+            line-height: 1.5;
+        }
+
+        .modal-footer {
+            padding: 15px 25px 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn.cancel {
+            background: #6b7280;
+            color: white;
+        }
+
+        .modal-btn.cancel:hover {
+            background: #4b5563;
+        }
+
+        .modal-btn.confirm {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+        }
+
+        .modal-btn.confirm:hover {
+            background: linear-gradient(135deg, #b91c1c, #dc2626);
+            transform: translateY(-1px);
+        }
+
+        /* ========================================
+           LOADING STATE
+        ======================================== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- HEADER & NAVIGATION -->
+    <header class="header">
+        <div class="nav-frame">
+            <a href="chefWelcomePage.html" class="home-icon">
+                <img src="images/home.jpg" alt="Home">
+            </a>
+
+            <div class="nav-buttons">
+                <a href="chefManageItemsPage.html" class="nav-btn">Menu</a>
+                <a href="accountManagement.html" class="nav-btn">Accounts</a>
+                <a href="chefOrdersPage.html" class="nav-btn active">Orders</a>
+            </div>
+
+            <div>
+                <button class="nav-btn secondary" onclick="showLogoutModal()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- TIME FILTERS -->
+    <div class="time-filters">
+        <button class="time-btn active" data-time="all">All</button>
+        <button class="time-btn" data-time="8">8 - 9</button>
+        <button class="time-btn" data-time="9">9 - 10</button>
+        <button class="time-btn" data-time="10">10 - 11</button>
+        <button class="time-btn" data-time="11">11 - 12</button>
+    </div>
+
+    <!-- ORDERS CONTAINER -->
+    <div id="ordersContainer" class="orders-container">
+        <div class="loading">Loading orders...</div>
+    </div>
+</div>
+
+<!-- LOGOUT CONFIRMATION MODAL -->
+<div id="logoutModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Logout</h3>
+            <span class="close" onclick="hideLogoutModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to logout? You will be redirected to the login page.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="hideLogoutModal()">Cancel</button>
+            <button class="modal-btn confirm" onclick="confirmLogout()">Logout</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const contextPath = '/AllForOneBuffetAPP';
+    let allOrders = [];
+    let currentTimeFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadOrders();
+        initializeTimeFilters();
+    });
+
+    function initializeTimeFilters() {
+        const timeButtons = document.querySelectorAll('.time-btn');
+
+        timeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                timeButtons.forEach(b => b.classList.remove('active'));
+
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Get the time filter value
+                const timeFilter = this.getAttribute('data-time');
+                currentTimeFilter = timeFilter;
+
+                // Filter and display orders
+                filterOrdersByTime(timeFilter);
+            });
+        });
+    }
+
+    function filterOrdersByTime(timeFilter) {
+        console.log('[v0] Filtering orders by time:', timeFilter);
+
+        if (timeFilter === 'all') {
+            displayOrders(allOrders);
+            return;
+        }
+
+        const hourFilter = parseInt(timeFilter);
+        const filteredOrders = allOrders.filter(order => {
+            if (!order.orderDate) return false;
+
+            const orderHour = new Date(order.orderDate).getHours();
+            return orderHour === hourFilter;
+        });
+
+        console.log('[v0] Filtered orders:', filteredOrders);
+        displayOrders(filteredOrders);
+    }
+
+    async function loadOrders() {
+        try {
+            console.log('[v0] Loading orders from backend...');
+            const response = await fetch(`${contextPath}/orders`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const orders = await response.json();
+            console.log('[v0] Orders loaded:', orders);
+
+            allOrders = orders;
+            displayOrders(orders);
+        } catch (error) {
+            console.error('[v0] Error loading orders, using dummy data:', error);
+
+            // Dummy fallback data for testing
+            allOrders = [
+                {
+                    orderId: 201,
+                    employeeId: 5,
+                    orderDate: new Date("2025-09-02T08:15:00").toISOString(),
+                    status: "pending",
+                    orderItemIds: [1, 2]
+                },
+                {
+                    orderId: 202,
+                    employeeId: 6,
+                    orderDate: new Date("2025-09-02T09:45:00").toISOString(),
+                    status: "pending",
+                    orderItemIds: [3, 4, 5]
+                },
+                {
+                    orderId: 203,
+                    employeeId: 7,
+                    orderDate: new Date("2025-09-02T10:30:00").toISOString(),
+                    status: "pending",
+                    orderItemIds: [6]
+                },
+                {
+                    orderId: 204,
+                    employeeId: 8,
+                    orderDate: new Date("2025-09-02T11:15:00").toISOString(),
+                    status: "pending",
+                    orderItemIds: [7, 8, 9]
+                }
+            ];
+
+            displayOrders(allOrders);
+        }
+    }
+
+    function displayOrders(orders) {
+        const container = document.getElementById('ordersContainer');
+
+        if (!orders || orders.length === 0) {
+            container.innerHTML = '<div class="no-orders">No orders found for the selected time slot.</div>';
+            return;
+        }
+
+        const ordersHTML = orders.map(order => {
+            const orderTime = formatOrderTime(order.orderDate);
+            const statusClass = getStatusClass(order.status);
+            const statusText = getStatusText(order.status);
+            const buttonText = getButtonText(order.status);
+            const orderItems = getOrderItems(order.orderItemIds);
+            const orderNotes = getOrderNotes(order.orderId);
+
+            return `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-time">${orderTime}</div>
+                        <div class="customer-info">
+                            <img src="https://via.placeholder.com/40x40/ff8300/ffffff?text=C" alt="Customer" class="customer-avatar">
+                            <div class="customer-name">Customer #${order.employeeId}</div>
+                        </div>
+                    </div>
+
+                    <div class="order-content">
+                        <div class="order-items">
+                            <div class="order-items-title">Order Items (#${order.orderId})</div>
+                            <div class="order-items-list">${orderItems}</div>
+                        </div>
+
+                        <div class="order-notes">
+                            <div class="order-notes-title">Special Notes</div>
+                            <div class="order-notes-text">${orderNotes}</div>
+                        </div>
+                    </div>
+
+                    <div class="order-footer">
+                        <div class="status-label">Status: ${statusText}</div>
+                        <button class="status-badge ${statusClass}" onclick="changeOrderStatus(${order.orderId})">${buttonText}</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = ordersHTML;
+    }
+
+    function formatOrderTime(orderDate) {
+        if (!orderDate) return '00:00';
+
+        const date = new Date(orderDate);
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+
+    function getStatusClass(status) {
+        switch(status?.toLowerCase()) {
+            case 'pending': return 'status-not-started';
+            case 'accepted': return 'status-accepted';
+            case 'ready': return 'status-ready';
+            default: return 'status-pending';
+        }
+    }
+
+    function getStatusText(status) {
+        switch(status?.toLowerCase()) {
+            case 'pending': return 'New Order';
+            case 'accepted': return 'Cooking';
+            case 'ready': return 'Completed';
+            default: return 'New Order';
+        }
+    }
+
+    function getButtonText(status) {
+        switch(status?.toLowerCase()) {
+            case 'pending': return 'Accept';
+            case 'accepted': return 'Ready';
+            case 'ready': return 'Complete';
+            default: return 'Accept';
+        }
+    }
+
+    function getOrderItems(itemIds) {
+        // Sample menu items mapping - replace with actual data from your backend
+        const menuItems = {
+            1: "Grilled Chicken Breast",
+            2: "Caesar Salad",
+            3: "Beef Burger",
+            4: "French Fries",
+            5: "Chocolate Cake",
+            6: "Fish & Chips",
+            7: "Pasta Carbonara",
+            8: "Garden Salad",
+            9: "Tiramisu"
+        };
+
+        if (!itemIds || itemIds.length === 0) {
+            return "No items specified";
+        }
+
+        return itemIds.map(id => menuItems[id] || `Item #${id}`).join(", ");
+    }
+
+    function getOrderNotes(orderId) {
+        // Sample notes - replace with actual data from your backend
+        const notes = {
+            201: "No onions, extra sauce on the side",
+            202: "Well done burger, no pickles",
+            203: "Gluten-free option preferred",
+            204: "Extra spicy, hold the mayo"
+        };
+
+        return notes[orderId] || "No special requests";
+    }
+
+    function changeOrderStatus(orderId) {
+        console.log('[v0] Changing status for order:', orderId);
+
+        // Find the order in our array
+        const orderIndex = allOrders.findIndex(order => order.orderId === orderId);
+        if (orderIndex === -1) {
+            console.error('[v0] Order not found:', orderId);
+            return;
+        }
+
+        const order = allOrders[orderIndex];
+        const currentStatus = order.status?.toLowerCase() || 'pending';
+
+        // Simple two-step progression: pending → accepted → deleted
+        switch(currentStatus) {
+            case 'pending':
+                // Accept the order
+                allOrders[orderIndex].status = 'accepted';
+                console.log('[v0] Order accepted, now cooking');
+                updateOrderStatusOnBackend(orderId, 'accepted');
+                break;
+            case 'accepted':
+                // Mark as ready and remove from view
+                console.log('[v0] Order completed and will be removed from view');
+                allOrders.splice(orderIndex, 1);
+                updateOrderStatusOnBackend(orderId, 'ready');
+                break;
+            default:
+                // Handle any other status as pending
+                allOrders[orderIndex].status = 'accepted';
+                updateOrderStatusOnBackend(orderId, 'accepted');
+        }
+
+        // Re-display orders with current filter
+        filterOrdersByTime(currentTimeFilter);
+    }
+
+    async function updateOrderStatusOnBackend(orderId, newStatus) {
+        try {
+            if (newStatus === 'ready') {
+                // When order is ready, delete it from backend
+                const response = await fetch(`${contextPath}/orders/${orderId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                console.log('[v0] Order deleted from backend successfully');
+            } else {
+                // Update status on backend
+                const response = await fetch(`${contextPath}/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                console.log('[v0] Status updated on backend successfully');
+            }
+        } catch (error) {
+            console.warn('[v0] Failed to update backend:', error);
+            // Changes still work locally for demo purposes
+        }
+    }
+
+    function showLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'flex';
+    }
+
+    function hideLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'none';
+    }
+
+    async function confirmLogout() {
+        console.log("[DEBUG] Starting logout process...");
+
+        try {
+            // Call logout servlet
+            const response = await fetch('/AllForOneBuffetAPP/logout', {
+                method: 'POST',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                console.log("[DEBUG] Server logout successful");
+            }
+        } catch (error) {
+            console.error('[DEBUG] Logout error:', error);
+        }
+
+        // Always clear client-side data and redirect
+        clearClientSideData();
+
+        // Clear browser history to prevent back button
+        window.history.pushState(null, null, window.location.href);
+
+        // Force redirect with cache busting
+        const timestamp = new Date().getTime();
+        window.location.replace(`login.html?t=${timestamp}`);
+    }
+
+    document.getElementById('logoutModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideLogoutModal();
+        }
+    });
+</script>
+</body>
+</html>
