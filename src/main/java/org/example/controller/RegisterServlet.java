@@ -10,12 +10,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.util.regex.Pattern;
 
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     // Constants

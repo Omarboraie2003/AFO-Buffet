@@ -200,14 +200,6 @@
             gap: 10px;
         }
 
-        .customer-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #ff8300;
-        }
-
         .customer-name {
             font-size: 16px;
             font-weight: bold;
@@ -222,42 +214,48 @@
 
         .order-items {
             background: rgba(255, 255, 255, 0.1);
-            padding: 12px;
+            padding: 15px;
             border-radius: 10px;
             border-left: 4px solid #ff8300;
         }
 
         .order-items-title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             color: #ff8300;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
-        .order-items-list {
-            font-size: 14px;
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            font-size: 15px;
+            font-weight: 500;
             color: #fff;
-            line-height: 1.4;
+            flex: 1;
         }
 
-        .order-notes {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px;
-            border-radius: 8px;
-            border-left: 3px solid #666;
-        }
-
-        .order-notes-title {
-            font-size: 12px;
-            font-weight: bold;
-            color: #ccc;
-            margin-bottom: 5px;
-        }
-
-        .order-notes-text {
-            font-size: 12px;
-            color: #999;
+        .item-note {
+            font-size: 13px;
+            color: #ffaa00;
             font-style: italic;
+            margin-left: 15px;
+            max-width: 200px;
+            text-align: right;
+        }
+
+        .item-note.no-note {
+            color: #888;
         }
 
         .order-footer {
@@ -612,15 +610,13 @@
             const statusClass = getStatusClass(order.status);
             const statusText = getStatusText(order.status);
             const buttonText = getButtonText(order.status);
-            const orderItems = getOrderItems(order.orderItemIds);
-            const orderNotes = getOrderNotes(order.orderId);
+            const orderItemsHTML = getOrderItemsHTML(order.orderItemIds);
 
             return `
                 <div class="order-card">
                     <div class="order-header">
                         <div class="order-time">${orderTime}</div>
                         <div class="customer-info">
-                            <img src="https://via.placeholder.com/40x40/ff8300/ffffff?text=C" alt="Customer" class="customer-avatar">
                             <div class="customer-name">Customer #${order.employeeId}</div>
                         </div>
                     </div>
@@ -628,12 +624,7 @@
                     <div class="order-content">
                         <div class="order-items">
                             <div class="order-items-title">Order Items (#${order.orderId})</div>
-                            <div class="order-items-list">${orderItems}</div>
-                        </div>
-
-                        <div class="order-notes">
-                            <div class="order-notes-title">Special Notes</div>
-                            <div class="order-notes-text">${orderNotes}</div>
+                            ${orderItemsHTML}
                         </div>
                     </div>
 
@@ -684,7 +675,7 @@
         }
     }
 
-    function getOrderItems(itemIds) {
+    function getOrderItemsHTML(itemIds) {
         // Sample menu items mapping - replace with actual data from your backend
         const menuItems = {
             1: "Grilled Chicken Breast",
@@ -698,23 +689,34 @@
             9: "Tiramisu"
         };
 
-        if (!itemIds || itemIds.length === 0) {
-            return "No items specified";
-        }
-
-        return itemIds.map(id => menuItems[id] || `Item #${id}`).join(", ");
-    }
-
-    function getOrderNotes(orderId) {
-        // Sample notes - replace with actual data from your backend
-        const notes = {
-            201: "No onions, extra sauce on the side",
-            202: "Well done burger, no pickles",
-            203: "Gluten-free option preferred",
-            204: "Extra spicy, hold the mayo"
+        // Sample notes for individual items
+        const itemNotes = {
+            1: "No salt, well-done",
+            2: "Extra dressing on the side",
+            3: "Medium-rare, no onions",
+            4: "Crispy, no salt",
+            5: "Extra chocolate",
+            6: "Tartar sauce on the side",
+            7: "Light on cream",
+            8: "No tomatoes",
+            9: "Extra coffee flavor"
         };
 
-        return notes[orderId] || "No special requests";
+        if (!itemIds || itemIds.length === 0) {
+            return '<div class="order-item"><span class="item-name">No items specified</span></div>';
+        }
+
+        return itemIds.map(id => {
+            const itemName = menuItems[id] || `Item #${id}`;
+            const note = itemNotes[id];
+
+            return `
+                <div class="order-item">
+                    <span class="item-name">${itemName}</span>
+                    <span class="item-note ${!note ? 'no-note' : ''}">${note || 'No special requests'}</span>
+                </div>
+            `;
+        }).join('');
     }
 
     function changeOrderStatus(orderId) {

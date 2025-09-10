@@ -77,7 +77,7 @@ public class OrderDAO {
             ps.setInt(1, order_id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {e.printStackTrace();}
-            return false;
+        return false;
     }
 
     public static boolean deleteAllOrdersForUser(int user_id) {
@@ -88,6 +88,6 @@ public class OrderDAO {
             ps.setInt(1, user_id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {e.printStackTrace();}
-            return false;
+        return false;
     }
 }

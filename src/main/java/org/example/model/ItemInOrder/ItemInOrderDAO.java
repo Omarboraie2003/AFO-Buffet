@@ -70,7 +70,7 @@ public class ItemInOrderDAO {
             ps.setInt(1, order_id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                    rs.getInt("1");
+                rs.getInt("1");
             }
         } catch (SQLException e) {e.printStackTrace();}
         return item_ids;

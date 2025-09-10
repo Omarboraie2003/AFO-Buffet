@@ -67,4 +67,3 @@ public class OrderModel {
         System.out.println("Order Note: " + order_note);
     }
 }
-
