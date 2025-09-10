@@ -2,9 +2,8 @@ package org.example.model.Order;
 
 import org.example.model.ItemInOrder.ItemInOrderDAO;
 import org.example.util.DBConnection;
-
 import java.sql.*;
-
+import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
@@ -16,6 +15,7 @@ public class OrderDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, order_id);
             ResultSet rs = ps.executeQuery();
+
             if (rs.next()) {
                 int user_id = rs.getInt("user_id");
                 Timestamp ts = rs.getTimestamp("order_date");
@@ -25,6 +25,7 @@ public class OrderDAO {
                 order.setItemInOrderIds(ItemInOrderDAO.getItemsInOrder(order_id));
             }
         } catch (SQLException e) {e.printStackTrace();}
+
         return null;
     }
 
@@ -90,4 +91,99 @@ public class OrderDAO {
         } catch (SQLException e) {e.printStackTrace();}
         return false;
     }
+
+    // Add this method to your existing OrderDAO class
+
+    // Add this import at the top of your OrderDAO class if not already present:
+// import java.util.ArrayList;
+
+// Add this method to your existing OrderDAO class
+
+    public static ArrayList<OrderDetailsDTO> getAllOrderDetails() {
+        String sql = """
+        SELECT 
+            o.order_id,
+            u.username,
+            o.order_date,
+            o.order_status,
+            mi.item_name,
+            iio.type_of_bread,
+            iio.quantity,
+            iio.item_note
+        FROM Orders o
+        JOIN Users u ON o.user_id = u.user_id  
+        JOIN ItemsInOrder iio ON o.order_id = iio.order_id
+        JOIN MenuItems mi ON iio.item_id = mi.item_id
+        ORDER BY o.order_id, iio.item_in_order_id
+        """;
+
+        ArrayList<OrderDetailsDTO> orderDetailsList = new ArrayList<>();
+        OrderDetailsDTO currentOrder = null;
+        int lastOrderId = -1;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int orderId = rs.getInt("order_id");
+
+                // Check if this is a new order
+                if (orderId != lastOrderId) {
+                    // Save previous order if it exists
+                    if (currentOrder != null) {
+                        orderDetailsList.add(currentOrder);
+                    }
+
+                    // Create new order
+                    currentOrder = new OrderDetailsDTO(
+                            orderId,
+                            rs.getString("username"),
+                            rs.getTimestamp("order_date").toLocalDateTime(),
+                            rs.getString("order_status")
+                    );
+                    lastOrderId = orderId;
+                }
+
+                // Add item to current order (item name first, as most prominent)
+                OrderItemDetail item = new OrderItemDetail(
+                        rs.getString("item_name"),
+                        rs.getString("type_of_bread"),
+                        rs.getString("quantity"),
+                        rs.getString("item_note")
+                );
+                currentOrder.addItem(item);
+            }
+
+            // Don't forget to add the last order
+            if (currentOrder != null) {
+                orderDetailsList.add(currentOrder);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return orderDetailsList;
+    }
+    public static boolean updateOrderStatus(int orderId, String newStatus) {
+        String sql = "UPDATE Orders SET order_status = ? WHERE order_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newStatus);
+            ps.setInt(2, orderId);
+
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("[OrderDAO] Updated order " + orderId + " status to " + newStatus + ". Rows affected: " + rowsAffected);
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("[OrderDAO] Error updating order status: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
