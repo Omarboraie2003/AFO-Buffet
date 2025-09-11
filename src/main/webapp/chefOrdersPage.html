@@ -247,6 +247,105 @@
         }
 
         /* ========================================
+           BULK ACTIONS
+        ======================================== */
+        .bulk-actions {
+            display: flex;
+            justify-content: center;
+            margin: 20px auto;
+            padding: 0 20px;
+            animation: slideInBulk 0.3s ease;
+        }
+
+        @keyframes slideInBulk {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bulk-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bulk-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .bulk-btn:hover::before {
+            left: 100%;
+        }
+
+        .bulk-btn.accept-all {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .bulk-btn.accept-all:hover {
+            background: linear-gradient(135deg, #218838, #1ba085);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .bulk-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .bulk-btn:disabled::before {
+            display: none;
+        }
+
+        .bulk-btn.loading {
+            pointer-events: none;
+        }
+
+        .bulk-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            right: 15px;
+        }
+
+        .bulk-icon {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .pending-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* ========================================
            ORDER CARDS
         ======================================== */
         .orders-container {
@@ -691,6 +790,15 @@
                 flex-direction: column;
                 gap: 10px;
             }
+
+            .bulk-actions {
+                padding: 0 10px;
+            }
+
+            .bulk-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -751,6 +859,18 @@
             11 - 12
             <span class="order-count" id="count-11">0</span>
         </button>
+        <button class="time-btn" data-time="history">
+            Order History
+            <span class="order-count" id="count-history">0</span>
+        </button>
+    </div>
+    <!-- BULK ACTIONS -->
+    <div class="bulk-actions" id="bulkActions" style="display: none;">
+        <button class="bulk-btn accept-all" onclick="acceptAllPending()" id="acceptAllBtn">
+            <span class="bulk-icon">✓</span>
+            Accept All Pending Orders
+            <span class="pending-count" id="pendingCount">(0)</span>
+        </button>
     </div>
 
     <!-- ORDERS CONTAINER -->
@@ -791,6 +911,8 @@
     // Audio context for notifications
     let audioContext;
     let newOrderSound;
+    let completedOrders = [];
+    let isShowingHistory = false;
 
     document.addEventListener('DOMContentLoaded', function() {
         initializeAudio();
@@ -853,7 +975,13 @@
     function startRealTimeUpdates() {
         loadOrders();
         refreshInterval = setInterval(() => {
-            loadOrders(true);
+            // Only auto-refresh if not showing history
+            if (!isShowingHistory) {
+                loadOrders(true);
+            } else {
+                // If showing history, just update the count
+                updateHistoryCount();
+            }
         }, 10000);
     }
 
@@ -895,7 +1023,13 @@
 
                 const timeFilter = this.getAttribute('data-time');
                 currentTimeFilter = timeFilter;
-                filterOrdersByTime(timeFilter);
+
+                if (timeFilter === 'history') {
+                    loadOrderHistory();
+                } else {
+                    isShowingHistory = false;
+                    filterOrdersByTime(timeFilter);
+                }
             });
         });
     }
@@ -947,6 +1081,25 @@
     }
 
     // ========================================
+    // HISTORY COUNT UPDATE
+    // ========================================
+    async function updateHistoryCount() {
+        try {
+            const response = await fetch(`${contextPath}/orders/history`);
+            if (response.ok) {
+                const completedOrders = await response.json();
+                const countElement = document.getElementById('count-history');
+                if (countElement) {
+                    countElement.textContent = completedOrders.length;
+                    countElement.style.display = completedOrders.length > 0 ? 'flex' : 'none';
+                }
+            }
+        } catch (error) {
+            console.warn('[History Count] Failed to update history count:', error);
+        }
+    }
+
+    // ========================================
     // ORDER LOADING AND DISPLAY
     // ========================================
     async function loadOrders(silent = false) {
@@ -980,6 +1133,9 @@
             allOrders = orders;
 
             updateOrderCounts();
+            // Update history count as well
+            updateHistoryCount();
+
             filterOrdersByTime(currentTimeFilter);
             updateConnectionStatus(true);
             updateLastUpdateTime();
@@ -991,50 +1147,239 @@
         }
     }
 
+    async function loadOrderHistory() {
+        try {
+            console.log('[History] Loading order history...');
+            isShowingHistory = true;
+
+            // Show loading state
+            document.getElementById('ordersContainer').innerHTML = `
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                Loading order history...
+            </div>
+        `;
+
+            const response = await fetch(`${contextPath}/orders/history`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            completedOrders = await response.json();
+            console.log('[History] Completed orders loaded:', completedOrders);
+
+            displayOrders(completedOrders);
+
+            // Update history count
+            const countElement = document.getElementById('count-history');
+            if (countElement) {
+                countElement.textContent = completedOrders.length;
+                countElement.style.display = completedOrders.length > 0 ? 'flex' : 'none';
+            }
+
+        } catch (error) {
+            console.error('[History] Error loading order history:', error);
+            showError('Failed to load order history. Please check your connection and try again.');
+        }
+    }
+
     function displayOrders(orders) {
         const container = document.getElementById('ordersContainer');
 
         if (!orders || orders.length === 0) {
-            container.innerHTML = '<div class="no-orders">No orders found for the selected time slot.</div>';
+            const message = isShowingHistory ?
+                'No completed orders found in the history.' :
+                'No orders found for the selected time slot.';
+            container.innerHTML = `<div class="no-orders">${message}</div>`;
+            updateBulkActionsVisibility();
             return;
         }
 
         const ordersHTML = orders.map(order => {
             const orderTime = formatOrderTime(order.orderDate);
+            const orderDate = formatOrderDate(order.orderDate);
             const statusClass = getStatusClass(order.status);
             const statusText = getStatusText(order.status);
             const buttonText = getButtonText(order.status);
             const orderItemsHTML = getOrderItemsHTML(order.items);
 
+            // For completed orders, show date and disable button
+            const isCompleted = order.status?.toLowerCase() === 'completed';
+            const buttonHtml = isCompleted ?
+                `<span class="status-badge status-ready" style="cursor: default; opacity: 0.7;">Completed</span>` :
+                `<button class="status-badge ${statusClass}" onclick="changeOrderStatus(${order.orderId})" id="btn-${order.orderId}">${buttonText}</button>`;
+
             return `
-                <div class="order-card" id="order-${order.orderId}">
-                    <div class="order-header">
-                        <div class="order-time">${orderTime}</div>
-                        <div class="customer-info">
-                            <div class="customer-name">${order.username || `Customer #${order.employeeId}`}</div>
-                        </div>
-                    </div>
-
-                    <div class="order-content">
-                        <div class="order-items">
-                            <div class="order-items-title">Order #${order.orderId}</div>
-                            ${orderItemsHTML}
-                        </div>
-                    </div>
-
-                    <div class="order-footer">
-                        <div class="status-label">Status: ${statusText}</div>
-                        <button class="status-badge ${statusClass}"
-                                onclick="changeOrderStatus(${order.orderId})"
-                                id="btn-${order.orderId}">
-                            ${buttonText}
-                        </button>
+            <div class="order-card" id="order-${order.orderId}">
+                <div class="order-header">
+                    <div class="order-time">${orderTime}</div>
+                    <div class="customer-info">
+                    <div class="customer-name">${order.firstName || ''} ${order.lastName || ''}</div>
+                        ${isCompleted ? `<div style="font-size: 12px; color: #ccc;">${orderDate}</div>` : ''}
                     </div>
                 </div>
-            `;
+
+                <div class="order-content">
+                    <div class="order-items">
+                        <div class="order-items-title">Order #${order.orderId}</div>
+                        ${orderItemsHTML}
+                    </div>
+                </div>
+
+                <div class="order-footer">
+                    <div class="status-label">Status: ${statusText}</div>
+                    ${buttonHtml}
+                </div>
+            </div>
+        `;
         }).join('');
 
         container.innerHTML = ordersHTML;
+        updateBulkActionsVisibility();
+    }
+
+    // ========================================
+    // BULK OPERATIONS
+    // ========================================
+    function updateBulkActionsVisibility() {
+        const bulkActions = document.getElementById('bulkActions');
+
+        // Hide bulk actions when showing history
+        if (isShowingHistory) {
+            bulkActions.style.display = 'none';
+            return;
+        }
+
+        const acceptAllBtn = document.getElementById('acceptAllBtn');
+        const pendingCountSpan = document.getElementById('pendingCount');
+
+        // Get currently displayed orders (respecting time filter)
+        let displayedOrders = allOrders;
+        if (currentTimeFilter !== 'all') {
+            const hourFilter = parseInt(currentTimeFilter);
+            displayedOrders = allOrders.filter(order => {
+                if (!order.orderDate) return false;
+                const orderHour = new Date(order.orderDate).getHours();
+                return orderHour === hourFilter;
+            });
+        }
+
+        // Count pending orders in displayed set
+        const pendingOrders = displayedOrders.filter(order =>
+            order.status?.toLowerCase() === 'pending' || !order.status
+        );
+
+        const pendingCount = pendingOrders.length;
+
+        if (pendingCount > 0) {
+            bulkActions.style.display = 'flex';
+            pendingCountSpan.textContent = `(${pendingCount})`;
+            acceptAllBtn.disabled = false;
+        } else {
+            bulkActions.style.display = 'none';
+        }
+    }
+
+    async function acceptAllPending() {
+        const acceptAllBtn = document.getElementById('acceptAllBtn');
+
+        // Get currently displayed orders (respecting time filter)
+        let displayedOrders = allOrders;
+        if (currentTimeFilter !== 'all') {
+            const hourFilter = parseInt(currentTimeFilter);
+            displayedOrders = allOrders.filter(order => {
+                if (!order.orderDate) return false;
+                const orderHour = new Date(order.orderDate).getHours();
+                return orderHour === hourFilter;
+            });
+        }
+
+        // Find pending orders in displayed set
+        const pendingOrders = displayedOrders.filter(order =>
+            order.status?.toLowerCase() === 'pending' || !order.status
+        );
+
+        if (pendingOrders.length === 0) {
+            showToast('No pending orders to accept', 'error');
+            return;
+        }
+
+        // Show loading state
+        acceptAllBtn.classList.add('loading');
+        acceptAllBtn.disabled = true;
+
+        const totalOrders = pendingOrders.length;
+        let successCount = 0;
+        let failureCount = 0;
+
+        console.log(`[Bulk] Starting bulk accept of ${totalOrders} pending orders`);
+
+        // Update UI immediately for better responsiveness
+        pendingOrders.forEach(order => {
+            const orderIndex = allOrders.findIndex(o => o.orderId === order.orderId);
+            if (orderIndex !== -1) {
+                allOrders[orderIndex].status = 'accepted';
+            }
+        });
+
+        // Refresh display immediately
+        updateOrderCounts();
+        filterOrdersByTime(currentTimeFilter);
+
+        // Update backend in parallel
+        const updatePromises = pendingOrders.map(async (order) => {
+            try {
+                await updateOrderStatusOnBackend(order.orderId, 'accepted');
+                successCount++;
+                console.log(`[Bulk] Successfully accepted order ${order.orderId}`);
+            } catch (error) {
+                failureCount++;
+                console.error(`[Bulk] Failed to accept order ${order.orderId}:`, error);
+
+                // Revert the order status on failure
+                const orderIndex = allOrders.findIndex(o => o.orderId === order.orderId);
+                if (orderIndex !== -1) {
+                    allOrders[orderIndex].status = 'pending';
+                }
+            }
+        });
+
+        try {
+            await Promise.allSettled(updatePromises);
+
+            // Show results
+            if (successCount === totalOrders) {
+                showToast(`All ${totalOrders} pending orders accepted successfully!`, 'success');
+                if (newOrderSound) {
+                    // Play a different sound for bulk operations
+                    setTimeout(() => newOrderSound(), 100);
+                    setTimeout(() => newOrderSound(), 300);
+                }
+            } else if (successCount > 0) {
+                showToast(`${successCount} orders accepted, ${failureCount} failed`, 'success');
+                // Refresh to show any reverted orders
+                filterOrdersByTime(currentTimeFilter);
+            } else {
+                showToast('Failed to accept orders. Please try again.', 'error');
+                // Refresh to show reverted orders
+                filterOrdersByTime(currentTimeFilter);
+            }
+
+        } catch (error) {
+            console.error('[Bulk] Bulk accept operation failed:', error);
+            showToast('Bulk operation failed. Please try again.', 'error');
+            // Refresh to show current state
+            loadOrders(true);
+        } finally {
+            // Remove loading state
+            acceptAllBtn.classList.remove('loading');
+            acceptAllBtn.disabled = false;
+
+            // Update counts and visibility
+            updateOrderCounts();
+            updateBulkActionsVisibility();
+        }
     }
 
     function getOrderItemsHTML(items) {
@@ -1064,11 +1409,11 @@
             }
 
             return `
-                <div class="order-item">
-                    <span class="item-name">${displayText}</span>
-                    <span class="item-note ${!note || note === 'null' || note.trim() === '' ? 'no-note' : ''}">${note && note !== 'null' && note.trim() !== '' ? note : 'No special requests'}</span>
-                </div>
-            `;
+            <div class="order-item">
+                <span class="item-name">${displayText}</span>
+                <span class="item-note ${!note || note === 'null' || note.trim() === '' ? 'no-note' : ''}">${note && note !== 'null' && note.trim() !== '' ? note : 'No special requests'}</span>
+            </div>
+        `;
         }).join('');
     }
 
@@ -1108,25 +1453,41 @@
                     .then(() => {
                         showToast('Order accepted and cooking started!', 'success');
                         filterOrdersByTime(currentTimeFilter);
+                        updateBulkActionsVisibility();
                     })
                     .catch(() => {
                         allOrders[orderIndex].status = 'pending';
                         filterOrdersByTime(currentTimeFilter);
+                        updateBulkActionsVisibility();
                     });
                 break;
             case 'accepted':
-                console.log('[Clean] Order completed and will be removed from view');
-                allOrders.splice(orderIndex, 1);
-                updateOrderStatusOnBackend(orderId, 'ready')
+                console.log('[Clean] Order completed - will be moved to history');
+                // Remove from active orders and move to completed
+                const completedOrder = allOrders.splice(orderIndex, 1)[0];
+                completedOrder.status = 'completed';
+
+                updateOrderStatusOnBackend(orderId, 'ready') // Backend converts 'ready' to 'completed'
                     .then(() => {
-                        showToast('Order marked as ready and completed!', 'success');
+                        showToast('Order marked as completed and moved to history!', 'success');
                         updateOrderCounts();
+                        // Update history count immediately
+                        updateHistoryCount();
                         filterOrdersByTime(currentTimeFilter);
+                        updateBulkActionsVisibility();
+
+                        // If we're currently showing history, refresh it
+                        if (isShowingHistory) {
+                            setTimeout(() => loadOrderHistory(), 500);
+                        }
                     })
                     .catch(() => {
                         showToast('Order completed (offline mode)', 'success');
                         updateOrderCounts();
+                        // Update history count even in offline mode
+                        updateHistoryCount();
                         filterOrdersByTime(currentTimeFilter);
+                        updateBulkActionsVisibility();
                     });
                 break;
             default:
@@ -1135,40 +1496,26 @@
                     .then(() => {
                         showToast('Order status updated', 'success');
                         filterOrdersByTime(currentTimeFilter);
+                        updateBulkActionsVisibility();
                     });
         }
     }
 
     async function updateOrderStatusOnBackend(orderId, newStatus) {
         try {
-            if (newStatus === 'ready') {
-                const response = await fetch(`${contextPath}/orders/${orderId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
+            const response = await fetch(`${contextPath}/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                console.log('[Clean] Order deleted from backend successfully');
-            } else {
-                const response = await fetch(`${contextPath}/orders/${orderId}/status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ status: newStatus })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                console.log('[Clean] Status updated on backend successfully');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+
+            console.log('[Clean] Status updated on backend successfully');
         } catch (error) {
             console.warn('[Clean] Failed to update backend:', error);
             throw error;
@@ -1187,11 +1534,63 @@
         return `${hours}:${minutes}`;
     }
 
+    function formatOrderDate(orderDate) {
+        if (!orderDate) return '';
+
+        const date = new Date(orderDate);
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (date.toDateString() === today.toDateString()) {
+            return 'Today';
+        } else if (date.toDateString() === yesterday.toDateString()) {
+            return 'Yesterday';
+        } else {
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+            });
+        }
+    }
+
+    function formatFullDateTime(orderDate) {
+        if (!orderDate) return '00:00';
+
+        const date = new Date(orderDate);
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        // Get date part
+        let dateStr;
+        if (date.toDateString() === today.toDateString()) {
+            dateStr = 'Today';
+        } else if (date.toDateString() === yesterday.toDateString()) {
+            dateStr = 'Yesterday';
+        } else {
+            dateStr = date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+            });
+        }
+
+        // Get time part
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const timeStr = `${hours}:${minutes}`;
+
+        return `${dateStr} ${timeStr}`;
+    }
+
     function getStatusClass(status) {
         switch(status?.toLowerCase()) {
             case 'pending': return 'status-not-started';
             case 'accepted': return 'status-accepted';
             case 'ready': return 'status-ready';
+            case 'completed': return 'status-ready';
             default: return 'status-pending';
         }
     }
@@ -1200,7 +1599,8 @@
         switch(status?.toLowerCase()) {
             case 'pending': return 'New Order';
             case 'accepted': return 'Cooking';
-            case 'ready': return 'Completed';
+            case 'ready': return 'Ready';
+            case 'completed': return 'Completed';
             default: return 'New Order';
         }
     }
@@ -1208,8 +1608,9 @@
     function getButtonText(status) {
         switch(status?.toLowerCase()) {
             case 'pending': return 'Accept';
-            case 'accepted': return 'Ready';
+            case 'accepted': return 'Complete';
             case 'ready': return 'Complete';
+            case 'completed': return 'Completed';
             default: return 'Accept';
         }
     }
@@ -1240,12 +1641,12 @@
     function showError(message) {
         const container = document.getElementById('ordersContainer');
         container.innerHTML = `
-            <div class="error-state">
-                <h3>⚠️ Connection Error</h3>
-                <p>${message}</p>
-                <button class="retry-btn" onclick="loadOrders()">Retry</button>
-            </div>
-        `;
+        <div class="error-state">
+            <h3>⚠️ Connection Error</h3>
+            <p>${message}</p>
+            <button class="retry-btn" onclick="loadOrders()">Retry</button>
+        </div>
+    `;
     }
 
     // ========================================
@@ -1315,6 +1716,9 @@
             startRealTimeUpdates();
         }
     });
+
+
+
 </script>
 </body>
 </html>

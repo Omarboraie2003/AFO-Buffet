@@ -9,6 +9,8 @@ public class UserModel {
     private boolean is_registered;
     private boolean is_active;
     private int cart_id;
+    private String first_name;       // New field
+    private String last_name;        // New field
 
     // --- Constructors ---
 
@@ -21,18 +23,46 @@ public class UserModel {
         this.is_registered = is_registered;
         this.is_active = is_active;
         this.cart_id = cart_id;
+        this.first_name = null;
+        this.last_name = null;
     }
 
+    // Constructor with names
+    public UserModel(int userId, String username, String passwordHash, String accessLevel, boolean is_registered, boolean is_active, int cart_id, String first_name, String last_name) {
+        this.userId = userId;
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.accessLevel = accessLevel;
+        this.is_registered = is_registered;
+        this.is_active = is_active;
+        this.cart_id = cart_id;
+        this.first_name = first_name;
+        this.last_name = last_name;
+    }
 
-        // Use this when loading user from database (with userId)
-   public UserModel(String username, String passwordHash, String accessLevel, boolean is_registered, boolean is_active, int cart_id) {
-            this.username = username;
-            this.passwordHash = passwordHash;
-            this.accessLevel = accessLevel;
-            this.is_registered = is_registered;
-            this.is_active = is_active;
-            this.cart_id = cart_id;
-        }
+    // Use this when loading user from database (with userId)
+    public UserModel(String username, String passwordHash, String accessLevel, boolean is_registered, boolean is_active, int cart_id) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.accessLevel = accessLevel;
+        this.is_registered = is_registered;
+        this.is_active = is_active;
+        this.cart_id = cart_id;
+        this.first_name = null;
+        this.last_name = null;
+    }
+
+    // Constructor without userId but with names
+    public UserModel(String username, String passwordHash, String accessLevel, boolean is_registered, boolean is_active, int cart_id, String first_name, String last_name) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.accessLevel = accessLevel;
+        this.is_registered = is_registered;
+        this.is_active = is_active;
+        this.cart_id = cart_id;
+        this.first_name = first_name;
+        this.last_name = last_name;
+    }
 
     // --- Getters and Setters ---
     public int getUserId() {
@@ -74,6 +104,39 @@ public class UserModel {
     public int getCartId() {return cart_id;}
     public void setCartId(int cart_id) {this.cart_id = cart_id;}
 
+    // New getters and setters for names
+    public String getFirst_name() {
+        return first_name;
+    }
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+    }
+
+    public String getLast_name() {
+        return last_name;
+    }
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+    }
+
+    // Convenience method to get full name
+    public String getFullName() {
+        if (first_name == null && last_name == null) {
+            return null;
+        }
+        StringBuilder fullName = new StringBuilder();
+        if (first_name != null && !first_name.trim().isEmpty()) {
+            fullName.append(first_name.trim());
+        }
+        if (last_name != null && !last_name.trim().isEmpty()) {
+            if (fullName.length() > 0) {
+                fullName.append(" ");
+            }
+            fullName.append(last_name.trim());
+        }
+        return fullName.length() > 0 ? fullName.toString() : null;
+    }
+
     // --- toString() for easy printing ---
     @Override
     public String toString() {
@@ -85,6 +148,8 @@ public class UserModel {
                 ", is_registered=" + is_registered +
                 ", is_active=" + is_active +
                 ", cart_id=" + cart_id +
+                ", first_name='" + first_name + '\'' +
+                ", last_name='" + last_name + '\'' +
                 '}';
     }
 }

@@ -121,9 +121,18 @@
             const usernameElement = document.getElementById('user');
 
             if (data.isLoggedIn && data.accessLevel === 'chef') {
-                // Extract name before @ symbol
-                const chefName = data.username.split('@')[0];
-                usernameElement.textContent = chefName;
+                // Use first name and last name if available, otherwise fallback to username
+                let displayName = '';
+                if (data.firstName) {
+                    displayName = data.firstName;
+                    if (data.lastName) {
+                        displayName += ' ' + data.lastName;
+                    }
+                } else {
+                    // Fallback to username without @ symbol
+                    displayName = data.username.split('@')[0];
+                }
+                usernameElement.textContent = displayName;
             } else {
                 usernameElement.textContent = 'Unknown';
             }

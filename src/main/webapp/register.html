@@ -116,7 +116,6 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        /* Fixed white title */
         h2 {
             font-size: 32px;
             font-weight: 800;
@@ -141,7 +140,7 @@
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             text-align: left;
             position: relative;
             animation: fadeIn 1s ease-out calc(0.8s + var(--delay, 0s)) both;
@@ -150,8 +149,19 @@
         .form-group:nth-child(1) { --delay: 0s; }
         .form-group:nth-child(2) { --delay: 0.1s; }
         .form-group:nth-child(3) { --delay: 0.2s; }
+        .form-group:nth-child(4) { --delay: 0.3s; }
+        .form-group:nth-child(5) { --delay: 0.4s; }
 
-        /* Enhanced input wrapper */
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 20px;
+        }
+
         .input-wrapper {
             position: relative;
             display: flex;
@@ -198,7 +208,6 @@
             transform: scale(1.1);
         }
 
-        /* Enhanced input styling with glow effects */
         input[type="email"],
         input[type="text"],
         input[type="password"] {
@@ -248,7 +257,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        /* Enhanced button with gradient and animations */
         button {
             width: 100%;
             padding: 18px;
@@ -303,7 +311,6 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        /* Enhanced loading spinner */
         .loading-spinner {
             width: 22px;
             height: 22px;
@@ -327,7 +334,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Enhanced message styling with better animations */
         .error-message {
             background: rgba(220, 38, 38, 0.15);
             backdrop-filter: blur(10px);
@@ -425,6 +431,11 @@
                 max-width: 380px;
             }
 
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
             h2 {
                 font-size: 28px;
             }
@@ -485,46 +496,6 @@
             }
         }
 
-        @media (max-width: 320px) {
-            .register-container {
-                padding: 24px 20px;
-            }
-
-            h2 {
-                font-size: 24px;
-            }
-        }
-
-        @media (max-height: 600px) and (orientation: landscape) {
-            body {
-                padding: 10px;
-            }
-
-            .register-container {
-                padding: 24px;
-                margin: 10px 0;
-                max-width: 350px;
-            }
-
-            .logo {
-                margin-bottom: 20px;
-            }
-
-            .form-group {
-                margin-bottom: 18px;
-            }
-
-            h2 {
-                font-size: 24px;
-                margin-bottom: 10px;
-            }
-
-            .subtitle {
-                margin-bottom: 20px;
-            }
-        }
-
-        /* Additional visual enhancements */
         .register-container::before {
             content: '';
             position: absolute;
@@ -553,6 +524,32 @@
     <p class="subtitle">Feast your way—let's get started!</p>
 
     <form id="registerForm" method="POST" action="register">
+        <div class="form-row">
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <input type="text" name="firstName" placeholder="First Name" required>
+                    <span class="input-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <input type="text" name="lastName" placeholder="Last Name">
+                    <span class="input-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </div>
+
         <div class="form-group">
             <div class="input-wrapper">
                 <input type="email" name="username" placeholder="Email address" required>

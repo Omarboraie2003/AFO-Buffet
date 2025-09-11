@@ -542,7 +542,7 @@
 <div class="container">
     <header class="header">
         <div class="nav-frame">
-            <a href="chefWelcomePage.html" class="home-icon"><img src="images/home.jpg" alt="Home"></a>
+            <a href="chefWelcomePage.html" class="home-icon"><img src="Images/home.jpg" alt="Home"></a>
             <div class="nav-buttons">
                 <a href="chefManageItemsPage.html" class="nav-btn">Menu</a>
                 <a href="accountManagement.html" class="nav-btn active">Accounts</a>
@@ -751,13 +751,15 @@
                 body: `action=add&email=${encodeURIComponent(email)}&role=${encodeURIComponent(role)}`
             });
 
+            const message = await response.text(); // ⬅️ always read the response body
+
             if (response.ok) {
-                showToast('User added successfully');
+                showToast(message || 'User added successfully'); // backend says "User added successfully"
                 document.getElementById('userEmail').value = '';
                 document.getElementById('userRole').value = 'employee';
                 await loadUsers();
             } else {
-                showToast('Failed to add user', 'error');
+                showToast(message || 'Failed to add user', 'error'); // now you’ll see "User with this email already exists"
             }
         } catch (error) {
             console.error('Error adding user:', error);
@@ -766,6 +768,7 @@
             setButtonLoading('addUserBtn', 'addUserText', 'addUserLoading', false);
         }
     }
+
 
     async function deleteUser(userId) {
         if (!confirm('Are you sure you want to delete this user?')) return;

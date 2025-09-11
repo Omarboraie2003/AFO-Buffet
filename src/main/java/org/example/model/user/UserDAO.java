@@ -30,9 +30,9 @@ public class UserDAO {
     }
 
     public UserModel getUserById(int user_id) {
-        String sqp = "select * from Users where user_id = ?";
+        String sql = "SELECT * FROM Users WHERE user_id = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sqp)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, user_id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -43,7 +43,9 @@ public class UserDAO {
                         rs.getString("access_level"),
                         rs.getBoolean("is_registered"),
                         rs.getBoolean("is_active"),
-                        rs.getInt("cart_id")
+                        rs.getInt("cart_id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name")
                 );
             } else {
                 return null; // User not found
@@ -83,6 +85,8 @@ public class UserDAO {
                     boolean register = rs.getBoolean("is_registered");
                     boolean isActive = rs.getBoolean("is_active");
                     int cart_id = rs.getInt("cart_id");
+                    String firstName = rs.getString("first_name");
+                    String lastName = rs.getString("last_name");
 
                     System.out.println("User ID: " + userId);
                     System.out.println("Username: " + username);
@@ -90,8 +94,10 @@ public class UserDAO {
                     System.out.println("Access Level: " + accessLevel);
                     System.out.println("Register Status: " + register);
                     System.out.println("Active Status: " + isActive);
+                    System.out.println("First Name: " + firstName);
+                    System.out.println("Last Name: " + lastName);
 
-                    UserModel user = new UserModel(userId, username, passwordHash, accessLevel, register, isActive, cart_id);
+                    UserModel user = new UserModel(userId, username, passwordHash, accessLevel, register, isActive, cart_id, firstName, lastName);
                     user.setActive(isActive);
                     System.out.println("UserModel created successfully");
                     return user;
@@ -106,7 +112,27 @@ public class UserDAO {
                     for (int i = 1; i <= columnCount; i++) {
                         System.out.println("  " + i + ": " + metaData.getColumnName(i) + " (" + metaData.getColumnTypeName(i) + ")");
                     }
-                    throw columnError;
+
+                    // Fallback: create UserModel without first_name and last_name if columns don't exist
+                    try {
+                        rs.beforeFirst();
+                        rs.next();
+                        UserModel user = new UserModel(
+                                rs.getInt("user_id"),
+                                rs.getString("username"),
+                                rs.getString("password_hash"),
+                                rs.getString("access_level"),
+                                rs.getBoolean("is_registered"),
+                                rs.getBoolean("is_active"),
+                                rs.getInt("cart_id")
+                        );
+                        user.setActive(rs.getBoolean("is_active"));
+                        System.out.println("UserModel created successfully (without names)");
+                        return user;
+                    } catch (SQLException fallbackError) {
+                        System.out.println("Fallback also failed: " + fallbackError.getMessage());
+                        throw columnError;
+                    }
                 }
             } else {
                 System.out.println("No user found with email: '" + email + "'");
@@ -140,7 +166,7 @@ public class UserDAO {
     // --- Get all users (admin only) ---
     public List<UserModel> getAllUsers() {
         List<UserModel> users = new ArrayList<>();
-        String sql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id FROM Users ORDER BY username";
+        String sql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id, first_name, last_name FROM Users ORDER BY username";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -154,19 +180,43 @@ public class UserDAO {
                         rs.getString("access_level"),
                         rs.getBoolean("is_registered"),
                         rs.getBoolean("is_active"),
-                        rs.getInt("cart_id")
+                        rs.getInt("cart_id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name")
                 );
                 user.setActive(rs.getBoolean("is_active"));
                 users.add(user);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            // Fallback for databases without first_name, last_name columns
+            System.out.println("Trying fallback query without name columns: " + e.getMessage());
+            String fallbackSql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id FROM Users ORDER BY username";
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(fallbackSql)) {
+
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    UserModel user = new UserModel(
+                            rs.getInt("user_id"),
+                            rs.getString("username"),
+                            rs.getString("password_hash"),
+                            rs.getString("access_level"),
+                            rs.getBoolean("is_registered"),
+                            rs.getBoolean("is_active"),
+                            rs.getInt("cart_id")
+                    );
+                    user.setActive(rs.getBoolean("is_active"));
+                    users.add(user);
+                }
+            } catch (SQLException fallbackError) {
+                fallbackError.printStackTrace();
+            }
         }
         return users;
     }
 
     // --- Add new user with default password (admin only) ---
-    public boolean addNewUser(String email, String role) {
+    public boolean addNewUser(String email, String role) throws SQLException {
         String sql = "INSERT INTO Users (username, password_hash, access_level, is_registered, is_active, cart_id) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
@@ -181,9 +231,6 @@ public class UserDAO {
 
             return stmt.executeUpdate() > 0;
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
         }
     }
 
@@ -280,10 +327,7 @@ public class UserDAO {
 
     // --- Set the new password that the user entered while registering ---
     public boolean registerUser(UserModel user) {
-
-
-
-        String sql = "UPDATE Users SET username = ?, password_hash = ?, access_level = ?, is_registered = ?, is_active = ?, cart_id = ? WHERE user_id = ?";
+        String sql = "UPDATE Users SET username = ?, password_hash = ?, access_level = ?, is_registered = ?, is_active = ?, cart_id = ?, first_name = ?, last_name = ? WHERE user_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -297,13 +341,36 @@ public class UserDAO {
             stmt.setBoolean(4, user.isIs_registered());
             stmt.setBoolean(5, user.isActive());
             stmt.setInt(6, cart_id);
-            stmt.setInt(7, user.getUserId());
+            stmt.setString(7, user.getFirst_name());
+            stmt.setString(8, user.getLast_name());
+            stmt.setInt(9, user.getUserId());
 
             return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            // Fallback for databases without first_name, last_name columns
+            System.out.println("Trying fallback registerUser without name columns: " + e.getMessage());
+            String fallbackSql = "UPDATE Users SET username = ?, password_hash = ?, access_level = ?, is_registered = ?, is_active = ?, cart_id = ? WHERE user_id = ?";
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(fallbackSql)) {
+
+                OrderDAO orderDAO = new OrderDAO();
+                int cart_id = orderDAO.createCart(user.getUserId());
+
+                stmt.setString(1, user.getUsername());
+                stmt.setString(2, user.getPasswordHash());
+                stmt.setString(3, user.getAccessLevel());
+                stmt.setBoolean(4, user.isIs_registered());
+                stmt.setBoolean(5, user.isActive());
+                stmt.setInt(6, cart_id);
+                stmt.setInt(7, user.getUserId());
+
+                return stmt.executeUpdate() > 0;
+
+            } catch (SQLException fallbackError) {
+                fallbackError.printStackTrace();
+                return false;
+            }
         }
     }
 
@@ -317,16 +384,30 @@ public class UserDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new UserModel(
-                        rs.getInt("user_id"),
-                        rs.getString("username"),
-                        rs.getString("password_hash"),
-                        rs.getString("access_level"),
-                        rs.getBoolean("is_registered"),
-                        rs.getBoolean("is_active"),
-                        rs.getInt("cart_id")
-                );
-
+                try {
+                    return new UserModel(
+                            rs.getInt("user_id"),
+                            rs.getString("username"),
+                            rs.getString("password_hash"),
+                            rs.getString("access_level"),
+                            rs.getBoolean("is_registered"),
+                            rs.getBoolean("is_active"),
+                            rs.getInt("cart_id"),
+                            rs.getString("first_name"),
+                            rs.getString("last_name")
+                    );
+                } catch (SQLException e) {
+                    // Fallback for databases without first_name, last_name columns
+                    return new UserModel(
+                            rs.getInt("user_id"),
+                            rs.getString("username"),
+                            rs.getString("password_hash"),
+                            rs.getString("access_level"),
+                            rs.getBoolean("is_registered"),
+                            rs.getBoolean("is_active"),
+                            rs.getInt("cart_id")
+                    );
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -373,7 +454,7 @@ public class UserDAO {
     // --- Get only active users ---
     public List<UserModel> getActiveUsers() {
         List<UserModel> users = new ArrayList<>();
-        String sql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id FROM Users WHERE is_active = 1 ORDER BY username";
+        String sql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id, first_name, last_name FROM Users WHERE is_active = 1 ORDER BY username";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -387,20 +468,44 @@ public class UserDAO {
                         rs.getString("access_level"),
                         rs.getBoolean("is_registered"),
                         rs.getBoolean("is_active"),
-                        rs.getInt("cart_id")
+                        rs.getInt("cart_id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name")
                 );
                 user.setActive(rs.getBoolean("is_active"));
                 users.add(user);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            // Fallback for databases without first_name, last_name columns
+            System.out.println("Trying fallback getActiveUsers without name columns: " + e.getMessage());
+            String fallbackSql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id FROM Users WHERE is_active = 1 ORDER BY username";
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(fallbackSql)) {
+
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    UserModel user = new UserModel(
+                            rs.getInt("user_id"),
+                            rs.getString("username"),
+                            rs.getString("password_hash"),
+                            rs.getString("access_level"),
+                            rs.getBoolean("is_registered"),
+                            rs.getBoolean("is_active"),
+                            rs.getInt("cart_id")
+                    );
+                    user.setActive(rs.getBoolean("is_active"));
+                    users.add(user);
+                }
+            } catch (SQLException fallbackError) {
+                fallbackError.printStackTrace();
+            }
         }
         return users;
     }
 
     public List<UserModel> getInactiveUsers() {
         List<UserModel> users = new ArrayList<>();
-        String sql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id FROM Users WHERE is_active = 0 ORDER BY username";
+        String sql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id, first_name, last_name FROM Users WHERE is_active = 0 ORDER BY username";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -414,13 +519,37 @@ public class UserDAO {
                         rs.getString("access_level"),
                         rs.getBoolean("is_registered"),
                         rs.getBoolean("is_active"),
-                        rs.getInt("cart_id")
+                        rs.getInt("cart_id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name")
                 );
                 user.setActive(rs.getBoolean("is_active"));
                 users.add(user);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            // Fallback for databases without first_name, last_name columns
+            System.out.println("Trying fallback getInactiveUsers without name columns: " + e.getMessage());
+            String fallbackSql = "SELECT user_id, username, password_hash, access_level, is_registered, is_active, cart_id FROM Users WHERE is_active = 0 ORDER BY username";
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(fallbackSql)) {
+
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    UserModel user = new UserModel(
+                            rs.getInt("user_id"),
+                            rs.getString("username"),
+                            rs.getString("password_hash"),
+                            rs.getString("access_level"),
+                            rs.getBoolean("is_registered"),
+                            rs.getBoolean("is_active"),
+                            rs.getInt("cart_id")
+                    );
+                    user.setActive(rs.getBoolean("is_active"));
+                    users.add(user);
+                }
+            } catch (SQLException fallbackError) {
+                fallbackError.printStackTrace();
+            }
         }
         return users;
     }
@@ -457,5 +586,22 @@ public class UserDAO {
             e.printStackTrace();
         }
         return -1;
+    }
+
+    // --- Update user names ---
+    public boolean updateUserNames(int userId, String firstName, String lastName) {
+        String sql = "UPDATE Users SET first_name = ?, last_name = ? WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, firstName);
+            stmt.setString(2, lastName);
+            stmt.setInt(3, userId);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.out.println("Error updating user names: " + e.getMessage());
+            return false;
+        }
     }
 }

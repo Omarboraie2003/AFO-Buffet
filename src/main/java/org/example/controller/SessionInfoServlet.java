@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import com.google.gson.JsonObject;
+import org.example.model.user.UserDAO;
+import org.example.model.user.UserModel;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,6 +18,7 @@ import java.io.PrintWriter;
 public class SessionInfoServlet extends HttpServlet {
 
     private static final int TEN_MONTHS_IN_SECONDS = 10 * 30 * 24 * 60 * 60; // 10 months in seconds
+    private final UserDAO userDAO = new UserDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -36,6 +39,9 @@ public class SessionInfoServlet extends HttpServlet {
                 json.addProperty("username", (String) session.getAttribute("username"));
                 json.addProperty("accessLevel", (String) session.getAttribute("accessLevel"));
                 json.addProperty("sessionId", session.getId());
+
+                // Get user details from database to include names
+                addUserNamesToJson(json, (Integer) session.getAttribute("userId"));
 
                 // Update cookies to extend their life
                 updateCookies(response, session);
@@ -61,6 +67,9 @@ public class SessionInfoServlet extends HttpServlet {
                     json.addProperty("accessLevel", userInfo.accessLevel);
                     json.addProperty("sessionId", session.getId());
 
+                    // Get user details from database to include names
+                    addUserNamesToJson(json, userInfo.userId);
+
                     System.out.println("[DEBUG][SessionInfoServlet] Session restored from cookies for user: " + userInfo.username);
                 } else {
                     // No valid session or cookies
@@ -78,6 +87,33 @@ public class SessionInfoServlet extends HttpServlet {
             out.print(error.toString());
         } finally {
             out.close();
+        }
+    }
+
+    /**
+     * Add user's first name and last name to JSON response
+     */
+    private void addUserNamesToJson(JsonObject json, int userId) {
+        try {
+            UserModel user = userDAO.getUserById(userId);
+            if (user != null) {
+                String firstName = user.getFirst_name();
+                String lastName = user.getLast_name();
+
+                if (firstName != null) {
+                    json.addProperty("firstName", firstName);
+                }
+                if (lastName != null) {
+                    json.addProperty("lastName", lastName);
+                }
+
+                System.out.println("[DEBUG][SessionInfoServlet] Added names - First: " + firstName + ", Last: " + lastName);
+            } else {
+                System.out.println("[DEBUG][SessionInfoServlet] User not found for ID: " + userId);
+            }
+        } catch (Exception e) {
+            System.err.println("[ERROR][SessionInfoServlet] Failed to get user names: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

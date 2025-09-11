@@ -92,18 +92,13 @@ public class OrderDAO {
         return false;
     }
 
-    // Add this method to your existing OrderDAO class
-
-    // Add this import at the top of your OrderDAO class if not already present:
-// import java.util.ArrayList;
-
-// Add this method to your existing OrderDAO class
-
     public static ArrayList<OrderDetailsDTO> getAllOrderDetails() {
         String sql = """
         SELECT 
             o.order_id,
             u.username,
+            u.first_name,
+            u.last_name,
             o.order_date,
             o.order_status,
             mi.item_name,
@@ -114,6 +109,7 @@ public class OrderDAO {
         JOIN Users u ON o.user_id = u.user_id  
         JOIN ItemsInOrder iio ON o.order_id = iio.order_id
         JOIN MenuItems mi ON iio.item_id = mi.item_id
+        WHERE o.order_status != 'completed' OR o.order_status IS NULL
         ORDER BY o.order_id, iio.item_in_order_id
         """;
 
@@ -136,7 +132,82 @@ public class OrderDAO {
                         orderDetailsList.add(currentOrder);
                     }
 
-                    // Create new order
+                    // Create new order with first name and last name
+                    currentOrder = new OrderDetailsDTO(
+                            orderId,
+                            rs.getString("username"),
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            rs.getTimestamp("order_date").toLocalDateTime(),
+                            rs.getString("order_status")
+                    );
+                    lastOrderId = orderId;
+                }
+
+                // Add item to current order
+                OrderItemDetail item = new OrderItemDetail(
+                        rs.getString("item_name"),
+                        rs.getString("type_of_bread"),
+                        rs.getString("quantity"),
+                        rs.getString("item_note")
+                );
+                currentOrder.addItem(item);
+            }
+
+            // Don't forget to add the last order
+            if (currentOrder != null) {
+                orderDetailsList.add(currentOrder);
+            }
+
+        } catch (SQLException e) {
+            // Fallback for databases without first_name, last_name columns
+            System.out.println("Trying fallback query without name columns: " + e.getMessage());
+            return getAllOrderDetailsWithoutNames();
+        }
+
+        return orderDetailsList;
+    }
+
+    // Fallback method for databases without first_name, last_name columns
+    private static ArrayList<OrderDetailsDTO> getAllOrderDetailsWithoutNames() {
+        String sql = """
+        SELECT 
+            o.order_id,
+            u.username,
+            o.order_date,
+            o.order_status,
+            mi.item_name,
+            iio.type_of_bread,
+            iio.quantity,
+            iio.item_note
+        FROM Orders o
+        JOIN Users u ON o.user_id = u.user_id  
+        JOIN ItemsInOrder iio ON o.order_id = iio.order_id
+        JOIN MenuItems mi ON iio.item_id = mi.item_id
+        WHERE o.order_status != 'completed' OR o.order_status IS NULL
+        ORDER BY o.order_id, iio.item_in_order_id
+        """;
+
+        ArrayList<OrderDetailsDTO> orderDetailsList = new ArrayList<>();
+        OrderDetailsDTO currentOrder = null;
+        int lastOrderId = -1;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int orderId = rs.getInt("order_id");
+
+                // Check if this is a new order
+                if (orderId != lastOrderId) {
+                    // Save previous order if it exists
+                    if (currentOrder != null) {
+                        orderDetailsList.add(currentOrder);
+                    }
+
+                    // Create new order without names
                     currentOrder = new OrderDetailsDTO(
                             orderId,
                             rs.getString("username"),
@@ -146,7 +217,7 @@ public class OrderDAO {
                     lastOrderId = orderId;
                 }
 
-                // Add item to current order (item name first, as most prominent)
+                // Add item to current order
                 OrderItemDetail item = new OrderItemDetail(
                         rs.getString("item_name"),
                         rs.getString("type_of_bread"),
@@ -167,6 +238,7 @@ public class OrderDAO {
 
         return orderDetailsList;
     }
+
     public static boolean updateOrderStatus(int orderId, String newStatus) {
         String sql = "UPDATE Orders SET order_status = ? WHERE order_id = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -186,4 +258,168 @@ public class OrderDAO {
         }
     }
 
+    public static ArrayList<OrderDetailsDTO> getCompletedOrderDetails() {
+        String sql = """
+        SELECT 
+            o.order_id,
+            u.username,
+            u.first_name,
+            u.last_name,
+            o.order_date,
+            o.order_status,
+            mi.item_name,
+            iio.type_of_bread,
+            iio.quantity,
+            iio.item_note
+        FROM Orders o
+        JOIN Users u ON o.user_id = u.user_id  
+        JOIN ItemsInOrder iio ON o.order_id = iio.order_id
+        JOIN MenuItems mi ON iio.item_id = mi.item_id
+        WHERE o.order_status = 'completed'
+        ORDER BY o.order_date DESC, o.order_id DESC, iio.item_in_order_id
+        """;
+
+        ArrayList<OrderDetailsDTO> orderDetailsList = new ArrayList<>();
+        OrderDetailsDTO currentOrder = null;
+        int lastOrderId = -1;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int orderId = rs.getInt("order_id");
+
+                // Check if this is a new order
+                if (orderId != lastOrderId) {
+                    // Save previous order if it exists
+                    if (currentOrder != null) {
+                        orderDetailsList.add(currentOrder);
+                    }
+
+                    // Create new order with first name and last name
+                    currentOrder = new OrderDetailsDTO(
+                            orderId,
+                            rs.getString("username"),
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            rs.getTimestamp("order_date").toLocalDateTime(),
+                            rs.getString("order_status")
+                    );
+                    lastOrderId = orderId;
+                }
+
+                // Add item to current order
+                OrderItemDetail item = new OrderItemDetail(
+                        rs.getString("item_name"),
+                        rs.getString("type_of_bread"),
+                        rs.getString("quantity"),
+                        rs.getString("item_note")
+                );
+                currentOrder.addItem(item);
+            }
+
+            // Don't forget to add the last order
+            if (currentOrder != null) {
+                orderDetailsList.add(currentOrder);
+            }
+
+        } catch (SQLException e) {
+            // Fallback for databases without first_name, last_name columns
+            System.err.println("Trying fallback getCompletedOrderDetails without name columns: " + e.getMessage());
+            return getCompletedOrderDetailsWithoutNames();
+        }
+
+        return orderDetailsList;
+    }
+
+    // Fallback method for completed orders without names
+    private static ArrayList<OrderDetailsDTO> getCompletedOrderDetailsWithoutNames() {
+        String sql = """
+        SELECT 
+            o.order_id,
+            u.username,
+            o.order_date,
+            o.order_status,
+            mi.item_name,
+            iio.type_of_bread,
+            iio.quantity,
+            iio.item_note
+        FROM Orders o
+        JOIN Users u ON o.user_id = u.user_id  
+        JOIN ItemsInOrder iio ON o.order_id = iio.order_id
+        JOIN MenuItems mi ON iio.item_id = mi.item_id
+        WHERE o.order_status = 'completed'
+        ORDER BY o.order_date DESC, o.order_id DESC, iio.item_in_order_id
+        """;
+
+        ArrayList<OrderDetailsDTO> orderDetailsList = new ArrayList<>();
+        OrderDetailsDTO currentOrder = null;
+        int lastOrderId = -1;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int orderId = rs.getInt("order_id");
+
+                // Check if this is a new order
+                if (orderId != lastOrderId) {
+                    // Save previous order if it exists
+                    if (currentOrder != null) {
+                        orderDetailsList.add(currentOrder);
+                    }
+
+                    // Create new order without names
+                    currentOrder = new OrderDetailsDTO(
+                            orderId,
+                            rs.getString("username"),
+                            rs.getTimestamp("order_date").toLocalDateTime(),
+                            rs.getString("order_status")
+                    );
+                    lastOrderId = orderId;
+                }
+
+                // Add item to current order
+                OrderItemDetail item = new OrderItemDetail(
+                        rs.getString("item_name"),
+                        rs.getString("type_of_bread"),
+                        rs.getString("quantity"),
+                        rs.getString("item_note")
+                );
+                currentOrder.addItem(item);
+            }
+
+            // Don't forget to add the last order
+            if (currentOrder != null) {
+                orderDetailsList.add(currentOrder);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[OrderDAO] Error retrieving completed orders: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return orderDetailsList;
+    }
+
+    public static int cleanupOldCompletedOrders() {
+        String sql = "DELETE FROM Orders WHERE order_status = 'completed' AND order_date < DATE_SUB(NOW(), INTERVAL 30 DAY)";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            int deletedCount = ps.executeUpdate();
+            System.out.println("[OrderDAO] Cleaned up " + deletedCount + " old completed orders");
+            return deletedCount;
+
+        } catch (SQLException e) {
+            System.err.println("[OrderDAO] Error cleaning up old orders: " + e.getMessage());
+            e.printStackTrace();
+            return 0;
+        }
+    }
 }

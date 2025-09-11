@@ -25,6 +25,7 @@ public class RegisterServlet extends HttpServlet {
     private static final String REDIRECT_PAGE = "login.html";
     private static final int MAX_EMAIL_LENGTH = 254;
     private static final int MAX_PASSWORD_LENGTH = 128;
+    private static final int MAX_NAME_LENGTH = 50;
 
     // Validation patterns
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
@@ -32,6 +33,9 @@ public class RegisterServlet extends HttpServlet {
     );
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+    );
+    private static final Pattern NAME_PATTERN = Pattern.compile(
+            "^[a-zA-Z\\s'-]{1,50}$"
     );
 
     // Common weak passwords
@@ -41,16 +45,21 @@ public class RegisterServlet extends HttpServlet {
     };
 
     // Error messages
+    private static final String ERROR_FIRST_NAME_REQUIRED = "First name is required";
     private static final String ERROR_EMAIL_REQUIRED = "Email is required";
     private static final String ERROR_PASSWORD_REQUIRED = "Password is required";
     private static final String ERROR_CONFIRM_PASSWORD_REQUIRED = "Password confirmation is required";
+    private static final String ERROR_FIRST_NAME_TOO_LONG = "First name is too long (max 50 characters)";
+    private static final String ERROR_LAST_NAME_TOO_LONG = "Last name is too long (max 50 characters)";
     private static final String ERROR_EMAIL_TOO_LONG = "Email address is too long";
     private static final String ERROR_PASSWORD_TOO_LONG = "Password is too long";
+    private static final String ERROR_INVALID_FIRST_NAME = "First name contains invalid characters. Only letters, spaces, hyphens, and apostrophes are allowed";
+    private static final String ERROR_INVALID_LAST_NAME = "Last name contains invalid characters. Only letters, spaces, hyphens, and apostrophes are allowed";
     private static final String ERROR_INVALID_EMAIL = "Invalid email format";
     private static final String ERROR_WEAK_PASSWORD = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@$!%*?&)";
     private static final String ERROR_PASSWORDS_MISMATCH = "Passwords do not match";
     private static final String ERROR_COMMON_PASSWORD = "Password is too common. Please choose a more secure password.";
-    private static final String ERROR_PERSONAL_INFO = "Password cannot contain your email address or username.";
+    private static final String ERROR_PERSONAL_INFO = "Password cannot contain your email address, first name, or last name.";
     private static final String ERROR_CONTACT_ADMIN = "You cannot register. Please contact admin.";
     private static final String ERROR_ALREADY_REGISTERED = "You are already registered. Please log in.";
     private static final String ERROR_REGISTRATION_FAILED = "Registration failed. Try again.";
@@ -69,6 +78,8 @@ public class RegisterServlet extends HttpServlet {
 
             // Debug logging
             System.out.println("Registration attempt:");
+            System.out.println("First Name: '" + registrationRequest.firstName + "'");
+            System.out.println("Last Name: '" + registrationRequest.lastName + "'");
             System.out.println("Username: '" + registrationRequest.username + "'");
             System.out.println("Password length: " + (registrationRequest.password != null ? registrationRequest.password.length() : "null"));
             System.out.println("Confirm password length: " + (registrationRequest.confirmPassword != null ? registrationRequest.confirmPassword.length() : "null"));
@@ -91,6 +102,8 @@ public class RegisterServlet extends HttpServlet {
 
             String hashedPassword = PasswordUtils.hashPassword(registrationRequest.password);
             existingUser.setPasswordHash(hashedPassword);
+            existingUser.setFirst_name(registrationRequest.firstName);
+            existingUser.setLast_name(registrationRequest.lastName);
             existingUser.setRegister(true);            // Mark as registered
 
             boolean success = userDAO.registerUser(existingUser);
@@ -104,20 +117,32 @@ public class RegisterServlet extends HttpServlet {
     }
 
     private RegistrationRequest extractRegistrationData(HttpServletRequest request) {
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
 
         // Trim whitespace from parameters
+        firstName = firstName != null ? firstName.trim() : null;
+        lastName = lastName != null ? lastName.trim() : null;
         username = username != null ? username.trim() : null;
 
-        return new RegistrationRequest(username, password, confirmPassword);
+        return new RegistrationRequest(firstName, lastName, username, password, confirmPassword);
     }
 
     private String validateRegistrationRequest(RegistrationRequest request) {
         String basicValidationError = validateBasicInput(request);
         if (basicValidationError != null) {
             return basicValidationError;
+        }
+
+        if (!isValidName(request.firstName)) {
+            return ERROR_INVALID_FIRST_NAME;
+        }
+
+        if (request.lastName != null && !request.lastName.isEmpty() && !isValidName(request.lastName)) {
+            return ERROR_INVALID_LAST_NAME;
         }
 
         if (!isValidEmail(request.username)) {
@@ -136,7 +161,7 @@ public class RegisterServlet extends HttpServlet {
             return ERROR_COMMON_PASSWORD;
         }
 
-        if (containsPersonalInfo(request.password, request.username)) {
+        if (containsPersonalInfo(request.password, request.username, request.firstName, request.lastName)) {
             return ERROR_PERSONAL_INFO;
         }
 
@@ -144,6 +169,10 @@ public class RegisterServlet extends HttpServlet {
     }
 
     private String validateBasicInput(RegistrationRequest request) {
+        if (isNullOrEmpty(request.firstName)) {
+            return ERROR_FIRST_NAME_REQUIRED;
+        }
+
         if (isNullOrEmpty(request.username)) {
             return ERROR_EMAIL_REQUIRED;
         }
@@ -154,6 +183,14 @@ public class RegisterServlet extends HttpServlet {
 
         if (isNullOrEmpty(request.confirmPassword)) {
             return ERROR_CONFIRM_PASSWORD_REQUIRED;
+        }
+
+        if (request.firstName.length() > MAX_NAME_LENGTH) {
+            return ERROR_FIRST_NAME_TOO_LONG;
+        }
+
+        if (request.lastName != null && request.lastName.length() > MAX_NAME_LENGTH) {
+            return ERROR_LAST_NAME_TOO_LONG;
         }
 
         if (request.username.length() > MAX_EMAIL_LENGTH) {
@@ -168,17 +205,13 @@ public class RegisterServlet extends HttpServlet {
     }
 
     private String validateBusinessLogic(UserModel existingUser) {
-
         if (existingUser == null  || !existingUser.isActive()) {
             return ERROR_CONTACT_ADMIN;
         }
 
-
         if (existingUser.isIs_registered()) {
             return ERROR_ALREADY_REGISTERED;
         }
-
-
 
         return null;
     }
@@ -203,6 +236,15 @@ public class RegisterServlet extends HttpServlet {
     private boolean isNullOrEmpty(String str) {
         boolean result = str == null || str.trim().isEmpty();
         System.out.println("isNullOrEmpty check for '" + str + "': " + result);
+        return result;
+    }
+
+    private boolean isValidName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
+        boolean result = NAME_PATTERN.matcher(name.trim()).matches();
+        System.out.println("Name validation for '" + name + "': " + result);
         return result;
     }
 
@@ -238,28 +280,51 @@ public class RegisterServlet extends HttpServlet {
         return false;
     }
 
-    private boolean containsPersonalInfo(String password, String email) {
-        if (password == null || email == null) {
+    private boolean containsPersonalInfo(String password, String email, String firstName, String lastName) {
+        if (password == null) {
             return false;
         }
 
         String lowerPassword = password.toLowerCase();
-        String lowerEmail = email.toLowerCase();
 
-        if (lowerPassword.contains(lowerEmail)) {
+        // Check email
+        if (email != null && lowerPassword.contains(email.toLowerCase())) {
             return true;
         }
 
-        String username = email.substring(0, email.indexOf('@'));
-        return username.length() >= 3 && lowerPassword.contains(username.toLowerCase());
+        // Check username part of email
+        if (email != null && email.contains("@")) {
+            String username = email.substring(0, email.indexOf('@'));
+            if (username.length() >= 3 && lowerPassword.contains(username.toLowerCase())) {
+                return true;
+            }
+        }
+
+        // Check first name
+        if (firstName != null && firstName.length() >= 3 &&
+                lowerPassword.contains(firstName.toLowerCase().trim())) {
+            return true;
+        }
+
+        // Check last name
+        if (lastName != null && lastName.length() >= 3 &&
+                lowerPassword.contains(lastName.toLowerCase().trim())) {
+            return true;
+        }
+
+        return false;
     }
 
     private static class RegistrationRequest {
+        final String firstName;
+        final String lastName;
         final String username;
         final String password;
         final String confirmPassword;
 
-        RegistrationRequest(String username, String password, String confirmPassword) {
+        RegistrationRequest(String firstName, String lastName, String username, String password, String confirmPassword) {
+            this.firstName = firstName;
+            this.lastName = lastName;
             this.username = username;
             this.password = password;
             this.confirmPassword = confirmPassword;

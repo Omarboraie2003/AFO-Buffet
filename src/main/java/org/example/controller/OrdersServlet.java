@@ -40,7 +40,19 @@ public class OrdersServlet extends HttpServlet {
         response.setHeader("Expires", "0");
 
         try {
-            // Get all order details using your new method
+            // Check if this is a request for order history
+            String pathInfo = request.getPathInfo();
+            if (pathInfo != null && pathInfo.equals("/history")) {
+                // Get completed orders for history view
+                ArrayList<OrderDetailsDTO> completedOrders = OrderDAO.getCompletedOrderDetails();
+                List<FrontendOrderDTO> frontendOrders = convertToFrontendFormat(completedOrders);
+                String jsonResponse = gson.toJson(frontendOrders);
+                response.getWriter().write(jsonResponse);
+                System.out.println("[OrdersServlet] Returned " + frontendOrders.size() + " completed orders to frontend");
+                return;
+            }
+
+            // Get all active order details (excluding completed)
             ArrayList<OrderDetailsDTO> orderDetails = OrderDAO.getAllOrderDetails();
 
             // Convert to frontend-compatible format
@@ -51,7 +63,7 @@ public class OrdersServlet extends HttpServlet {
             response.getWriter().write(jsonResponse);
 
             // Log for debugging
-            System.out.println("[OrdersServlet] Returned " + frontendOrders.size() + " orders to frontend");
+            System.out.println("[OrdersServlet] Returned " + frontendOrders.size() + " active orders to frontend");
 
         } catch (Exception e) {
             // Handle errors gracefully
@@ -72,8 +84,13 @@ public class OrdersServlet extends HttpServlet {
         for (OrderDetailsDTO order : orderDetails) {
             FrontendOrderDTO frontendOrder = new FrontendOrderDTO();
             frontendOrder.orderId = order.getOrderId();
-            frontendOrder.employeeId = extractUserIdFromUsername(order.getUsername()); // or use a different approach
-            frontendOrder.username = order.getUsername(); // Add username for display
+            frontendOrder.employeeId = extractUserIdFromUsername(order.getUsername());
+            frontendOrder.username = order.getUsername();
+
+
+            frontendOrder.firstName = order.getFirstName();
+            frontendOrder.lastName = order.getLastName();
+
             frontendOrder.orderDate = order.getOrderTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
             frontendOrder.status = order.getOrderStatus();
 
@@ -93,7 +110,6 @@ public class OrdersServlet extends HttpServlet {
 
         return result;
     }
-
     /**
      * Extract user ID from username - you might need to adjust this based on your username format
      * Or you could modify your DTO to include user_id directly
@@ -111,6 +127,8 @@ public class OrdersServlet extends HttpServlet {
         public int orderId;
         public int employeeId;
         public String username;
+        public String firstName;    // Make sure this exists
+        public String lastName;     // Make sure this exists
         public String orderDate;
         public String status;
         public List<FrontendItemDTO> items;
@@ -165,12 +183,23 @@ public class OrdersServlet extends HttpServlet {
                         }
                     }
 
+                    // Convert "ready" status to "completed"
+                    if ("ready".equals(newStatus)) {
+                        newStatus = "completed";
+                        System.out.println("[OrdersServlet] Converting 'ready' status to 'completed' for order " + orderId);
+                    }
+
                     System.out.println("[OrdersServlet] Updating order " + orderId + " to status: " + newStatus);
 
                     // Update the database directly
                     boolean updated = OrderDAO.updateOrderStatus(orderId, newStatus);
 
                     if (updated) {
+                        // Clean up old completed orders every time we complete a new one
+                        if ("completed".equals(newStatus)) {
+                            OrderDAO.cleanupOldCompletedOrders();
+                        }
+
                         response.getWriter().write("{\"success\": true, \"message\": \"Order " + orderId + " status updated to " + newStatus + "\"}");
                         System.out.println("[OrdersServlet] Successfully updated order " + orderId + " in database");
                     } else {
