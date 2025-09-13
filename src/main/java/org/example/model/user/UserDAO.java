@@ -217,22 +217,48 @@ public class UserDAO {
 
     // --- Add new user with default password (admin only) ---
     public boolean addNewUser(String email, String role) throws SQLException {
-        String sql = "INSERT INTO Users (username, password_hash, access_level, is_registered, is_active, cart_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String insertUserSql = "INSERT INTO Users (username, password_hash, access_level, is_registered, is_active, cart_id) " +
+                "VALUES (?, ?, ?, ?, ?, NULL)";
+        String updateCartSql = "UPDATE Users SET cart_id = ? WHERE user_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement insertStmt = conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setString(1, email);
-            stmt.setString(2, null);
-            stmt.setString(3, role);
-            stmt.setInt(4, 0); // register = 0 initially
-            stmt.setInt(5, 1); // is_active = 1 by default
-            stmt.setNull(6, Types.INTEGER); // cart_id = NULL initially
+            // Step 1: Insert user without cart_id
+            insertStmt.setString(1, email);
+            insertStmt.setString(2, null);
+            insertStmt.setString(3, role);
+            insertStmt.setInt(4, 0); // not registered yet
+            insertStmt.setInt(5, 1); // active by default
+            int rows = insertStmt.executeUpdate();
 
-            return stmt.executeUpdate() > 0;
+            if (rows == 0) {
+                return false;
+            }
 
+            // Step 2: Get the generated user_id
+            int userId;
+            try (ResultSet rs = insertStmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    userId = rs.getInt(1);
+                } else {
+                    throw new SQLException("Failed to retrieve user_id after insert.");
+                }
+            }
+
+            // Step 3: Assign cart_id only if not a chef
+            if (!"chef".equalsIgnoreCase(role)) {
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateCartSql)) {
+                    updateStmt.setInt(1, userId); // cart_id = user_id
+                    updateStmt.setInt(2, userId);
+                    updateStmt.executeUpdate();
+                }
+            }
+
+            return true;
         }
     }
+
 
     // --- Delete user (hard delete) ---
     public boolean deleteUser(int userId) {
@@ -327,43 +353,39 @@ public class UserDAO {
 
     // --- Set the new password that the user entered while registering ---
     public boolean registerUser(UserModel user) {
-        String sql = "UPDATE Users SET username = ?, password_hash = ?, access_level = ?, is_registered = ?, is_active = ?, cart_id = ?, first_name = ?, last_name = ? WHERE user_id = ?";
+        String sql = "UPDATE Users SET username = ?, password_hash = ?, access_level = ?, " +
+                "is_registered = ?, is_active = ?, first_name = ?, last_name = ? " +
+                "WHERE user_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            OrderDAO orderDAO = new OrderDAO();
-            int cart_id = orderDAO.createCart(user.getUserId());
 
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());
             stmt.setString(3, user.getAccessLevel());
             stmt.setBoolean(4, user.isIs_registered());
             stmt.setBoolean(5, user.isActive());
-            stmt.setInt(6, cart_id);
-            stmt.setString(7, user.getFirst_name());
-            stmt.setString(8, user.getLast_name());
-            stmt.setInt(9, user.getUserId());
+            stmt.setString(6, user.getFirst_name());
+            stmt.setString(7, user.getLast_name());
+            stmt.setInt(8, user.getUserId());
 
             return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            // Fallback for databases without first_name, last_name columns
+            // Fallback if first_name, last_name don’t exist
             System.out.println("Trying fallback registerUser without name columns: " + e.getMessage());
-            String fallbackSql = "UPDATE Users SET username = ?, password_hash = ?, access_level = ?, is_registered = ?, is_active = ?, cart_id = ? WHERE user_id = ?";
+            String fallbackSql = "UPDATE Users SET username = ?, password_hash = ?, access_level = ?, " +
+                    "is_registered = ?, is_active = ? WHERE user_id = ?";
+
             try (Connection conn = DBConnection.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(fallbackSql)) {
-
-                OrderDAO orderDAO = new OrderDAO();
-                int cart_id = orderDAO.createCart(user.getUserId());
 
                 stmt.setString(1, user.getUsername());
                 stmt.setString(2, user.getPasswordHash());
                 stmt.setString(3, user.getAccessLevel());
                 stmt.setBoolean(4, user.isIs_registered());
                 stmt.setBoolean(5, user.isActive());
-                stmt.setInt(6, cart_id);
-                stmt.setInt(7, user.getUserId());
+                stmt.setInt(6, user.getUserId());
 
                 return stmt.executeUpdate() > 0;
 
@@ -373,6 +395,7 @@ public class UserDAO {
             }
         }
     }
+
 
     // --- Get user by username (for session management) ---
     public UserModel getUserByUsername(String username) {
@@ -588,20 +611,6 @@ public class UserDAO {
         return -1;
     }
 
-    // --- Update user names ---
-    public boolean updateUserNames(int userId, String firstName, String lastName) {
-        String sql = "UPDATE Users SET first_name = ?, last_name = ? WHERE user_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, firstName);
-            stmt.setString(2, lastName);
-            stmt.setInt(3, userId);
-            return stmt.executeUpdate() > 0;
 
-        } catch (SQLException e) {
-            System.out.println("Error updating user names: " + e.getMessage());
-            return false;
-        }
-    }
 }

@@ -1537,7 +1537,6 @@
             }
 
             console.log("Today's special loaded:", special.item_name);
-            console.log("Today's special loaded:", special.item_name);
 
         } catch (err) {
             console.error("Error loading today's special:", err);
@@ -1553,7 +1552,22 @@
             const payload = new URLSearchParams();
             payload.append("itemId", item.item_id);
 
-            const res = await fetch("/AllForOneBuffetAPP/addToCart", {
+            const type_of_bread = document.querySelector('input[name="bread"]:checked');
+            const quantity = document.querySelector('input[name="quantity"]:checked');
+            const note = document.querySelector(".notes-input").value.trim();
+
+            console.log("Adding to cart:", {
+                item_id: item.item_id,
+                type_of_bread: type_of_bread ? type_of_bread.value : "N/A",
+                quantity: quantity ? quantity.value : "one",
+                note: note
+            });
+
+            payload.append("type_of_bread", type_of_bread ? type_of_bread.value : null);
+            payload.append("quantity", quantity ? quantity.value : "one");
+            payload.append("item_note", note ? note : null);
+
+            const res = await fetch("/AllForOneBuffetAPP/manage_cart", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: payload.toString()
@@ -1562,11 +1576,12 @@
             const data = await res.json();
             console.log("🔎 Response from server:", data);
 
-            if (data.order_status === "success") {  // 🔑 notice order_status
+            if (data.success) {  // 🔑 notice order_status
                 console.log("Item added to cart:", data);
                 const countEl = document.getElementById("cart-count");
                 countEl.textContent = parseInt(countEl.textContent) + 1;
                 closeItemPopup();
+                updateCartCount();
             } else {
                 alert("Failed to add item: " + data.message);
             }
@@ -1580,23 +1595,44 @@
     });
 
     // Function to fetch cart items and update the count
-    function updateCartCount() {
-        fetch('/AllForOneBuffetAPP/addToCart') // or your endpoint that returns cart items
-            .then(res => res.json())
-            .then(data => {
-                const countEl = document.getElementById("cart-count");
-                if (data.success && data.items) {
-                    // Set cart count to number of items in the array
-                    countEl.textContent = data.items.length;
-                } else {
-                    countEl.textContent = 0;
-                }
-            })
-            .catch(err => {
-                console.error("Failed to fetch cart items:", err);
-                document.getElementById("cart-count").textContent = 0;
+    async function updateCartCount() {
+        // fetch('/AllForOneBuffetAPP/addToCart') // or your endpoint that returns cart items
+        //     .then(res => res.json())
+        //     .then(data => {
+        //         const countEl = document.getElementById("cart-count");
+        //         if (data.success && data.items) {
+        //             // Set cart count to number of items in the array
+        //             countEl.textContent = data.items.length;
+        //         } else {
+        //             countEl.textContent = 0;
+        //         }
+        //     })
+        //     .catch(err => {
+        //         console.error("Failed to fetch cart items:", err);
+        //         document.getElementById("cart-count").textContent = 0;
+        //     });
+
+        try {
+            const res = await fetch("/AllForOneBuffetAPP/manage_cart", {
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
             });
+
+            const data = await res.json();
+            console.log("Fetched cart data:", data);
+
+            if (data.success && Array.isArray(data.data)) {
+                document.getElementById("cart-count").textContent = data.data.length;
+            } else {
+                console.warn("No items in cart or failed to fetch", data.message);
+                document.getElementById("cart-count").textContent = 0;
+            }
+        } catch (err) {
+            console.error("Failed to fetch cart items:", err);
+            document.getElementById("cart-count").textContent = 0;
+        }
     }
+
     function initializeMenu() {
         console.log("Initializing dynamic menu...");
 
