@@ -59,14 +59,17 @@ public class OrderDAO {
         return false;
     }
 
-    public static void confirmCart(int user_id) {
+    public static int confirmCart(int user_id) {
         String sql = "UPDATE Orders SET order_date = ?, order_status = ? WHERE user_id = ? AND order_status = 'cart'";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             ps.setString(2, "pending");
             ps.setInt(3, user_id);
+            ps.executeUpdate();
+            return createCart(user_id); // Create a new cart for the user
         } catch (SQLException e) {e.printStackTrace();}
+        return -1;
     }
 
     public static boolean deleteOrder(int order_id) {

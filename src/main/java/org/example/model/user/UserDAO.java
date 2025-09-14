@@ -425,22 +425,26 @@ public class UserDAO {
         return users;
     }
 
-    public void updateUserCartId(int userId, int cartId) {
+    public boolean updateUserCartId(int userId, int cartId) {
         String sql = "UPDATE Users SET cart_id = ? WHERE user_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, cartId);
             stmt.setInt(2, userId);
-            stmt.executeUpdate();
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
-    public void confirmUserCart(int userId) {
-        OrderDAO.confirmCart(userId);
-        int new_cart_id = OrderDAO.createCart(userId);
-        updateUserCartId(userId, new_cart_id);
+    public boolean confirmUserCart(int userId) {
+        int new_cart_id = OrderDAO.confirmCart(userId);
+        if (new_cart_id > 0 && updateUserCartId(userId, new_cart_id)) {
+            updateUserCartId(userId, new_cart_id);
+            return true;
+        }
+        return false;
     }
 
     public int getUserCartId(int userId) {

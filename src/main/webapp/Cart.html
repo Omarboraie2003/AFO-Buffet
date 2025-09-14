@@ -845,11 +845,27 @@
         console.log("=== END UPDATE CART ITEM DEBUG ===");
     }
 
-    function confirmOrder() {
-        alert("Order confirmed! Redirecting to payment...");
-        //     alert('Order confirmed! Redirecting to payment...');
+    async function confirmOrder() {
+        try {
+            const res = await fetch("/AllForOneBuffetAPP/confirm_cart", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            });
 
-        // TODO: call servlet to mark cart as confirmed
+            const data = await res.json();
+            console.log("🔎 Confirm cart response:", data);
+
+            if (data.success) {
+                alert("✅ " + data.message);
+                // Reload cart UI by calling your existing function
+                await loadCart();
+            } else {
+                alert("⚠️ Failed: " + data.message);
+            }
+        } catch (err) {
+            console.error("❌ Error confirming order:", err);
+            alert("Unexpected error while confirming order.");
+        }
     }
 
 
