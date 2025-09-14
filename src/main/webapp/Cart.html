@@ -616,7 +616,7 @@
 
                         // Determine image source for each item
                         let imageSrc = "";
-                        if (item.photoUrl && item.photoUrl !== null) {
+                        if (item.photo_url && item.photo_url !== null) {
                             imageSrc = `Images/${item.photo_url}`;
                         }
 
@@ -660,7 +660,7 @@
         document.getElementById("popupProductTitle").textContent = item.item_name;
 
         const imgEl = document.getElementById("popupProductImage");
-        imgEl.src = item.photoUrl ? `Images/${item.photoUrl}` : "Images/falafel.png";
+        imgEl.src = item.photo_url ? `Images/${item.photo_url}` : "Images/falafel.png";
         imgEl.alt = item.item_name;
 
         // Set description

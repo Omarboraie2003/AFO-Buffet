@@ -26,17 +26,94 @@
 
 
 
+
         body {
             font-family: 'Poppins', sans-serif, ;
-            background-color: #DFDFDF;
-            color: #333;
+   background: linear-gradient(135deg, #fff7f0 0%, #ffe9d6 100%);
+               color: #333;
             line-height: 1.6;
         }
+/* Animated background particles */
+/* Animated background particles */
+.bg-decoration {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.25; /* softer visibility */
+    animation: bounce 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; /* smooth bounce */
+    filter: blur(2px);
+}
+
+/* Big soft orange bubble */
+.bg-decoration:nth-child(1) {
+    width: 240px;
+    height: 240px;
+    background: linear-gradient(45deg, #ffb366, #ff944d);
+    top: 10%;
+    left: -5%;
+    animation-delay: -2s;
+}
+
+/* Peachy bubble */
+.bg-decoration:nth-child(2) {
+    width: 180px;
+    height: 180px;
+    background: linear-gradient(45deg, #ffcc99, #ff884d);
+    top: 65%;
+    right: -5%;
+    animation-delay: -4s;
+}
+
+/* Light cream bubble */
+.bg-decoration:nth-child(3) {
+    width: 140px;
+    height: 140px;
+    background: linear-gradient(45deg, #ffd9b3, #ff9966);
+    top: 30%;
+    right: 25%;
+    animation-delay: -6s;
+}
+/* Big soft orange bubble */
+.bg-decoration:nth-child(1) {
+    width: 240px;
+    height: 240px;
+    background: linear-gradient(45deg, #ffb366, #ff944d);
+    top: 10%;
+    left: -5%;
+    animation-delay: -2s;
+}
+
+/* Peachy bubble */
+.bg-decoration:nth-child(2) {
+    width: 180px;
+    height: 180px;
+    background: linear-gradient(45deg, #ffcc99, #ff884d);
+    top: 65%;
+    right: -5%;
+    animation-delay: -4s;
+}
+
+/* Light cream bubble */
+.bg-decoration:nth-child(3) {
+    width: 140px;
+    height: 140px;
+    background: linear-gradient(45deg, #ffd9b3, #ff9966);
+    top: 30%;
+    right: 25%;
+    animation-delay: -6s;
+}
+
+@keyframes bounce {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(60px, -40px); }  /* move out */
+    50%  { transform: translate(0, -80px); }     /* bounce upward */
+    75%  { transform: translate(-60px, -40px); } /* rebound */
+    100% { transform: translate(0, 0); }         /* return */
+}
+
 
 
         /* Header */
         .header {
-            background: #DFDFDF;
             padding: 20px 0; /* reduced for better alignment */
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             font-size: 20px;
@@ -71,7 +148,6 @@
         /* search icon*/
         /* Hero Section */
         .hero {
-            background: #DFDFDF;
             padding: 7px 0;
             position: relative;
             overflow: hidden;
@@ -113,7 +189,7 @@
 
         /* Special Offer Box */
         .special-offer {
-            background: #DFDFDF;
+            background: transparent;
             padding: 20px;
             border-radius: 15px;
             text-align: center;
@@ -127,7 +203,7 @@
             color: #333;
         }
         .explore-btn {
-            background: white;
+            background: transparent;
             border: 2px solid #ff6b35;
             color: black;
             padding: clamp(6px, 1.5vw, 15px) clamp(12px, 2vw, 28px);
@@ -183,7 +259,6 @@
         /* Nuggets Section */
         .nuggets-section {
             padding: 80px 0;
-            background: #DFDFDF;
             overflow: hidden;
         }
 
@@ -1090,6 +1165,8 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+      white-space: nowrap; /* prevents wrapping on small screens */
+
 }
 
 .signout-btn i {
@@ -1100,38 +1177,168 @@
   background: #333;
   color: #fff;            /* invert colors on hover */
 }
+        /* Responsive shrink like the other links */
+@media (max-width: 320px) {
+    .signout-btn {
+        font-size: 8px;
+        padding: 3px 7px;
+    }
+     .signout-btn i {
+        font-size: 8px;   /* even smaller on mobile */
+    }
+    .toast {
+    font-size: 0.7rem;
+    padding: 6px 10px;
+    top: 8px;
+    right: 8px;
+  }
 
+}
+
+/* 🔹 Overlay */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4); /* dim background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+/* 🔹 Modal Box */
+.modal-content {
+  background: #fff7f0; /* soft orangy-white */
+  border-radius: 12px;
+  width: 90%;
+  max-width: 380px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  overflow: hidden;
+  animation: popIn 0.25s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+/* 🔹 Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(45deg, #ffd9b3, #ff9966);
+  color: #fff;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.modal-header .close {
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.modal-header .close:hover {
+  transform: scale(1.1);
+}
+
+/* 🔹 Body */
+.modal-body {
+  padding: 16px 20px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+/* 🔹 Footer */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 18px;
+  background: #fff2e6;
+}
+
+/* 🔹 Buttons */
+.modal-btn {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.modal-btn.cancel {
+  background: #f1f1f1;
+  color: #444;
+}
+.modal-btn.cancel:hover {
+  background: #e0e0e0;
+}
+
+.modal-btn.confirm {
+  background: #ec8e58;
+  color: #fff;
+}
+.modal-btn.confirm:hover {
+  background: #d8773f;
+}
+
+/* 🔹 Pop-in Animation */
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* 📱 Responsive (smaller modal on phones) */
+@media (max-width: 360px) {
+  .modal-content {
+    max-width: 300px;
+    font-size: 0.85rem;
+  }
+  .modal-header h3 {
+    font-size: 1rem;
+  }
+}
 
 
     </style>
 </head>
 <body>
-
+<div class="bg-decoration"></div>
+<div class="bg-decoration"></div>
+<div class="bg-decoration"></div>
 <header class="header">
     <div class="container">
         <div class="row align-items-center">
 
             <!-- Logo -->
-            <div class="col-4 col-md-2 text-start">
+            <div class="col-1 col-md-2 text-start">
                 <div class="logo">AFOEG</div>
             </div>
 
             <!-- Nav Menu -->
-            <div class="col-8 col-md-10">
+            <div class="col-11 col-md-10">
                 <ul class="nav-menu d-flex flex-row justify-content-end align-items-center m-0 p-0 flex-wrap">
                     <li><a href="#" class="active">Home</a></li>
                     <li><a href="#categories">Menu</a></li>
                     <li><a href="#">History</a></li>
                     <li>
                         <a href="Cart.html" id="cart-link">
-                            🛒 Cart <span id="cart-count" class="cart-count">0</span>
+                            <i class="fi fi-rr-shopping-cart"></i>
+                            Cart <span id="cart-count" class="cart-count">0</span>
                         </a>
                     </li>
 
+                    <li>
                     <button class="signout-btn" onclick="showLogoutModal()">
                         <i class="fi fi-br-sign-out-alt"></i>
                         <span>Log out</span>
                     </button>
+                    </li>
 
 
 
@@ -1159,7 +1366,6 @@
         </div>
     </div>
 </div>
-
 
 
 
@@ -1196,7 +1402,9 @@
                     <button class="explore-btn">Explore</button>
                 </div>
             </div>
-
+            <div class="bg-decoration"></div>
+            <div class="bg-decoration"></div>
+            <div class="bg-decoration"></div>
         </div>
     </div>
 </section>
@@ -1234,7 +1442,6 @@
         </div>
     </div>
 </section>
-
 
 
 
