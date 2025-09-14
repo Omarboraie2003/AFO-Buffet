@@ -112,7 +112,7 @@ public class OrderDAO {
         JOIN Users u ON o.user_id = u.user_id  
         JOIN ItemsInOrder iio ON o.order_id = iio.order_id
         JOIN MenuItems mi ON iio.item_id = mi.item_id
-        WHERE o.order_status != 'completed' OR o.order_status IS NULL
+        WHERE (o.order_status != 'completed' AND o.order_status != 'cart') OR o.order_status IS NULL
         ORDER BY o.order_id, iio.item_in_order_id
         """;
 
