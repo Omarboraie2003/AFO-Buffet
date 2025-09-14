@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-rounded/css/uicons-bold-rounded.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AFOEG - Food Menu</title>
@@ -1025,9 +1027,81 @@
 
         }
 
+/* Toast notification */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #ec8e58;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  z-index: 9999;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.typing-text span {
+  display: inline-block;
+  transform: translateX(150%); /* start off to the right */
+  opacity: 0;                  /* hidden initially */
+  animation: slideIn 0.8s ease-out forwards;
+}
+
+/* Slide-in keyframes */
+@keyframes slideIn {
+  0% {
+    transform: translateX(150%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.typing-text span:nth-of-type(1) { animation-delay: 0s; }   /* BAKING */
+.typing-text span:nth-of-type(2) { animation-delay: 0.5s; } /* HAPPINESS */
+.typing-text span:nth-of-type(3) { animation-delay: 1s; }   /* FOR */
+.typing-text span:nth-of-type(4) { animation-delay: 1.5s; } /* EVERY */
+.typing-text span:nth-of-type(5) { animation-delay: 2s; }   /* HEART */
+
+.her0 py-5 {
+    padding-top: 0 ;
+    padding-bottom: 0 ;
+}
+        .signout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;               /* space between icon and text */
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  background: transparent;
+  border: 2px solid #333; /* black outline */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.signout-btn i {
+  font-size: 18px; /* adjust icon size */
+}
+
+.signout-btn:hover {
+  background: #333;
+  color: #fff;            /* invert colors on hover */
+}
 
 
-        /* Make row scrollable horizontally on small screens */
 
     </style>
 </head>
@@ -1053,13 +1127,38 @@
                             🛒 Cart <span id="cart-count" class="cart-count">0</span>
                         </a>
                     </li>
+
+                    <button class="signout-btn" onclick="showLogoutModal()">
+                        <i class="fi fi-br-sign-out-alt"></i>
+                        <span>Log out</span>
+                    </button>
+
+
+
+
                 </ul>
             </div>
+
 
         </div>
     </div>
 </header>
-
+<!-- LOGOUT CONFIRMATION MODAL -->
+<div id="logoutModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Logout</h3>
+            <span class="close" onclick="hideLogoutModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to logout? You will be redirected to the login page.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="hideLogoutModal()">Cancel</button>
+            <button class="modal-btn confirm" onclick="confirmLogout()">Logout</button>
+        </div>
+    </div>
+</div>
 
 
 
@@ -1071,13 +1170,16 @@
 
             <!-- Hero Text -->
             <div class="col-4 hero-text text-start">
-                <h1>
-                    BAKING<br>
-                    HAPPINESS<br>
-                    FOR EVERY<br>
-                    HEART
+                <h1 class="typing-text">
+                    <span>BAKING</span><br>
+                    <span>HAPPINESS</span><br>
+                    <span>FOR</span> <span>EVERY</span><br>
+                    <span>HEART</span><br>
                 </h1>
+
+
             </div>
+
 
             <!-- Hero Image -->
             <div class="col-4 hero-image text-center">
@@ -1377,8 +1479,12 @@
             </div>
         </main>
     </div>
+
+
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<div id="toast2" class="toast"></div>
+
 </body>
 </html>
 <script>
@@ -1486,13 +1592,14 @@
         document.getElementById("popupProductImage").alt = item.item_name;
         document.getElementById("popupProductDescription").textContent = item.item_description || "No description available.";
 
-        if ( item.item_category === "Sandwiches") {
-            document.getElementById("popupBreadSection").style.display = "block";
-            document.getElementById("popupQuantitySection").style.display = "block";
+        if (item.item_category === "Sandwiches") {
+    document.getElementById("popupBreadSection").style.display = "block";
+    document.getElementById("popupQuantitySection").style.display = "block";
+} else {
+    document.getElementById("popupBreadSection").style.display = "none";
+    document.getElementById("popupQuantitySection").style.display = "none"; // <-- missing before
+}
 
-        } else {
-            document.getElementById("popupBreadSection").style.display = "none";
-        }
 
         document.getElementById("itemPopup").classList.add("active");
         document.body.style.overflow = "hidden";
@@ -1575,16 +1682,28 @@
 
             const data = await res.json();
             console.log("🔎 Response from server:", data);
+if (data.success) {
+    console.log("Item added to cart:", data);
+    const countEl = document.getElementById("cart-count");
+    countEl.textContent = parseInt(countEl.textContent) + 1;
+    closeItemPopup();
+    updateCartCount();
 
-            if (data.success) {  // 🔑 notice order_status
-                console.log("Item added to cart:", data);
-                const countEl = document.getElementById("cart-count");
-                countEl.textContent = parseInt(countEl.textContent) + 1;
-                closeItemPopup();
-                updateCartCount();
-            } else {
-                alert("Failed to add item: " + data.message);
-            }
+    // ✅ Show toast
+    showToast("✅ Item added to cart!");
+} else {
+    showToast("❌ Failed to add item: " + data.message);
+}
+
+<!--            if (data.success) {  // 🔑 notice order_status-->
+<!--                console.log("Item added to cart:", data);-->
+<!--                const countEl = document.getElementById("cart-count");-->
+<!--                countEl.textContent = parseInt(countEl.textContent) + 1;-->
+<!--                closeItemPopup();-->
+<!--                updateCartCount();-->
+<!--            } else {-->
+<!--                alert("Failed to add item: " + data.message);-->
+<!--            }-->
         } catch (err) {
             console.error("Error adding to cart:", err);
         }
@@ -1632,6 +1751,58 @@
             document.getElementById("cart-count").textContent = 0;
         }
     }
+function showToast(message) {
+    const toast = document.getElementById("toast2");
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
+}
+    function showLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'flex';
+    }
+
+    function hideLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'none';
+    }
+
+   async function confirmLogout() {
+    console.log("[Clean] Starting logout process...");
+
+    try {
+        const response = await fetch('/AllForOneBuffetAPP/logout', {
+            method: 'POST',
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (response.ok) {
+            console.log("[Clean] Server logout successful");
+        }
+    } catch (error) {
+        console.error('[Clean] Logout error:', error);
+    }
+
+    window.history.pushState(null, null, window.location.href);
+
+    const timestamp = new Date().getTime();
+    window.location.replace(`login.html?t=${timestamp}`);
+}
+
+    // ========================================
+    // EVENT LISTENERS
+    // ========================================
+    document.getElementById('logoutModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideLogoutModal();
+        }
+    });
 
     function initializeMenu() {
         console.log("Initializing dynamic menu...");
@@ -1655,4 +1826,3 @@
     }
 
 </script>
-
