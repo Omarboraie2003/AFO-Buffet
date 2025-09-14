@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -93,7 +94,7 @@ public class AccountManagementServlet extends HttpServlet {
     }
 
     private void handleAddUser(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+            throws IOException, SQLException {
 
         String email = request.getParameter("email");
         String role = request.getParameter("role");

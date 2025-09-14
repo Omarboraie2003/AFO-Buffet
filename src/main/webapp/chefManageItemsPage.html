@@ -1273,7 +1273,7 @@
             Sandwiches <span class="category-loader" style="display: none;">⏳</span>
         </button>
         <button class="category-btn">
-            Meal <span class="category-loader" style="display: none;">⏳</span>
+            Plates <span class="category-loader" style="display: none;">⏳</span>
         </button>
         <button class="category-btn">
             Extras <span class="category-loader" style="display: none;">⏳</span>
@@ -1322,7 +1322,7 @@
                 <option value="Salads">Salads</option>
                 <option value="Breakfast">Breakfast</option>
                 <option value="Sandwiches">Sandwiches</option>
-                <option value="Meal">Meal</option>
+                <option value="Plates">Plates</option>
                 <option value="Extras">Extras</option>
             </select>
             <div class="form-validation-error"></div>
@@ -1388,7 +1388,7 @@
                 <option value="Salads">Salads</option>
                 <option value="Breakfast">Breakfast</option>
                 <option value="Sandwiches">Sandwiches</option>
-                <option value="Meal">Meal</option>
+                <option value="Plates">Plates</option>
                 <option value="Extras">Extras</option>
             </select>
             <div class="form-validation-error"></div>
@@ -1487,13 +1487,14 @@
                     const specialItem = data[0];
                     specialNameElement.textContent = specialItem.item_name;
 
-                    // Handle special item image
                     if (specialItem.photo_url) {
                         let fullImageUrl;
-                        if (specialItem.photo_url.startsWith(contextPath)) {
+
+                        // ✅ Handle both cases
+                        if (specialItem.photo_url.startsWith(contextPath + '/Images/')) {
                             fullImageUrl = specialItem.photo_url;
                         } else {
-                            fullImageUrl = contextPath + specialItem.photo_url;
+                            fullImageUrl = contextPath + '/Images/' + specialItem.photo_url;
                         }
 
                         featuredImageElement.classList.remove('no-image');
@@ -1533,6 +1534,7 @@
                 featuredImageElement.innerHTML = '';
             });
     }
+
 
     /**
      * Load menu items with optional filtering
@@ -1650,7 +1652,14 @@
         imageDiv.className = 'product-image';
         if (item.photo_url) {
             const img = document.createElement('img');
-            img.src = 'Images/' + item.photo_url;
+
+            // ✅ Fix: handle both filename-only and full path values
+            if (item.photo_url.startsWith('/AllForOneBuffetAPP/Images/')) {
+                img.src = item.photo_url;
+            } else {
+                img.src = '/AllForOneBuffetAPP/Images/' + item.photo_url;
+            }
+
             img.loading = 'lazy';
             img.style.width = "100%";
             img.style.height = "100%";
@@ -1683,20 +1692,18 @@
         desc.className = 'product-desc';
         desc.textContent = item.item_description;
 
-        // Create product meta section (this was missing in your original structure)
+        // Create product meta section
         const productMeta = document.createElement('div');
         productMeta.className = 'product-meta';
 
-        // FIXED AVAILABILITY DISPLAY
+        // Availability
         const avail = document.createElement('div');
         avail.className = 'product-availability';
 
         console.log('[DEBUG] Raw availability for', item.item_name + ':', item.is_available, typeof item.is_available);
         console.log('[DEBUG] Full item object:', JSON.stringify(item, null, 2));
 
-        // Convert to boolean - handle all possible formats from backend
         let isAvailable;
-
         if (typeof item.is_available === 'boolean') {
             isAvailable = item.is_available;
         } else if (typeof item.is_available === 'string') {
@@ -1704,14 +1711,12 @@
         } else if (typeof item.is_available === 'number') {
             isAvailable = item.is_available === 1;
         } else {
-            // Fallback - assume unavailable if unknown format
             isAvailable = false;
             console.log('[DEBUG] Unknown availability format, defaulting to false');
         }
 
         console.log('[DEBUG] Converted availability for', item.item_name + ':', isAvailable);
 
-        // Set text and styling based on availability
         if (isAvailable) {
             avail.textContent = 'Available';
             avail.classList.remove('unavailable');
@@ -1722,15 +1727,14 @@
             console.log('[DEBUG] Set as UNAVAILABLE for', item.item_name);
         }
 
-        // Add availability to meta section
         productMeta.appendChild(avail);
 
-        // Add all elements to details
+        // Add details
         details.appendChild(name);
         details.appendChild(desc);
         details.appendChild(productMeta);
 
-        // Add special toggle if it's a special item
+        // Special toggle
         if (item.item_type === 'special') {
             const specialToggle = document.createElement('button');
             specialToggle.className = 'special-toggle';
@@ -1756,11 +1760,6 @@
         return card;
     }
 
-    /**
-     * Set an item as today's special
-     * @param {number} itemId - Item ID to set as special
-     * @param {string} itemName - Item name for notification
-     */
     function setTodaysSpecial(itemId, itemName) {
         fetch(contextPath + '/menu-items/set-special?item_id=' + itemId, {
             method: 'POST'
@@ -2291,7 +2290,7 @@
 
         if (file) {
             // Validate file type
-            if (!file.type.startsWith('Images/')) {
+            if (!file.type.startsWith('image/')) {
                 showToast('error', 'Invalid File Type', 'Please select an image file (JPG, PNG, GIF).');
                 e.target.value = '';
                 return;
@@ -2326,11 +2325,12 @@
 
         if (file) {
             // Validate file type
-            if (!file.type.startsWith('Images/')) {
+            if (!file.type.startsWith('image/')) {
                 showToast('error', 'Invalid File Type', 'Please select an image file (JPG, PNG, GIF).');
                 e.target.value = '';
                 return;
             }
+
             if (file.size > 50 * 1024 * 1024) {
                 showToast('error', 'File Too Large', 'Please select an image smaller than 50MB.');
                 e.target.value = '';

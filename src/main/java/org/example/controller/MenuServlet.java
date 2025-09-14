@@ -53,7 +53,7 @@ public class MenuServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
 
         response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         response.setHeader("Pragma", "no-cache");
@@ -450,7 +450,7 @@ public class MenuServlet extends HttpServlet {
         }
 
         String contentType = filePart.getContentType();
-        if (contentType == null || !contentType.startsWith("Images/")) {
+        if (contentType == null || !contentType.startsWith("image/")) {
             throw new IOException("Only image files are allowed");
         }
 

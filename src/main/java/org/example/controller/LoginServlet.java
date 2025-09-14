@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.model.user.UserDAO;
 import org.example.model.user.UserModel;
+import org.example.model.Order.OrderDAO; // Add this import
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.Cookie;
@@ -80,6 +81,18 @@ public class LoginServlet extends HttpServlet {
 
                 // 🍪 Create persistent cookies for 10 months
                 createUserCookies(response, user.getUserId(), user.getUsername(), user.getAccessLevel());
+
+                // 🧹 CLEANUP: If user is a chef, trigger cleanup of old completed orders
+                if ("chef".equalsIgnoreCase(user.getAccessLevel())) {
+                    try {
+                        int cleanedCount = OrderDAO.cleanupOldCompletedOrders();
+                        System.out.println("[DEBUG][LoginServlet] Chef login triggered cleanup of " + cleanedCount + " old completed orders for user: " + username);
+                    } catch (Exception cleanupError) {
+                        System.err.println("[ERROR][LoginServlet] Failed to cleanup old orders on chef login: " + cleanupError.getMessage());
+                        cleanupError.printStackTrace();
+                        // Don't fail the login process if cleanup fails
+                    }
+                }
 
                 System.out.println("[DEBUG][LoginServlet] Session created for user: " + username +
                         ", Role: " + user.getAccessLevel() +
