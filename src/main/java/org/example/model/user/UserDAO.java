@@ -246,13 +246,11 @@ public class UserDAO {
                 }
             }
 
-            // Step 3: Assign cart_id only if not a chef
-            if (!"chef".equalsIgnoreCase(role)) {
-                try (PreparedStatement updateStmt = conn.prepareStatement(updateCartSql)) {
-                    updateStmt.setInt(1, userId); // cart_id = user_id
-                    updateStmt.setInt(2, userId);
-                    updateStmt.executeUpdate();
-                }
+            // Step 3: Assign cart_id to all users (including chefs)
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateCartSql)) {
+                updateStmt.setInt(1, userId); // cart_id = user_id
+                updateStmt.setInt(2, userId);
+                updateStmt.executeUpdate();
             }
 
             return true;
