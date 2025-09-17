@@ -36,7 +36,7 @@ public class AuthenticationFilter implements Filter {
                 path.startsWith("/register") ||
                 path.startsWith("/css/") ||
                 path.startsWith("/js/") ||
-                path.startsWith("/images/") ||
+                path.startsWith("/Images/") ||
                 path.equals("/")) {
 
             System.out.println("[DEBUG][AuthenticationFilter] Public resource, allowing: " + path);

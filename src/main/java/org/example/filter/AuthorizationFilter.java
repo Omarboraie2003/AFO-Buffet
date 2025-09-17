@@ -118,6 +118,16 @@ public class AuthorizationFilter implements Filter {
             System.out.println("[DEBUG] AuthorizationFilter: Employee-only page detected. User is employee: " + isEmployee);
             return isEmployee;
         }
+        if (path.equals("/EmployeeOrders.html")) {
+            boolean isEmployee = "employee".equalsIgnoreCase(userRole);
+            System.out.println("[DEBUG] AuthorizationFilter: Employee-only page detected. User is employee: " + isEmployee);
+            return isEmployee;
+        }
+        if (path.equals("/Cart.html")) {
+            boolean isEmployee = "employee".equalsIgnoreCase(userRole);
+            System.out.println("[DEBUG] AuthorizationFilter: Employee-only page detected. User is employee: " + isEmployee);
+            return isEmployee;
+        }
 
         // Pages accessible to both roles (add more as needed)
         if (path.startsWith("/common") ||
