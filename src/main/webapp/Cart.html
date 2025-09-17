@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart List - Food Ordering App</title>
@@ -15,7 +16,6 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
         }
@@ -125,7 +125,6 @@
 
         .main-content {
             padding: 40px;
-            margin-left: 100px;
         }
 
         .page-title {
@@ -283,13 +282,13 @@
         .popup-overlay.active {
             display: flex;
         }
-        .popup-content {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            max-width: 600px;
-            width: 90%;
-        }
+<!--        .popup-content {-->
+<!--            background: white;-->
+<!--            padding: 20px;-->
+<!--            border-radius: 12px;-->
+<!--            max-width: 600px;-->
+<!--            width: 90%;-->
+<!--        }-->
         .popup-close {
             position: absolute;
             top: 10px;
@@ -310,18 +309,31 @@
             z-index: 1000;
         }
 
-        /* Popup container */
-        .popup-content {
-            background: #fff;
-            border-radius: 12px;
-            max-width: 900px;
-            width: 90%;
-            padding: 30px;
-            position: relative;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            font-family: Arial, sans-serif;
-            animation: fadeIn 0.3s ease;
+<!--        /* Popup container */-->
+<!--        .popup-content {-->
+<!--            background: #fff;-->
+<!--            border-radius: 12px;-->
+<!--            max-width: 900px;-->
+<!--            width: 90%;-->
+<!--            padding: 30px;-->
+<!--            position: relative;-->
+<!--            box-shadow: 0 8px 20px rgba(0,0,0,0.2);-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            animation: fadeIn 0.3s ease;-->
         }
+/* Default popup (desktop) */
+.popup-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 500px;   /* ⬅ reduce from 900px */
+  width: 100%;         /* ⬅ responsive width */
+  position: relative;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+
 
         /* Close button */
         .popup-close {
@@ -338,7 +350,7 @@
         }
 
         .product-image img {
-            max-width: 280px;
+            max-width: 220px;
             border-radius: 8px;
             object-fit: cover;
         }
@@ -406,7 +418,7 @@
             }
 
             .page-title {
-                font-size: 28px;
+                font-size: 22px;
             }
 
             .cart-items {
@@ -427,7 +439,7 @@
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 320px) {
             .header {
                 padding: 12px 16px;
             }
@@ -446,10 +458,145 @@
             }
 
             .item-image {
-                width: 60px;
-                height: 60px;
+                width: 40px;
+                height: 40px;
             }
         }
+/* Tablet */
+@media (max-width: 768px) {
+  .popup-content {
+    max-width: 300px; /* smaller */
+    width: 85%;
+    padding: 16px;
+  }
+
+  .product-title {
+    font-size: 20px;
+  }
+
+  .product-image img {
+    max-width: 90px;
+  }
+
+        /* Bread options */
+        .bread-section {
+            margin: 10px 0;
+        }
+        .bread-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .bread-options {
+            gap: 10px;
+        }
+        .bread-option label {
+            margin-left: 5px;
+        }
+
+        /* Description */
+        .product-description {
+            margin: 10px 0;
+        }
+
+        /* Notes */
+        .order-notes-title {
+            margin: 10px 0 3px;
+        }
+        .notes-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 8px;
+            font-size: 12px;
+        }
+         .order-btn {
+
+            margin-top: 0px;
+            padding: 10px 20px;
+
+        }
+
+
+
+}
+/* Tablet */
+@media (max-width: 320px) {
+  .popup-content {
+    max-width: 300px; /* smaller */
+    width: 85%;
+    padding: 16px;
+  }
+
+  .product-title {
+    font-size: 20px;
+  }
+
+  .product-image img {
+    max-width: 90px;
+  }
+
+        /* Bread options */
+        .bread-section {
+            margin: 10px 0;
+        }
+        .bread-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .bread-options {
+            gap: 10px;
+        }
+        .bread-option label {
+            margin-left: 5px;
+        }
+
+        /* Description */
+        .product-description {
+            margin: 10px 0;
+        }
+
+        /* Notes */
+        .order-notes-title {
+            margin: 10px 0 3px;
+        }
+        .notes-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 8px;
+            font-size: 12px;
+        }
+         .order-btn {
+
+            margin-top: 0px;
+            padding: 10px 20px;
+         }
+        .item-details {
+            max-width: 500px; /* adjust as needed */
+        }
+        .item-name {
+           font-size:14px;
+        }
+
+        .order-notes{
+           font-size:8px;
+        }
+        .delete-btn{
+         font-size:12px;
+         padding:8px;
+
+        }
+           .confirm-order-btn {
+                padding: 10px 20px;
+                font-size: 12px;
+                min-width: 100px;
+            }
+             .page-title {
+            font-size: 16px;
+
+        }
+
+}
+
+
     </style>
 </head>
 <body>
@@ -552,38 +699,6 @@
             <!-- Items will be injected here -->
         </div>
 
-<!--        <div class="cart-items">-->
-<!--            -->
-<!--            <div class="cart-item">-->
-<!--                <img src="Sandwich.png"Tuna Sandwich" class="item-image">-->
-<!--                <div class="item-details">-->
-<!--                    <h3 class="item-name">Tuna Sandwich</h3>-->
-
-<!--                    <div class="order-notes">-->
-<!--                        <span class="order-notes-label">Order notes:</span> no pickles, add more mayo-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="item-price-section">-->
-
-<!--                    <button class="delete-btn" onclick="removeItem(this)"><i class="fi fi-br-trash"></i></button>-->
-<!--                </div>-->
-
-<!--            </div>-->
-
-<!--            <div class="cart-item">-->
-<!--                <img src="nuggets.png" alt="Nuggets plate" class="item-image">-->
-<!--                <div class="item-details">-->
-<!--                    <h3 class="item-name">Nuggets plate</h3>-->
-<!--                    <div class="order-notes">-->
-<!--                        <span class="order-notes-label">Order notes:</span> add bbq sauce-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="item-price-section">-->
-
-<!--                    <button class="delete-btn" onclick="removeItem(this)"><i class="fi fi-br-trash"></i></button>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
 
         <button class="confirm-order-btn" onclick="confirmOrder()">Confirm order</button>
     </main>
@@ -870,5 +985,7 @@
 
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
