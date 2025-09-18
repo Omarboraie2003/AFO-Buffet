@@ -595,7 +595,123 @@
         }
 
 }
+#confettiCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9998; /* Just behind modal */
+}
 
+
+/* 🔹 Overlay */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4); /* dim background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+/* 🔹 Modal Box */
+.modal-content {
+  background: #fff7f0; /* soft orangy-white */
+  border-radius: 12px;
+  width: 90%;
+  max-width: 380px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  overflow: hidden;
+  animation: popIn 0.25s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+/* 🔹 Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(45deg, #ffd9b3, #ff9966);
+  color: #fff;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.modal-header .close {
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.modal-header .close:hover {
+  transform: scale(1.1);
+}
+
+/* 🔹 Body */
+.modal-body {
+  padding: 16px 20px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+/* 🔹 Footer */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 18px;
+  background: #fff2e6;
+}
+
+/* 🔹 Buttons */
+.modal-btn {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.modal-btn.cancel {
+  background: #f1f1f1;
+  color: #444;
+}
+.modal-btn.cancel:hover {
+  background: #e0e0e0;
+}
+
+.modal-btn.confirm {
+  background: #ec8e58;
+  color: #fff;
+}
+.modal-btn.confirm:hover {
+  background: #d8773f;
+}
+
+/* 🔹 Pop-in Animation */
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* 📱 Responsive (smaller modal on phones) */
+@media (max-width: 360px) {
+  .modal-content {
+    max-width: 300px;
+    font-size: 0.85rem;
+  }
+  .modal-header h3 {
+    font-size: 1rem;
+  }
+}
 
     </style>
 </head>
@@ -698,9 +814,46 @@
         <div class="cart-items" id="cartContainer">
             <!-- Items will be injected here -->
         </div>
+        <button class="confirm-order-btn" onclick="showOrderModal()">Confirm order</button>
+
+        <!-- Confirm Order Modal -->
+        <div id="orderModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Confirm Order</h3>
+                    <span class="close" onclick="hideOrderModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to confirm your order?</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn cancel" onclick="hideOrderModal()">Cancel</button>
+                    <button class="modal-btn confirm" onclick="confirmOrder()">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Congratulations Modal -->
+        <div id="successModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🎉 Congratulations!</h3>
+                    <span class="close" onclick="hideSuccessModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>Your order has been placed successfully!</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="okBtn" class="modal-btn confirm" onclick="hideSuccessModal()">OK</button>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Confetti Canvas -->
+        <canvas id="confettiCanvas"></canvas>
 
 
-        <button class="confirm-order-btn" onclick="confirmOrder()">Confirm order</button>
     </main>
 </div>
 
@@ -960,31 +1113,122 @@
         console.log("=== END UPDATE CART ITEM DEBUG ===");
     }
 
-    async function confirmOrder() {
-        try {
-            const res = await fetch("/AllForOneBuffetAPP/confirm_cart", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" }
-            });
+   // Show order modal
+function showOrderModal() {
+  document.getElementById("orderModal").style.display = "flex";
+}
 
-            const data = await res.json();
-            console.log("🔎 Confirm cart response:", data);
+// Hide order modal
+function hideOrderModal() {
+  document.getElementById("orderModal").style.display = "none";
+}
 
-            if (data.success) {
-                alert("✅ " + data.message);
-                // Reload cart UI by calling your existing function
-                await loadCart();
-            } else {
-                alert("⚠️ Failed: " + data.message);
-            }
-        } catch (err) {
-            console.error("❌ Error confirming order:", err);
-            alert("Unexpected error while confirming order.");
-        }
+// Hide success modal
+function hideSuccessModal() {
+  document.getElementById("successModal").style.display = "none";
+  stopConfetti();
+}
+
+async function confirmOrder() {
+  try {
+    const res = await fetch("/AllForOneBuffetAPP/confirm_cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    const data = await res.json();
+    console.log("🔎 Confirm cart response:", data);
+
+    // Hide the confirm modal
+    hideOrderModal();
+
+    if (data.success) {
+      // Show success modal
+      document.getElementById("successModal").style.display = "flex";
+      startConfetti();
+
+      // Reload cart UI
+      await loadCart();
+    } else {
+      alert("⚠️ Failed: " + data.message);
+    }
+  } catch (err) {
+    console.error("❌ Error confirming order:", err);
+    alert("Unexpected error while confirming order.");
+  }
+}
+const canvas = document.getElementById("confettiCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let confetti = [];
+
+const foodEmojis = ["🍔", "🍕", "🍟", "🥗", "🍩"]; // 🍔 Food set
+const colors = ["#ff9966", "#ffcc99", "#ffd580", "#ffb366", "#ff9933"];
+
+function randomColor() {
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function createConfetti() {
+  return {
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height - canvas.height,
+    size: Math.random() * 8 + 4,
+    color: randomColor(),
+    speed: Math.random() * 3 + 2,
+    angle: Math.random() * 2 * Math.PI,
+    isFood: Math.random() < 0.2, // 20% chance it’s food instead of color
+    food: foodEmojis[Math.floor(Math.random() * foodEmojis.length)]
+  };
+}
+
+function drawConfetti() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  confetti.forEach((c) => {
+    if (c.isFood) {
+      ctx.font = `${c.size * 2}px Arial`; // bigger for emojis
+      ctx.fillText(c.food, c.x, c.y);
+    } else {
+      ctx.fillStyle = c.color;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
+      ctx.fill();
     }
 
+    // movement
+    c.y += c.speed;
+    if (c.y > canvas.height) {
+      c.y = -10;
+      c.x = Math.random() * canvas.width;
+    }
+  });
+}
+
+let confettiInterval;
+
+function startConfetti() {
+  confetti = Array.from({ length: 150 }, createConfetti);
+  confettiInterval = setInterval(drawConfetti, 20);
+}
+
+function stopConfetti() {
+  clearInterval(confettiInterval);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+    // 🎉 Trigger confetti then redirect
+document.getElementById("okBtn").addEventListener("click", () => {
+  startConfetti();
+  setTimeout(() => {
+    stopConfetti();
+    window.location.href = "EmployeeOrders.html"; // 🔹 Change to your redirect page
+  }, 1000); // confetti runs for 3 seconds
+});
 
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
