@@ -414,6 +414,26 @@
             color: #333;
             margin-bottom: 4px;
         }
+/* Default look */
+.order-status {
+ font-weight: 500;
+  margin-bottom: 4px;
+}
+
+/* Pending = Red text */
+.order-card[data-status="pending"] .order-status {
+  color: #e74c3c;
+}
+
+/* Accepted = Yellow/Orange text */
+.order-card[data-status="accepted"] .order-status {
+  color: #f39c12;
+}
+
+/* Completed = Green text */
+.order-card[data-status="completed"] .order-status {
+  color: #27ae60;
+}
 
         .item-description {
             font-size: 14px;
@@ -504,11 +524,63 @@
             }
         }
 
-        @media (max-width: 480px) {
+
+.order-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #ff6b35;
+  color: black;
+  padding: 10px 18px;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.filter-btn:hover {
+  background: #ff6b35;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255,107,53,0.3);
+}
+
+.filter-btn.active {
+  background: #ff6b35;
+  color: white;
+  border-color: #ff6b35;
+  box-shadow: 0 6px 18px rgba(255,107,53,0.35);
+}
+
+/* Pending = Red */
+.order-card[data-status="pending"] {
+  border-left: 6px solid #e74c3c; /* red stripe */
+}
+
+/* Accepted = Yellow */
+.order-card[data-status="accepted"] {
+  border-left: 6px solid #f1c40f; /* yellow stripe */
+}
+/* Completed = Green */
+.order-card[data-status="completed"] {
+  border-left: 6px solid #2ecc71; /* green stripe */
+}
+        @media (max-width: 320px) {
             .header {
                 padding: 12px 16px;
             }
-
+ .page-title {
+            font-size: 20px;
+        }
             .main-content {
                 padding: 16px;
             }
@@ -527,6 +599,11 @@
                 padding: 12px;
                 gap: 12px;
             }
+            .filter-btn {
+  padding: 8px 14px;
+  font-size: 10px;
+
+}
         }
     </style>
 </head>
@@ -534,81 +611,41 @@
 <div class="container">
     <header class="header">
         <div class="header-left">
-            <button class="back-btn">
-                <i class="fi fi-rr-angle-left"></i>
-            </button>
         </div>
         <div class="header-right">
-            <button class="icon-btn">
-                <i class="fi fi-rr-search"></i>
-            </button>
-            <button class="icon-btn">
-                <i class="fi fi-rr-bell"></i>
-            </button>
+
             <nav class="nav-menu">
-                <a href="#" class="nav-item">Home</a>
-                <a href="#" class="nav-item">
+                <a href="EmployeeMenu.html" class="nav-item">Home</a>
+                <a href="EmployeeMenu.html" class="nav-item">
                     Menu
-                    <i class="fi fi-rr-angle-down dropdown-arrow"></i>
                 </a>
                 <a href="#" class="nav-item active">History</a>
-                <a href="#" class="nav-item">Cart</a>
+                <a href="Cart.html" class="nav-item">Cart</a>
             </nav>
         </div>
     </header>
-
     <main class="main-content">
         <div class="page-header">
             <h1 class="page-title">Order History</h1>
-
+        </div>
+        <div class="order-filters">
+            <button class="filter-btn active" onclick="filterOrders('pending', this)">Pending</button>
+            <button class="filter-btn" onclick="filterOrders('accepted', this)">Accepted</button>
+            <button class="filter-btn" onclick="filterOrders('completed', this)">Completed</button>
         </div>
 
-        <div class="order-history">
-            <div class="order-item">
-                <div class="order-checkbox" onclick="toggleOrderSelection(this)"></div>
-                <div class="order-details">
-                    <div class="order-header">
-                        <div class="order-date-time">
-                            <div class="order-date">31/07/2025</div>
-                            <div class="order-time">@10:00 am</div>
-                        </div>
-                        <div class="order-status-price">
-                            <div class="order-status">Status: Complete</div>
-                        </div>
-                    </div>
-                    <div class="order-items">
-                        <p>1x Turkey Sandwich</p>
-                        <p>2x Omlette Plate</p>
-                    </div>
-                    <a href="#" class="view-more" onclick="showOrderDetails('order1')">view more</a>
-                </div>
-            </div>
 
-            <div class="order-item">
-                <div class="order-checkbox" onclick="toggleOrderSelection(this)"></div>
-                <div class="order-details">
-                    <div class="order-header">
-                        <div class="order-date-time">
-                            <div class="order-date">30/07/2025</div>
-                            <div class="order-time">@10:00 am</div>
-                        </div>
-                        <div class="order-status-price">
-                            <div class="order-status">Status: Complete</div>
-                        </div>
-                    </div>
-                    <div class="order-items">
-                        <p>1x Turkey Sandwich</p>
-                    </div>
-                    <a href="#" class="view-more" onclick="showOrderDetails('order2')">view more</a>
-                </div>
-            </div>
-        </div>
 
-        <button class="reorder-btn" id="reorderBtn" disabled onclick="reorderSelected()">
-            Reorder
+        <!-- Orders will be injected here -->
+        <div class="order-history" id="orderHistory"></div>
+
+        <button id="reorderBtn" class="reorder-btn" onclick="reorderSelected()" disabled>
+            Reorder Selected
         </button>
+
     </main>
 
+    <!-- Modal -->
     <div class="modal-overlay" id="orderModal" onclick="closeModal(event)">
         <div class="modal-content">
             <div class="modal-header">
@@ -624,137 +661,235 @@
                     <div class="item-info">
                         <div class="item-name">Order Date</div>
                     </div>
-                    <div class="item-price" id="modalOrderDate">31/07/2025 @10:00 am</div>
+                    <div class="item-price" id="modalOrderDate"></div>
                 </div>
                 <div class="detail-item">
                     <div class="item-info">
-                        <div class="item-name">Status</div>
-                    </div>
-                    <div class="item-price" id="modalOrderStatus">Complete</div>
-                </div>
 
+                        <div class="order-status">Status</div>
+                    </div>
+                    <div class="item-price" id="modalOrderStatus"></div>
+                </div>
             </div>
 
             <div class="order-detail-section">
                 <h3 class="section-title">Items Ordered</h3>
-                <div id="modalOrderItems">
-                    <!-- Items will be populated by JavaScript -->
-                </div>
+                <div id="modalOrderItems"></div>
             </div>
 
             <div class="order-detail-section">
                 <h3 class="section-title">Order Notes</h3>
                 <div class="order-notes">
-                    <p class="notes-text" id="modalOrderNotes">
-                        Extra mayo on turkey sandwich, no pickles on omelette plate. Please deliver to front door.
-                    </p>
+                    <p class="notes-text" id="modalOrderNotes"></p>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
+
+</div>
 <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        loadOrders();
+    });
+
+    async function loadOrders() {
+    try {
+        const [activeRes, completedRes] = await Promise.all([
+            fetch("/AllForOneBuffetAPP/orders"),
+            fetch("/AllForOneBuffetAPP/orders/history")
+        ]);
+
+        const activeOrders = await activeRes.json();
+        const completedOrders = await completedRes.json();
+
+        const orders = [...activeOrders, ...completedOrders]; // merge everything
+
+        const container = document.getElementById("orderHistory");
+        container.innerHTML = "";
+window.employeeOrders = orders;
+
+
+        orders.forEach((order, index) => {
+            const orderItem = document.createElement("div");
+            orderItem.classList.add("order-item", "order-card");
+            orderItem.setAttribute("data-status", order.status.toLowerCase());
+            orderItem.setAttribute("data-index", index);
+
+
+orderItem.innerHTML = `
+  <div class="order-checkbox"
+       onclick="toggleOrderSelection(this)"
+       data-items='${JSON.stringify(order.items)}'></div>
+  <div class="order-details">
+      <div class="order-header">
+          <div class="order-date-time">
+              <div class="order-date">${formatDate(order.orderDate)}</div>
+              <div class="order-time">@${formatTime(order.orderDate)}</div>
+          </div>
+          <div class="order-status-price">
+              <div class="order-status">Status: ${order.status}</div>
+          </div>
+      </div>
+      <div class="order-items">
+          ${order.items.map(i => `<p>${i.quantity}x ${i.itemName}</p>`).join("")}
+      </div>
+      <a href="#" class="view-more" onclick="showOrderDetails(${index})">view more</a>
+  </div>
+`;
+
+
+            container.appendChild(orderItem);
+        });
+
+        window.employeeOrders = orders;
+          // 👇 Default to show "Pending" orders only
+    filterOrders("pending");
+    } catch (err) {
+        console.error("❌ Failed to load orders", err);
+    }
+}
+
+
+    function formatDate(dateStr) {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString();
+    }
+
+    function formatTime(dateStr) {
+        const d = new Date(dateStr);
+        return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function showOrderDetails(index) {
+        const order = window.employeeOrders[index];
+        const modal = document.getElementById("orderModal");
+        modal.classList.add("show");
+
+        document.getElementById("modalOrderDate").textContent =
+            `${formatDate(order.orderDate)} @${formatTime(order.orderDate)}`;
+        document.getElementById("modalOrderStatus").textContent = order.status;
+
+        const itemsContainer = document.getElementById("modalOrderItems");
+        itemsContainer.innerHTML = "";
+        order.items.forEach(item => {
+            const div = document.createElement("div");
+            div.classList.add("detail-item");
+            div.innerHTML = `
+                <div class="item-info">
+                    <div class="item-name">${item.itemName}</div>
+                    <div class="item-description">${item.typeOfBread ? "Bread: " + item.typeOfBread : ""}</div>
+                </div>
+                <div class="item-price">${item.quantity} pcs</div>
+            `;
+            itemsContainer.appendChild(div);
+        });
+
+        document.getElementById("modalOrderNotes").textContent =
+            order.items.map(i => i.itemNote || "").join(" | ");
+    }
+
+    function closeModal(event) {
+        const modal = document.getElementById("orderModal");
+        if (!event || event.target.id === "orderModal" || event.target.classList.contains("close-btn")) {
+            modal.classList.remove("show");
+        }
+    }
+
+
+ function filterOrders(status, btn) {
+  const allOrders = document.querySelectorAll(".order-item");
+
+  allOrders.forEach(order => {
+    const orderStatus = order.getAttribute("data-status")?.toLowerCase().trim();
+    order.style.display = (status === "all" || orderStatus === status.toLowerCase()) ? "" : "none";
+  });
+
+  // 🔹 Reset active button states
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+
+  // 🔹 Highlight the clicked button
+  if (btn) {
+    btn.classList.add("active");
+  }
+}
+
+
+
+
+
     function toggleOrderSelection(checkbox) {
-        checkbox.classList.toggle('selected');
+        checkbox.classList.toggle("selected");
         updateReorderButton();
     }
 
     function updateReorderButton() {
-        const selectedOrders = document.querySelectorAll('.order-checkbox.selected');
-        const reorderBtn = document.getElementById('reorderBtn');
+        const selected = document.querySelectorAll(".order-checkbox.selected").length > 0;
+        document.getElementById("reorderBtn").disabled = !selected;
+    }
 
-        if (selectedOrders.length > 0) {
-            reorderBtn.disabled = false;
-            reorderBtn.style.opacity = '1';
+
+function reorderSelected() {
+  const selectedOrders = document.querySelectorAll(".order-checkbox.selected");
+
+  if (selectedOrders.length === 0) {
+    alert("Please select at least one order to reorder.");
+    return;
+  }
+
+  selectedOrders.forEach(orderCheckbox => {
+    const items = JSON.parse(orderCheckbox.dataset.items || "[]");
+
+    items.forEach(item => {
+      if (!item.itemId) {
+        console.error("❌ Missing itemId in item:", item);
+        alert("Error: One of the items is missing itemId.");
+        return;
+      }
+
+      const formData = new URLSearchParams();
+      formData.append("itemId", item.itemId);
+      formData.append("quantity", item.quantity || 1);
+      formData.append("item_note", item.itemNote || "");
+      formData.append("type_of_bread", item.typeOfBread || "");
+
+      fetch("/AllForOneBuffetAPP/manage_cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString()
+      })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error("Server responded with " + res.status);
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data.success) {
+          window.location.href = "/AllForOneBuffetAPP/Cart.html";
         } else {
-            reorderBtn.disabled = true;
-            reorderBtn.style.opacity = '0.6';
+          alert("Failed to add item: " + data.message);
         }
-    }
-
-
-    function reorderSelected() {
-        const selectedOrders = document.querySelectorAll('.order-checkbox.selected');
-        if (selectedOrders.length > 0) {
-            alert(Reordering ${selectedOrders.length} selected order(s));
-            // Add your reorder logic here
-        }
-    }
-
-    function closeModal(event) {
-        if (event && event.target !== event.currentTarget) return;
-
-        const modal = document.getElementById('orderModal');
-        modal.classList.remove('show');
-        document.body.style.overflow = 'auto';
-    }
-
-
-    const orderData = {
-        order1: {
-            date: '31/07/2025 @10:00 am',
-            status: 'Complete',
-            items: [
-                {
-                    name: '1x Turkey Sandwich',
-                    description: 'Sliced smoked turkey breast, cheddar cheese, spicy mayo',
-                },
-                {
-                    name: '2x Omelette Plate',
-                    description: 'Fluffy eggs with cheese, served with toast and salad',
-                }
-            ],
-            notes: 'Extra mayo on turkey sandwich, no pickles on omelette plate. Please deliver to front door.'
-        },
-        order2: {
-            date: '30/07/2025 @10:00 am',
-            status: 'Complete',
-            items: [
-                {
-                    name: '1x Turkey Sandwich',
-                    description: 'Sliced smoked turkey breast, cheddar cheese, spicy mayo',
-                }
-            ],
-            notes: 'Regular preparation, no special requests.'
-        }
-    };
-
-    function showOrderDetails(orderId) {
-        const order = orderData[orderId];
-        if (!order) return;
-
-        // Populate modal with order data
-        document.getElementById('modalOrderDate').textContent = order.date;
-        document.getElementById('modalOrderStatus').textContent = order.status;
-        document.getElementById('modalOrderNotes').textContent = order.notes;
-
-        // Populate items
-        const itemsContainer = document.getElementById('modalOrderItems');
-        itemsContainer.innerHTML = '';
-
-        order.items.forEach(item => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'detail-item';
-            itemDiv.innerHTML = `
-                    <div class="item-info">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-description">${item.description}</div>
-                    </div>
-                `;
-            itemsContainer.appendChild(itemDiv);
-        });
-
-        // Show modal
-        const modal = document.getElementById('orderModal');
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-    }
+      })
+      .catch(err => {
+        console.error("Reorder failed", err);
+        alert("Error reordering item: " + err.message);
+      });
+    });
+  });
+}
 
 
 
-    // Initialize button state
-    updateReorderButton();
+
+   window.addEventListener("DOMContentLoaded", () => {
+  const defaultBtn = document.querySelector(".filter-btn.active");
+  filterOrders("pending", defaultBtn);
+});
+
 </script>
+
+
+
 </body>
 </html>
