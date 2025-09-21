@@ -11,6 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -18,10 +19,12 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
+
 
 @WebServlet({"/menu-items", "/menu-items/*"})
 @MultipartConfig(
@@ -65,6 +68,27 @@ public class MenuServlet extends HttpServlet {
         String todaysSpecialParam = request.getParameter("todaysSpecial");
         String type = request.getParameter("item_type");
         String searchTerm = request.getParameter("search");
+        String itemIdParam = request.getParameter("item_id");
+
+        // Check for single item request by ID
+        if (itemIdParam != null && !itemIdParam.trim().isEmpty()) {
+            try {
+                int itemId = Integer.parseInt(itemIdParam);
+                MenuItem item = menuDAO.getMenuItemById(itemId);
+                if (item != null) {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.getWriter().write(gson.toJson(List.of(item))); // Return as array for consistency
+                } else {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    response.getWriter().write(gson.toJson(List.of()));
+                }
+                return;
+            } catch (NumberFormatException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write(gson.toJson(Map.of("error", "Invalid item ID format")));
+                return;
+            }
+        }
 
         if ("true".equalsIgnoreCase(todaysSpecialParam)) {
             MenuItem special = menuDAO.getTodaysSpecial();
@@ -157,14 +181,13 @@ public class MenuServlet extends HttpServlet {
 
                 boolean available = "true".equalsIgnoreCase(availableStr);
 
-                String photoFileName = null;
+                String photoUrl = null;
                 Part photoPart = request.getPart("photo");
                 if (photoPart != null && photoPart.getSize() > 0) {
-                    // No old photo since it's a new item
-                    photoFileName = saveUploadedFile(photoPart, request, null);
+                    photoUrl = saveUploadedFile(photoPart, request);
                 }
 
-                newItem = new MenuItem(0, name, description, available, type, category, photoFileName, false);
+                newItem = new MenuItem(0, name, description, available, type, category, photoUrl, false);
             } else {
                 // Handle JSON data (for backward compatibility)
                 newItem = gson.fromJson(request.getReader(), MenuItem.class);
@@ -221,7 +244,6 @@ public class MenuServlet extends HttpServlet {
         }
     }
 
-
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -248,33 +270,21 @@ public class MenuServlet extends HttpServlet {
                 boolean available = "true".equalsIgnoreCase(availableStr);
                 boolean removePhoto = "true".equalsIgnoreCase(removePhotoStr);
 
-                // Get the existing item to retrieve its old photo
-                MenuItem existingItem = menuDAO.getMenuItemById(id);
-                if (existingItem == null) {
-                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    response.getWriter().write(gson.toJson(
-                            Map.of("success", false, "message", "Item not found")
-                    ));
-                    return;
-                }
-
-                String oldPhotoFileName = existingItem.getPhotoUrl();
-                String photoFileName = oldPhotoFileName; // default = keep old photo
-
+                String photoUrl = null;
                 Part photoPart = request.getPart("photo");
                 if (photoPart != null && photoPart.getSize() > 0) {
-                    // Upload new photo and delete old one
-                    photoFileName = saveUploadedFile(photoPart, request, oldPhotoFileName);
+                    photoUrl = saveUploadedFile(photoPart, request);
                 } else if (removePhoto) {
-                    // Delete old photo and clear reference
-                    if (oldPhotoFileName != null && !oldPhotoFileName.isEmpty()) {
-                        // delete only
-                        saveUploadedFile(null, request, oldPhotoFileName);
+                    photoUrl = null;
+                } else {
+                    // If no new photo uploaded and not removing, keep the existing photo URL
+                    MenuItem existingItem = menuDAO.getMenuItemById(id);
+                    if (existingItem != null) {
+                        photoUrl = existingItem.getPhotoUrl();
                     }
-                    photoFileName = null;
                 }
 
-                updatedItem = new MenuItem(id, name, description, available, type, category, photoFileName, false);
+                updatedItem = new MenuItem(id, name, description, available, type, category, photoUrl, false);
             } else {
                 // Handle JSON data
                 updatedItem = gson.fromJson(request.getReader(), MenuItem.class);
@@ -315,7 +325,6 @@ public class MenuServlet extends HttpServlet {
         }
     }
 
-
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -337,14 +346,6 @@ public class MenuServlet extends HttpServlet {
         try {
             int id = Integer.parseInt(idParam);
             System.out.println("Attempting to delete item with ID: " + id);
-
-            // Before deleting DB entry, fetch it to remove its photo file
-            MenuItem itemToDelete = menuDAO.getMenuItemById(id);
-            if (itemToDelete != null && itemToDelete.getPhotoUrl() != null) {
-                // delete file(s)
-                saveUploadedFile(null, request, itemToDelete.getPhotoUrl());
-            }
-
             boolean deleted = menuDAO.deleteMenuItem(id);
             System.out.println("DAO deleteMenuItem returned: " + deleted);
 
@@ -384,6 +385,7 @@ public class MenuServlet extends HttpServlet {
         if (item.getName() == null || item.getName().trim().isEmpty()) {
             return "Item name is required";
         }
+
 
         if (item.getCategory() == null || item.getCategory().trim().isEmpty()) {
             return "Item category is required";
@@ -462,111 +464,48 @@ public class MenuServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Saves a new uploaded file (to both project and deployed folders) OR deletes an existing file.
-     *
-     * Modes:
-     *  - Upload new: provide non-null filePart and oldFileName (oldFileName may be null) -> deletes old (if provided) and saves new.
-     *  - Delete only: provide filePart == null and oldFileName != null -> deletes old file and returns null.
-     *  - No-op: filePart == null and oldFileName == null -> returns null.
-     *
-     * Returns the stored filename (not a URL) on upload, or null if delete-only or nothing saved.
-     */
-    private String saveUploadedFile(Part filePart, HttpServletRequest request, String oldFileName) throws IOException {
-        // Project path (development)
-        String projectPath = "C:/Users/omarb/OneDrive/Desktop/All For One Buffet App/src/main/webapp/Images";
-
-        // Deployed path (runtime). May be null in some containers, so fallback to projectPath.
-        String deployPath = request.getServletContext().getRealPath("/Images");
-        if (deployPath == null || deployPath.trim().isEmpty()) {
-            deployPath = projectPath;
-        }
-
-        // Ensure directories exist
-        new File(projectPath).mkdirs();
-        new File(deployPath).mkdirs();
-
-        // Helper: normalize old filename to just filename (in case DB stored a URL or path)
-        String oldBaseName = null;
-        if (oldFileName != null && !oldFileName.trim().isEmpty()) {
-            oldBaseName = Paths.get(oldFileName).getFileName().toString();
-        }
-
-        // CASE: upload new file (with optional old deletion)
-        if (filePart != null && filePart.getSize() > 0) {
-            String fileName = filePart.getSubmittedFileName();
-            if (fileName == null || fileName.trim().isEmpty()) {
-                return null;
-            }
-
-            String contentType = filePart.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                throw new IOException("Only image files are allowed");
-            }
-
-            if (filePart.getSize() > 50L * 1024L * 1024L) {
-                throw new IOException("File size exceeds 50MB limit");
-            }
-
-            // Create unique filename
-            String sanitizedFileName = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
-            String uniqueFileName = System.currentTimeMillis() + "_" + sanitizedFileName;
-
-            // Compress image to bytes
-            byte[] compressedData = compressImageTo700KB(filePart.getInputStream());
-
-            // Write to both project and deploy folders
-            Path projectTarget = Paths.get(projectPath, uniqueFileName);
-            Path deployTarget = Paths.get(deployPath, uniqueFileName);
-            Files.write(projectTarget, compressedData);
-            Files.write(deployTarget, compressedData);
-
-            // Delete old files (if any)
-            if (oldBaseName != null) {
-                File oldInProject = new File(projectPath, oldBaseName);
-                if (oldInProject.exists()) {
-                    boolean d = oldInProject.delete();
-                    System.out.println("Deleted old image in project path: " + oldInProject.getAbsolutePath() + " -> " + d);
-                } else {
-                    System.out.println("Old image not found in project path: " + oldInProject.getAbsolutePath());
-                }
-
-                File oldInDeploy = new File(deployPath, oldBaseName);
-                if (oldInDeploy.exists()) {
-                    boolean d2 = oldInDeploy.delete();
-                    System.out.println("Deleted old image in deploy path: " + oldInDeploy.getAbsolutePath() + " -> " + d2);
-                } else {
-                    System.out.println("Old image not found in deploy path: " + oldInDeploy.getAbsolutePath());
-                }
-            }
-
-            // Return filename (store only the filename in DB)
-            return uniqueFileName;
-        }
-
-        // CASE: delete-only (filePart == null and oldFileName provided)
-        if (filePart == null && oldBaseName != null) {
-            File oldInProject = new File(projectPath, oldBaseName);
-            if (oldInProject.exists()) {
-                boolean d = oldInProject.delete();
-                System.out.println("Deleted old image in project path (delete-only): " + oldInProject.getAbsolutePath() + " -> " + d);
-            } else {
-                System.out.println("Old image not found in project path (delete-only): " + oldInProject.getAbsolutePath());
-            }
-
-            File oldInDeploy = new File(deployPath, oldBaseName);
-            if (oldInDeploy.exists()) {
-                boolean d2 = oldInDeploy.delete();
-                System.out.println("Deleted old image in deploy path (delete-only): " + oldInDeploy.getAbsolutePath() + " -> " + d2);
-            } else {
-                System.out.println("Old image not found in deploy path (delete-only): " + oldInDeploy.getAbsolutePath());
-            }
-
+    private String saveUploadedFile(Part filePart, HttpServletRequest request) throws IOException {
+        String fileName = filePart.getSubmittedFileName();
+        if (fileName == null || fileName.trim().isEmpty()) {
             return null;
         }
 
-        // Nothing to do
-        return null;
+        String contentType = filePart.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IOException("Only image files are allowed");
+        }
+
+        if (filePart.getSize() > 50 * 1024 * 1024) { // Increased from 10MB to 50MB limit
+            throw new IOException("File size exceeds 50MB limit"); // Updated error message
+        }
+
+        // Create unique filename to avoid conflicts
+        String fileExtension = "";
+        int lastDotIndex = fileName.lastIndexOf('.');
+        if (lastDotIndex > 0) {
+            fileExtension = fileName.substring(lastDotIndex);
+        }
+
+        String sanitizedFileName = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String uniqueFileName = System.currentTimeMillis() + "_" + sanitizedFileName;
+
+        // Get the real path to the webapp directory
+        String uploadPath = request.getServletContext().getRealPath("/") + "Images";
+
+        // Create directory if it doesn't exist
+        File uploadDir = new File(uploadPath);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
+
+        byte[] compressedImageData = compressImageTo700KB(filePart.getInputStream());
+
+        // Save the compressed file
+        Path filePath = Paths.get(uploadPath, uniqueFileName);
+        Files.write(filePath, compressedImageData);
+
+        // Return the URL path that can be used by the frontend
+        return request.getContextPath() + "/Images/" + uniqueFileName;
     }
 
     private byte[] compressImageTo700KB(InputStream inputStream) throws IOException {
@@ -649,4 +588,6 @@ public class MenuServlet extends HttpServlet {
 
         return baos.toByteArray();
     }
+
+
 }
