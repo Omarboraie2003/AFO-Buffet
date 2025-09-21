@@ -98,6 +98,7 @@ public class OrdersServlet extends HttpServlet {
             frontendOrder.items = new ArrayList<>();
             for (OrderItemDetail item : order.getItems()) {
                 FrontendItemDTO frontendItem = new FrontendItemDTO();
+
                 frontendItem.itemName = item.getItemName();
                 frontendItem.typeOfBread = item.getTypeOfBread();
                 frontendItem.quantity = item.getQuantity();
