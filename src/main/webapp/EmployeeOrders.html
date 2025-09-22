@@ -692,7 +692,15 @@
     document.addEventListener("DOMContentLoaded", () => {
         loadOrders();
     });
+ function formatQuantity(qtyStr) {
+    const map = {
+        "one": "1",
 
+        "half": "½",
+
+    };
+    return map[qtyStr.toLowerCase()] || qtyStr; // fallback: show as-is if not in map
+}
     async function loadOrders() {
     try {
         const [activeRes, completedRes] = await Promise.all([
@@ -731,9 +739,14 @@ orderItem.innerHTML = `
               <div class="order-status">Status: ${order.status}</div>
           </div>
       </div>
-      <div class="order-items">
-          ${order.items.map(i => `<p>${i.quantity}x ${i.itemName}</p>`).join("")}
-      </div>
+
+
+<div class="order-items">
+  ${order.items.map(i => `<p>${formatQuantity(i.quantity)}x ${i.itemName}</p>`).join("")}
+</div>
+
+
+
       <a href="#" class="view-more" onclick="showOrderDetails(${index})">view more</a>
   </div>
 `;
