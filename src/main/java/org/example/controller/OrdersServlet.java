@@ -9,6 +9,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.model.Order.OrderDAO;
 import org.example.model.Order.OrderDetailsDTO;
 import org.example.model.Order.OrderItemDetail;
+import org.example.model.ItemInOrder.ItemInOrderDAO;
+import org.example.model.ItemInOrder.ItemInOrderModel;
+
+
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -51,6 +55,33 @@ public class OrdersServlet extends HttpServlet {
                 System.out.println("[OrdersServlet] Returned " + frontendOrders.size() + " completed orders to frontend");
                 return;
             }
+            // ✅ Add a reorder endpoint
+            if (pathInfo != null && pathInfo.startsWith("/reorder")) {
+                String orderIdParam = request.getParameter("orderId");
+                if (orderIdParam == null) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().write("{\"error\": \"Missing orderId parameter\"}");
+                    return;
+                }
+
+                int orderId = Integer.parseInt(orderIdParam);
+
+                // Call DAO method to fetch the items for reorder
+                List<ItemInOrderModel> itemsToReorder = ItemInOrderDAO.getItemsInOrder2(orderId);
+
+                if (itemsToReorder == null || itemsToReorder.isEmpty()) {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    response.getWriter().write("{\"error\": \"No items found for reorder\"}");
+                    return;
+                }
+
+                String jsonResponse = gson.toJson(itemsToReorder);
+                response.getWriter().write(jsonResponse);
+
+                System.out.println("[OrdersServlet] Returned reorder items for orderId=" + orderId);
+                return;
+            }
+
 
             // Get all active order details (excluding completed)
             ArrayList<OrderDetailsDTO> orderDetails = OrderDAO.getAllOrderDetails();

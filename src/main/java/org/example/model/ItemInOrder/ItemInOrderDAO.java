@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ItemInOrderDAO {
     //todo: delete
@@ -57,6 +58,7 @@ public class ItemInOrderDAO {
                     rs.getString("type_of_bread"),
                     rs.getString("quantity"),
                     rs.getString("item_note"));
+
             }
         } catch (SQLException e) {e.printStackTrace();}
         return null;
@@ -89,6 +91,7 @@ public class ItemInOrderDAO {
                         rs.getString("type_of_bread"),
                         rs.getString("quantity"),
                         rs.getString("item_note")));
+
             }
         } catch (SQLException e) {e.printStackTrace();}
         return items;
@@ -140,4 +143,39 @@ public class ItemInOrderDAO {
         } catch (SQLException e) {e.printStackTrace();}
         return false;
     }
+    public static List<ItemInOrderModel> getItemsInOrder2(int orderId) {
+        List<ItemInOrderModel> items = new ArrayList<>();
+        String sql = "SELECT ioi.item_in_order_id, m.item_id, m.item_name, " +
+                "ioi.type_of_bread, ioi.quantity, ioi.item_note " +
+                "FROM ItemsInOrder ioi " +
+                "JOIN MenuItems m ON ioi.item_id = m.item_id " +
+                "WHERE ioi.order_id = ?";
+
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, orderId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                ItemInOrderModel item = new ItemInOrderModel(
+                        rs.getInt("item_in_order_id"),
+                        rs.getInt("item_id"),
+                        rs.getString("type_of_bread"),
+                        rs.getString("quantity"),
+                        rs.getString("item_note"),
+                        rs.getString("item_name") // ✅ now included
+
+                );
+                items.add(item);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return items;
+    }
+
+
 }

@@ -726,8 +726,10 @@ window.employeeOrders = orders;
 
 
 orderItem.innerHTML = `
-  <div class="order-checkbox"
+
+      <div class="order-checkbox"
        onclick="toggleOrderSelection(this)"
+       data-order-id="${order.orderId}"
        data-items='${JSON.stringify(order.items)}'></div>
   <div class="order-details">
       <div class="order-header">
@@ -841,7 +843,6 @@ orderItem.innerHTML = `
         document.getElementById("reorderBtn").disabled = !selected;
     }
 
-
 function reorderSelected() {
   const selectedOrders = document.querySelectorAll(".order-checkbox.selected");
 
@@ -850,47 +851,51 @@ function reorderSelected() {
     return;
   }
 
+  // Process each order sequentially
   selectedOrders.forEach(orderCheckbox => {
-    const items = JSON.parse(orderCheckbox.dataset.items || "[]");
+    const orderId = orderCheckbox.dataset.orderId;
 
-    items.forEach(item => {
-      if (!item.itemId) {
-        console.error("❌ Missing itemId in item:", item);
-        alert("Error: One of the items is missing itemId.");
-        return;
-      }
+    if (!orderId || orderId === "undefined") {
+      console.error("❌ Invalid orderId:", orderId);
+      alert("Error: One of the selected orders has no valid ID.");
+      return;
+    }
 
-      const formData = new URLSearchParams();
-      formData.append("itemId", item.itemId);
-      formData.append("quantity", item.quantity || 1);
-      formData.append("item_note", item.itemNote || "");
-      formData.append("type_of_bread", item.typeOfBread || "");
-
-      fetch("/AllForOneBuffetAPP/manage_cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: formData.toString()
-      })
+    fetch(`/AllForOneBuffetAPP/orders/reorder?orderId=${orderId}`)
       .then(res => {
-        if (!res.ok) {
-          throw new Error("Server responded with " + res.status);
-        }
+        if (!res.ok) throw new Error("Failed to fetch reorder items");
         return res.json();
       })
-      .then(data => {
-        if (data.success) {
-          window.location.href = "/AllForOneBuffetAPP/Cart.html";
-        } else {
-          alert("Failed to add item: " + data.message);
-        }
+      .then(items => {
+        // Collect all fetches for cart additions
+        const addRequests = items.map(item => {
+          const formData = new URLSearchParams();
+          formData.append("itemId", item.itemId || item.item_id);
+          formData.append("quantity", item.quantity || 1);
+          formData.append("item_note", item.itemNote || item.note || "");
+          formData.append("type_of_bread", item.typeOfBread || item.type_of_bread || "");
+          formData.append("itemName", item.itemName || item.item_name || ""); // ✅ include name
+
+          return fetch("/AllForOneBuffetAPP/manage_cart", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString()
+          });
+        });
+
+        // Wait for all cart additions before redirecting
+        return Promise.all(addRequests);
+      })
+      .then(() => {
+        window.location.href = "/AllForOneBuffetAPP/Cart.html";
       })
       .catch(err => {
         console.error("Reorder failed", err);
-        alert("Error reordering item: " + err.message);
+        alert("Error reordering: " + err.message);
       });
-    });
   });
 }
+
 
 
 
